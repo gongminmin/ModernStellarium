@@ -2,9 +2,9 @@
 [![GitHub release](https://img.shields.io/github/release/Stellarium/stellarium.svg)](https://github.com/Stellarium/stellarium/releases/latest)
 [![GitHub Release Date](https://img.shields.io/github/release-date/Stellarium/stellarium.svg)](https://github.com/Stellarium/stellarium/releases/latest)
 [![Github All Releases](https://img.shields.io/github/downloads/Stellarium/stellarium/total.svg)](https://github.com/Stellarium/stellarium/releases)
-[![Coverity Scan](https://img.shields.io/coverity/scan/2098.svg)](https://scan.coverity.com/projects/stellarium-stellarium)
-[![Build Status](https://travis-ci.org/Stellarium/stellarium.svg?branch=master)](https://travis-ci.org/Stellarium/stellarium)
-[![Build status](https://ci.appveyor.com/api/projects/status/sw8j9l8q95ejkalo?svg=true)](https://ci.appveyor.com/project/alex-w/stellarium)
+[![Coverity Scan](https://img.shields.io/coverity/scan/15919.svg)](https://scan.coverity.com/projects/gongminmin-modernstellarium)
+[![Build Status](https://travis-ci.org/gongminmin/ModernStellarium.svg?branch=modern)](https://travis-ci.org/gongminmin/ModernStellarium)
+[![Build status](https://ci.appveyor.com/api/projects/status/ivbo0qeqs35hfry9/branch/modern?svg=true)](https://ci.appveyor.com/project/gongminmin/modernstellarium/branch/modern)
 
 Stellarium is a free open source planetarium for your computer. It shows a realistic sky
 in 3D, just like what you see with the naked eye, binoculars or a telescope.
