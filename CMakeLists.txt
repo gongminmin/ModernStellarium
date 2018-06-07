@@ -111,14 +111,14 @@ ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
 SET(STEL_GCC_C_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-result")
 SET(STEL_GCC_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-result")
 
-# Set whether to try using C++11 when compiling. Required for Qt >= 5.7"
-IF(NOT (CMAKE_VERSION VERSION_LESS 3.1.0))
-     # Let CMake handle setting C++11 (since 3.1)
-     SET(CMAKE_CXX_STANDARD 11)
+# Set whether to try using C++17 when compiling. C++11 is required for Qt >= 5.7"
+IF(NOT (CMAKE_VERSION VERSION_LESS 3.8.0))
+     # Let CMake handle setting C++17 (since 3.8)
+     SET(CMAKE_CXX_STANDARD 17)
      SET(CMAKE_C_STANDARD 11)
 ELSE()
-     # Add std=c++11 to gcc flags
-     SET(STEL_GCC_CXX_FLAGS "-std=c++11 ${STEL_GCC_CXX_FLAGS}")
+     # Add std=c++17 to gcc flags
+     SET(STEL_GCC_CXX_FLAGS "-std=c++17 ${STEL_GCC_CXX_FLAGS}")
      # Add std=c11 to gcc flags
      SET(STEL_GCC_C_FLAGS "-std=c11 ${STEL_GCC_C_FLAGS}")
 ENDIF()
@@ -150,7 +150,7 @@ IF(WIN32)
                ENDFOREACH()
           ENDIF()
           SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${STEL_MSVC_FLAGS}")
-          SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STEL_MSVC_FLAGS}")
+          SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STEL_MSVC_FLAGS} /std:c++17")
           # Additional defines:
           # NOMINMAX So that windows.h does not redefine min and max
           # _CRT_SECURE_NO_WARNINGS Removes warnings about using "insecure" C standard functions like scanf instead of MSVC-specific ones

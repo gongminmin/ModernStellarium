@@ -316,7 +316,7 @@ EllipticalOrbit::EllipticalOrbit(double pericenterDistance,
 }
 
 // Standard iteration for solving Kepler's Equation
-struct SolveKeplerFunc1 : public unary_function<double, double>
+struct SolveKeplerFunc1
 {
 	double ecc;
 	double M;
@@ -333,7 +333,7 @@ struct SolveKeplerFunc1 : public unary_function<double, double>
 // Faster converging iteration for Kepler's Equation; more efficient
 // than above for orbits with eccentricities greater than 0.3.  This
 // is from Jean Meeus's _Astronomical Algorithms_ (2nd ed), p. 199
-struct SolveKeplerFunc2 : public unary_function<double, double>
+struct SolveKeplerFunc2
 {
 	double ecc;
 	double M;
@@ -356,7 +356,7 @@ double sign(double x)
 		return 0.;
 }
 
-struct SolveKeplerLaguerreConway : public unary_function<double, double>
+struct SolveKeplerLaguerreConway
 {
 	double ecc;
 	double M;
@@ -377,7 +377,7 @@ struct SolveKeplerLaguerreConway : public unary_function<double, double>
 	}
 };
 
-struct SolveKeplerLaguerreConwayHyp : public unary_function<double, double>
+struct SolveKeplerLaguerreConwayHyp
 {
 	double ecc;
 	double M;
