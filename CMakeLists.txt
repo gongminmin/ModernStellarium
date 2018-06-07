@@ -117,21 +117,8 @@ ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
 
 # flags shared for gcc-like compilers (also MinGW/Clang)
 # Qt 5.7 requires C++11 support
-SET(STEL_GCC_C_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-result")
-SET(STEL_GCC_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-result")
-
-SET(STELLARIUM_USE_CPP11 1 CACHE BOOL "Set whether to try using C++11 when compiling. Required for Qt >= 5.7")
-IF(STELLARIUM_USE_CPP11)
-     IF(NOT (CMAKE_VERSION VERSION_LESS 3.1.0))
-        # Let CMake handle setting C++11 (since 3.1)
-        SET(CMAKE_CXX_STANDARD 11)
-        SET(CMAKE_C_STANDARD 11)
-     ELSE()
-        # Add std=c++11 to gcc flags
-        SET(STEL_GCC_CXX_FLAGS "-std=c++11 ${STEL_GCC_CXX_FLAGS}")
-     ENDIF()
-
-ENDIF()
+SET(STEL_GCC_C_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-result -std=c11")
+SET(STEL_GCC_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-result -std=c++17")
 
 IF(WIN32)
      # We don't need the extra Windows.h stuff, this may speed up compilation a tiny bit
@@ -151,7 +138,7 @@ IF(WIN32)
           # C4996: deprecated POSIX names (used in zlib)
           SET(STEL_MSVC_FLAGS "/wd4244 /wd4305 /wd4351 /wd4996")
           SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${STEL_MSVC_FLAGS}")
-          SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STEL_MSVC_FLAGS}")
+          SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STEL_MSVC_FLAGS} /std:c++17")
           # Additional defines:
           # NOMINMAX So that windows.h does not redefine min and max
           # _CRT_SECURE_NO_WARNINGS Removes warnings about using "insecure" C standard functions like scanf instead of MSVC-specific ones

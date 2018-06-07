@@ -1253,7 +1253,7 @@ void SolarSystem::computeTransMatrices(double dateJDE, const Vec3d& observerPos)
 }
 
 // And sort them from the furthest to the closest to the observer
-struct biggerDistance : public std::binary_function<PlanetP, PlanetP, bool>
+struct biggerDistance
 {
 	bool operator()(PlanetP p1, PlanetP p2)
 	{
@@ -1277,7 +1277,7 @@ void SolarSystem::draw(StelCore* core)
 	}
 
 	// And sort them from the furthest to the closest
-	sort(systemPlanets.begin(),systemPlanets.end(),biggerDistance());
+	std::sort(systemPlanets.begin(),systemPlanets.end(),biggerDistance());
 
 	if (trailFader.getInterstate()>0.0000001f)
 	{

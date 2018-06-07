@@ -1,5 +1,8 @@
 version: '{branch}-{build}'
-image: Visual Studio 2015
+branches:
+  only:
+  - modern
+image: Visual Studio 2017
 configuration: Release
 clone_depth: 5
 clone_folder: c:\stellarium
@@ -7,20 +10,12 @@ environment:
   matrix:
   - platform: x64
     qtver: 5.9.5
-    qtbin: msvc2015_64
-    msvcname: Visual Studio 14 2015 Win64
-  - platform: Win32
-    qtver: 5.9.5
-    qtbin: msvc2015
-    msvcname: Visual Studio 14 2015
+    qtbin: msvc2017_64
+    msvcname: Visual Studio 15 2017 Win64
   - platform: x64
     qtver: 5.10.1
-    qtbin: msvc2015_64
-    msvcname: Visual Studio 14 2015 Win64
-  - platform: Win32
-    qtver: 5.10.1
-    qtbin: msvc2015
-    msvcname: Visual Studio 14 2015
+    qtbin: msvc2017_64
+    msvcname: Visual Studio 15 2017 Win64
 before_build:
 - cmd: >-
     set PATH=C:\Qt\%qtver%\%qtbin%\bin;%PATH%
@@ -36,11 +31,3 @@ build:
   verbosity: minimal
 test_script:
 - cmd: ctest --output-on-failure
-notifications:
-- provider: Email
-  to:
-  - mcardinot@gmail.com
-  - alex.v.wolf@gmail.com
-  on_build_success: false
-  on_build_failure: true
-  on_build_status_changed: true
