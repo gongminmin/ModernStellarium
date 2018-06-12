@@ -441,7 +441,7 @@ void StelSkyImageTile::loadFromQVariantMap(const QVariantMap& map)
 	for (int i=0;i<polyList.size();++i)
 	{
 		const QVariant& polyRaDec = polyList.at(i);
-		QVector<Vec3d> vertices;
+		std::vector<Vec3d> vertices;
 		for (const auto& vRaDec : polyRaDec.toList())
 		{
 			const QVariantList vl = vRaDec.toList();
@@ -449,18 +449,18 @@ void StelSkyImageTile::loadFromQVariantMap(const QVariantMap& map)
 			StelUtils::spheToRect(vl.at(0).toFloat(&ok)*M_PI/180.f, vl.at(1).toFloat(&ok)*M_PI/180.f, v);
 			if (!ok)
 				throw std::runtime_error("wrong Ra and Dec, expect a double value");
-			vertices.append(v);
+			vertices.push_back(v);
 		}
 		Q_ASSERT(vertices.size()==4);
 
 		if (!texCoordList.isEmpty())
 		{
 			const QVariant& polyXY = texCoordList.at(i);
-			QVector<Vec2f> texCoords;
+			std::vector<Vec2f> texCoords;
 			for (const auto& vXY : polyXY.toList())
 			{
 				const QVariantList vl = vXY.toList();
-				texCoords.append(Vec2f(vl.at(0).toFloat(&ok), vl.at(1).toFloat(&ok)));
+				texCoords.push_back(Vec2f(vl.at(0).toFloat(&ok), vl.at(1).toFloat(&ok)));
 				if (!ok)
 					throw std::runtime_error("wrong X and Y, expect a double value");
 			}

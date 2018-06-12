@@ -79,7 +79,7 @@ private:
 	bool isConnecting;
 	SyncRemotePeer* server;
 	int timeoutTimerId;
-	QVector<SyncMessageHandler*> handlerList;
+	std::vector<SyncMessageHandler*> handlerList;
 
 	friend class ClientErrorHandler;
 };

@@ -39,6 +39,8 @@
 #include <QColor>
 #include <QSettings>
 #include <QMouseEvent>
+
+#include <array>
 #include <cmath>
 
 //! This method is the one called automatically by the StelModuleMgr just
@@ -318,7 +320,7 @@ void ArchaeoLines::update(double deltaTime)
 	double rhoSinPhiP=b_over_a*std::sin(u)+loc.altitude/6378140.0*std::sin(latRad);
 	double rhoCosPhiP=         std::cos(u)+loc.altitude/6378140.0*std::cos(latRad);
 
-	QVector<double> lunarDE(8), sinPi(8);
+	std::array<double, 8> lunarDE, sinPi;
 	lunarDE[0]=(eps+lunarI)*M_PI/180.0; // min_distance=max_parallax
 	lunarDE[1]=(eps+lunarI)*M_PI/180.0;
 	lunarDE[2]=(eps-lunarI)*M_PI/180.0;
@@ -334,14 +336,14 @@ void ArchaeoLines::update(double deltaTime)
 
 	// In the following we compute parallax-corrected declinations of the setting moon for max and min distances.
 	// odd indices for max_distance=min_parallax, even indices for min_distance=max_parallax. References are for Meeus AstrAlg 1998.
-	QVector<double> cosHo(8), sinHo(8); // setting hour angles.
+	std::array<double, 8> cosHo, sinHo; // setting hour angles.
 	for (int i=0; i<8; i++){
 		cosHo[i]=qMax(-1.0, qMin(1.0, -std::tan(latRad)*std::tan(lunarDE[i])));
 		sinHo[i]=std::sin(std::acos(cosHo[i]));
 	}
 
 	// 40.6
-	QVector<double> A(8), B(8), C(8), q(8), lunarDEtopo(8);
+	std::array<double, 8> A, B, C, q, lunarDEtopo;
 	for (int i=0; i<8; i++){
 		A[i]=std::cos(lunarDE[i])*sinHo[i];
 		B[i]=std::cos(lunarDE[i])*cosHo[i]-rhoCosPhiP*sinPi[i];

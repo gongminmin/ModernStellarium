@@ -103,8 +103,8 @@ private:
 	struct Node
 	{
 		virtual ~Node() {;}
-		QVector<NodeElem> elements;
-		QVector<Node> children;
+		std::vector<NodeElem> elements;
+		std::vector<Node> children;
 		SphericalConvexPolygon triangle;
 		//! Split each triangles in to 4 subtriangles.
 		virtual void split()
@@ -174,7 +174,7 @@ private:
 				{
 					node.triangle = SphericalConvexPolygon(vertice[verticeIndice[i][0]], vertice[verticeIndice[i][1]], vertice[verticeIndice[i][2]]);
 					Q_ASSERT(node.triangle.checkValid());
-					children.append(node);
+					children.push_back(node);
 				}
 			}
 
@@ -217,17 +217,17 @@ private:
 			//! Insert the given element in the given node.
 			void insert(Node& node, const NodeElem& el, int level)
 			{
-				if (node.children.isEmpty())
+				if (node.children.empty())
 				{
-					node.elements.append(el);
+					node.elements.push_back(el);
 					// If we have too many objects in the node, we split it.
-					if (level<maxLevel && node.elements.size() > maxObjectsPerNode)
+					if (level<maxLevel && static_cast<int>(node.elements.size()) > maxObjectsPerNode)
 					{
 						node.split();
-						const QVector<NodeElem> nodeElems = node.elements;
+						const std::vector<NodeElem> nodeElems = node.elements;
 						node.elements.clear();
 						// Re-insert the elements
-						for (QVector<NodeElem>::ConstIterator iter = nodeElems.constBegin();iter != nodeElems.constEnd(); ++iter)
+						for (std::vector<NodeElem>::const_iterator iter = nodeElems.cbegin();iter != nodeElems.cend(); ++iter)
 						{
 							insert(node, *iter, level);
 						}
@@ -245,7 +245,7 @@ private:
 					}
 				}
 				// Else store it here
-				node.elements.append(el);
+				node.elements.push_back(el);
 			}
 
 			//! Process all the objects intersecting the given region using the passed function object.

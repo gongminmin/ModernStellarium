@@ -960,8 +960,8 @@ void Satellite::drawOrbit(StelCore *core, StelPainter& painter)
 	Vec3f drawColor;
 	int size = orbitPoints.size();
 
-	QVector<Vec3d> vertexArray;
-	QVector<Vec4f> colorArray;
+	std::vector<Vec3d> vertexArray;
+	std::vector<Vec4f> colorArray;
 	StelProjectorP prj = painter.getProjector();
 
 	vertexArray.resize(size);
@@ -975,9 +975,9 @@ void Satellite::drawOrbit(StelCore *core, StelPainter& painter)
 
 		if (prj->project(position, onscreen)) // check position on the screen
 		{
-			vertexArray.append(position);
+			vertexArray.push_back(position);
 			drawColor = (visibilityPoints[i] == gSatWrapper::VISIBLE) ? orbitColor : invisibleSatelliteColor;
-			colorArray.append(Vec4f(drawColor[0], drawColor[1], drawColor[2], hintBrightness * calculateOrbitSegmentIntensity(i)));
+			colorArray.push_back(Vec4f(drawColor[0], drawColor[1], drawColor[2], hintBrightness * calculateOrbitSegmentIntensity(i)));
 		}
 	}
 	painter.drawPath(vertexArray, colorArray); // (does client state switching as needed internally)

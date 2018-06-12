@@ -18,7 +18,7 @@
  */
 
 #include "StelSphericalIndex.hpp"
-#include <QVector>
+#include <vector>
 
 StelSphericalIndex::StelSphericalIndex(int maxObjPerNode, int maxLevel) : maxObjectsPerNode(maxObjPerNode)
 {

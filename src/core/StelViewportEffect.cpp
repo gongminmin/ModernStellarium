@@ -233,9 +233,9 @@ StelViewportDistorterFisheyeToSphericMirror::StelViewportDistorterFisheyeToSpher
 		}
 		for (int i=0;i<=max_x;i++,t0++,t1++,v0++,v1++)
 		{
-			displayColorList << v0->color << v1->color;
-			displayTexCoordList << *t0 << *t1;
-			displayVertexList << v0->ver_xy << v1->ver_xy;
+			displayColorList.insert(displayColorList.end(), { v0->color, v1->color });
+			displayTexCoordList.insert(displayTexCoordList.end(), { *t0, *t1 });
+			displayVertexList.insert(displayVertexList.end(), { v0->ver_xy, v1->ver_xy });
 		}
 	}
 	delete[] vertex_point_array;
@@ -334,9 +334,9 @@ void StelViewportDistorterFisheyeToSphericMirror::paintViewportBuffer(const QOpe
 	sPainter.setBlending(false);
 
 	sPainter.enableClientStates(true, true, true);
-	sPainter.setColorPointer(4, GL_FLOAT, displayColorList.constData());
-	sPainter.setVertexPointer(2, GL_FLOAT, displayVertexList.constData());
-	sPainter.setTexCoordPointer(2, GL_FLOAT, displayTexCoordList.constData());
+	sPainter.setColorPointer(4, GL_FLOAT, displayColorList.data());
+	sPainter.setVertexPointer(2, GL_FLOAT, displayVertexList.data());
+	sPainter.setTexCoordPointer(2, GL_FLOAT, displayTexCoordList.data());
 	for (int j=0;j<max_y;j++)
 	{
 		GL(gl->glDrawArrays(GL_TRIANGLE_STRIP, j*(max_x+1)*2, (max_x+1)*2));

@@ -21,11 +21,12 @@
 #ifndef _ASTROCALCDIALOG_HPP_
 #define _ASTROCALCDIALOG_HPP_
 
+#include <vector>
+
 #include <QObject>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QMap>
-#include <QVector>
 #include <QTimer>
 
 #include "StelDialog.hpp"
@@ -101,9 +102,9 @@ public:
 	//! Notify that the application style changed
 	void styleChanged();
 
-	static QVector<Vec3d> EphemerisListCoords;
-	static QVector<QString> EphemerisListDates;
-	static QVector<float> EphemerisListMagnitudes;
+	static std::vector<Vec3d> EphemerisListCoords;
+	static std::vector<QString> EphemerisListDates;
+	static std::vector<float> EphemerisListMagnitudes;
 	static int DisplayedPositionIndex;
 
 public slots:

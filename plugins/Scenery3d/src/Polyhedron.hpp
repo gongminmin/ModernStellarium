@@ -35,14 +35,14 @@ public:
 	~Polyhedron();
 
 	//! Vector holding all polygons of this polyhedron
-	QVector<SPolygon> polygons;
+	std::vector<SPolygon> polygons;
 
 	//! Adds a frustum to this polyhedron
 	void add(const Frustum& f);
 	//! Adds a polygon to this polyhedron
 	void add(const SPolygon& p);
 	//! Adds a polygon to this polyhedron
-	void add(const QVector<Vec3f> &verts, const Vec3f &normal);
+	void add(const std::vector<Vec3f>& verts, const Vec3f& normal);
 
 	//! Intersect this polyhedron with the specified bounding box
 	void intersect(const AABBox &bb);
@@ -55,7 +55,7 @@ public:
 	//! Returns the unique vertices count
 	int getVertCount() const;
 	//! Returns the unique vertices
-	const QVector<Vec3f> &getVerts() const;
+	const std::vector<Vec3f>& getVerts() const;
 	//! Makes the unique vertices vector
 	void makeUniqueVerts();
 
@@ -66,11 +66,11 @@ public:
 	//Box debugBox;
 private:
 	//! Vector holding all unique vertices of this polyhedron
-	QVector<Vec3f> uniqueVerts;
+	std::vector<Vec3f> uniqueVerts;
 	//! Adds the vertex if it's unique
 	void addUniqueVert(const Vec3f &v);
 	//! Intersect for extrude()
-	void intersect(const Line &l, const Vec3f &min, const Vec3f &max, QVector<Vec3f> &vertices);
+	void intersect(const Line& l, const Vec3f& min, const Vec3f& max, std::vector<Vec3f>& vertices);
 	//! Clip for extrude()
 	bool clip(float p, float q, float &u1, float &u2) const;
 };

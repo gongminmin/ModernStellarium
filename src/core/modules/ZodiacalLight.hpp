@@ -21,7 +21,7 @@
 #ifndef _ZODIACALLIGHT_
 #define _ZODIACALLIGHT_
 
-#include <QVector>
+#include <vector>
 #include "StelModule.hpp"
 #include "VecMath.hpp"
 #include "StelTextureTypes.hpp"
@@ -133,7 +133,7 @@ private:
 	double lastJD; // keep date of last computation. Position will be updated only if far enough away from last computation.
 
 	struct StelVertexArray* vertexArray;
-	QVector<Vec3d> eclipticalVertices;
+	std::vector<Vec3d> eclipticalVertices;
 };
 
 #endif // _ZODIACALLIGHT_HPP_

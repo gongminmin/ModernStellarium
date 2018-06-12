@@ -102,7 +102,7 @@ public:
 	virtual void draw(StelPainter* sPainter, int index,bool is_inside,
 					  const RCMag* rcmag_table, int limitMagIndex, StelCore* core,
 					  int maxMagStarName, float names_brightness,
-					  const QVector<SphericalCap>& boundingCaps) const = 0;
+					  const std::vector<SphericalCap>& boundingCaps) const = 0;
 
 	//! Get whether or not the catalog was successfully loaded.
 	//! @return @c true if at least one zone was loaded, otherwise @c false
@@ -182,7 +182,7 @@ protected:
 	virtual void draw(StelPainter* sPainter, int index, bool isInsideViewport,
 			  const RCMag *rcmag_table, int limitMagIndex, StelCore* core,
 			  int maxMagStarName, float names_brightness,
-			  const QVector<SphericalCap>& boundingCaps) const;
+			  const std::vector<SphericalCap>& boundingCaps) const;
 
 	virtual void scaleAxis();
 	virtual void searchAround(const StelCore* core, int index,const Vec3d &v,double cosLimFov,

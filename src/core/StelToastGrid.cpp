@@ -87,13 +87,13 @@ void ToastGrid::init_grid(int level, int x, int y, bool side)
 }
 
 
-QVector<Vec3d> ToastGrid::getVertexArray(int level, int x, int y, int resolution) const
+std::vector<Vec3d> ToastGrid::getVertexArray(int level, int x, int y, int resolution) const
 {
 	Q_ASSERT(resolution >= level);
 	Q_ASSERT(resolution <= maxLevel);
 	// The size of the returned array
 	int size = pow2(resolution - level) + 1;
-	QVector<Vec3d> ret;
+	std::vector<Vec3d> ret;
 	ret.reserve(size * size);
 	// Compute the real position in the grid
 	int scale = pow2(maxLevel - level);
@@ -105,15 +105,15 @@ QVector<Vec3d> ToastGrid::getVertexArray(int level, int x, int y, int resolution
 	{
 		for (int j = 0; j < size; j++)
 		{
-			ret.append(at(x + j * step, y + i * step));
+			ret.push_back(at(x + j * step, y + i * step));
 		}
 	}
-	Q_ASSERT(ret.size() == size * size);
+	Q_ASSERT(ret.size() == static_cast<size_t>(size * size));
 	return ret;
 }
 
 
-QVector<Vec2f> ToastGrid::getTextureArray(int level, int x, int y, int resolution) const
+std::vector<Vec2f> ToastGrid::getTextureArray(int level, int x, int y, int resolution) const
 {
 	Q_UNUSED(x);
 	Q_UNUSED(y);
@@ -121,21 +121,21 @@ QVector<Vec2f> ToastGrid::getTextureArray(int level, int x, int y, int resolutio
 	Q_ASSERT(resolution <= maxLevel);
 	// The size of the returned array
 	int size = pow2(resolution - level) + 1;
-	QVector<Vec2f> ret;
+	std::vector<Vec2f> ret;
 	ret.reserve(size * size);
 	for (int i = size-1; i >= 0; i--)
 	{
 		for (int j = 0; j < size; j++)
 		{
-			ret.append(Vec2f(j,i) / (size-1));
+			ret.push_back(Vec2f(j,i) / (size-1));
 		}
 	}
-	Q_ASSERT(ret.size() == size * size);
+	Q_ASSERT(ret.size() == static_cast<size_t>(size * size));
 	return ret;
 }
 
 
-QVector<unsigned short> ToastGrid::getTrianglesIndex(int level, int x, int y, int resolution) const
+std::vector<unsigned short> ToastGrid::getTrianglesIndex(int level, int x, int y, int resolution) const
 {
 	Q_ASSERT(resolution >= level);
 	Q_ASSERT(resolution <= maxLevel);
@@ -144,34 +144,38 @@ QVector<unsigned short> ToastGrid::getTrianglesIndex(int level, int x, int y, in
 	// If we are in the top right or the bottom left quadrant we invert the diagonal of the triangles.
 	int middleIndex = pow2(level) / 2;
 	bool invert = (x >= middleIndex) == (y >= middleIndex);
-	QVector<unsigned short> ret;
+	std::vector<unsigned short> ret;
 	ret.reserve(nbTiles * 6);
 	for (int i = 0; i < size - 1; ++i)
 	{
 		for (int j = 0; j < size - 1; ++j)
 		{
 			Q_ASSERT(i * size + j <= std::numeric_limits<short>::max());
-			unsigned int a = i * size + j;
-			unsigned int b = (i + 1) * size + j;
-			unsigned int c = (i + 1) * size + j + 1;
-			unsigned int d = i * size + j + 1;
+			unsigned short a = i * size + j;
+			unsigned short b = (i + 1) * size + j;
+			unsigned short c = (i + 1) * size + j + 1;
+			unsigned short d = i * size + j + 1;
 			if (!invert)
-				ret << b << c << a << c << d << a;
+				ret.insert(ret.end(), { b, c, a, c, d, a });
 			else
-				ret << b << d << a << d << b << c;
+				ret.insert(ret.end(), { b, d, a, d, b, c });
 		}
 	}
 
-	Q_ASSERT(ret.size() == nbTiles * 6);
+	Q_ASSERT(ret.size() == static_cast<size_t>(nbTiles * 6));
 	return ret;
 }
 
 
-QVector<Vec3d> ToastGrid::getPolygon(int level, int x, int y) const
+std::vector<Vec3d> ToastGrid::getPolygon(int level, int x, int y) const
 {
-	QVector<Vec3d> array = getVertexArray(level, x, y, level);
-	QVector<Vec3d> ret;
-	ret.reserve(4);
-	ret << array[2] << array[3] << array[1] << array[0];
+	std::vector<Vec3d> array = getVertexArray(level, x, y, level);
+	std::vector<Vec3d> ret =
+	{
+		array[2],
+		array[3],
+		array[1],
+		array[0]
+	};
 	return ret;
 }

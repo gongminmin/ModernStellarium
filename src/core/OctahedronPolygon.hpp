@@ -23,7 +23,8 @@
 #include "StelVertexArray.hpp"
 #include "VecMath.hpp"
 
-#include <QVector>
+#include <vector>
+
 #include <QDebug>
 #include <QVarLengthArray>
 
@@ -45,13 +46,13 @@ Q_DECLARE_TYPEINFO(EdgeVertex, Q_PRIMITIVE_TYPE);
 QDataStream& operator<<(QDataStream& out, const EdgeVertex&);
 QDataStream& operator>>(QDataStream& in, EdgeVertex&);
 
-class SubContour : public QVector<EdgeVertex>
+class SubContour : public std::vector<EdgeVertex>
 {
 public:
 	// Create a SubContour from a list of vertices
-	SubContour(const QVector<Vec3d>& vertices, bool closed=true);
+	SubContour(const std::vector<Vec3d>& vertices, bool closed = true);
 	SubContour() {;}
-	SubContour(int size, const EdgeVertex& v) : QVector<EdgeVertex>(size, v) {;}
+	SubContour(int size, const EdgeVertex& v) : std::vector<EdgeVertex>(size, v) { ; }
 	SubContour reversed() const;
 	QString toJSON() const;
 };
@@ -68,8 +69,8 @@ public:
 
 	//! Create the OctahedronPolygon by splitting the passed SubContour on the 8 sides of the octahedron.
 	OctahedronPolygon(const SubContour& subContour);
-	OctahedronPolygon(const QVector<QVector<Vec3d> >& contours);
-	OctahedronPolygon(const QVector<Vec3d>& contour);
+	OctahedronPolygon(const std::vector<std::vector<Vec3d>>& contours);
+	OctahedronPolygon(const std::vector<Vec3d>& contour);
 	OctahedronPolygon(const QList<OctahedronPolygon>& octContours);
 
 	double getArea() const;
@@ -136,9 +137,9 @@ private:
 	//! Tesselate the contours per side, producing (in @var sides) a list of triangles subcontours according to the given rule.
 	void tesselate(TessWindingRule rule);
 
-	QVector<SubContour> tesselateOneSideLineLoop(struct GLUEStesselator* tess, int sidenb) const;
-	QVector<Vec3d> tesselateOneSideTriangles(struct GLUEStesselator* tess, int sidenb) const;
-	QVarLengthArray<QVector<SubContour>,8 > sides;
+	std::vector<SubContour> tesselateOneSideLineLoop(struct GLUEStesselator* tess, int sidenb) const;
+	std::vector<Vec3d> tesselateOneSideTriangles(struct GLUEStesselator* tess, int sidenb) const;
+	QVarLengthArray<std::vector<SubContour>, 8> sides;
 
 	//! Update the content of both cached vertex arrays.
 	void updateVertexArray();
@@ -153,8 +154,8 @@ private:
 	static bool isTriangleConvexPositive2D(const Vec3d& a, const Vec3d& b, const Vec3d& c);
 	static bool triangleContains2D(const Vec3d& a, const Vec3d& b, const Vec3d& c, const Vec3d& p);
 
-	static void projectOnOctahedron(QVarLengthArray<QVector<SubContour>,8 >& inSides);
-	static void splitContourByPlan(int onLine, const SubContour& contour, QVector<SubContour> result[2]);
+	static void projectOnOctahedron(QVarLengthArray<std::vector<SubContour>, 8>& inSides);
+	static void splitContourByPlan(int onLine, const SubContour& contour, std::vector<SubContour> result[2]);
 };
 
 // Serialization routines

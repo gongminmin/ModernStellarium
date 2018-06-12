@@ -520,25 +520,25 @@ void ConstellationMgr::loadLinesAndArt(const QString &fileName, const QString &a
 
 			// Tesselate on the plan assuming a tangential projection for the image
 			static const int nbPoints=5;
-			QVector<Vec2f> texCoords;
+			std::vector<Vec2f> texCoords;
 			texCoords.reserve(nbPoints*nbPoints*6);
 			for (int j=0;j<nbPoints;++j)
 			{
 				for (int i=0;i<nbPoints;++i)
 				{
-					texCoords << Vec2f(((float)i)/nbPoints, ((float)j)/nbPoints);
-					texCoords << Vec2f(((float)i+1.f)/nbPoints, ((float)j)/nbPoints);
-					texCoords << Vec2f(((float)i)/nbPoints, ((float)j+1.f)/nbPoints);
-					texCoords << Vec2f(((float)i+1.f)/nbPoints, ((float)j)/nbPoints);
-					texCoords << Vec2f(((float)i+1.f)/nbPoints, ((float)j+1.f)/nbPoints);
-					texCoords << Vec2f(((float)i)/nbPoints, ((float)j+1.f)/nbPoints);
+					texCoords.push_back(Vec2f(((float)i)/nbPoints, ((float)j)/nbPoints));
+					texCoords.push_back(Vec2f(((float)i+1.f)/nbPoints, ((float)j)/nbPoints));
+					texCoords.push_back(Vec2f(((float)i)/nbPoints, ((float)j+1.f)/nbPoints));
+					texCoords.push_back(Vec2f(((float)i+1.f)/nbPoints, ((float)j)/nbPoints));
+					texCoords.push_back(Vec2f(((float)i+1.f)/nbPoints, ((float)j+1.f)/nbPoints));
+					texCoords.push_back(Vec2f(((float)i)/nbPoints, ((float)j+1.f)/nbPoints));
 				}
 			}
 
-			QVector<Vec3d> contour;
+			std::vector<Vec3d> contour;
 			contour.reserve(texCoords.size());
 			for (const auto& v : texCoords)
-				contour << X * Vec3d(v[0]*texSizeX, v[1]*texSizeY, 0.);
+				contour.push_back(X * Vec3d(v[0]*texSizeX, v[1]*texSizeY, 0.));
 
 			cons->artPolygon.vertex=contour;
 			cons->artPolygon.texCoords=texCoords;

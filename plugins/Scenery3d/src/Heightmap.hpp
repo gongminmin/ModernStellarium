@@ -28,8 +28,8 @@ class Heightmap
 {
 
 public:
-	typedef QVector<unsigned int> IdxList;
-	typedef QVector<Vec3f> PosList;
+	typedef std::vector<unsigned int> IdxList;
+	typedef std::vector<Vec3f> PosList;
 
         //! Construct a heightmap from a loaded OBJ mesh.
         //! The mesh is stored as reference and used for calculations.
@@ -57,7 +57,7 @@ private:
 
         static const int GRID_LENGTH = 60; // # of grid spaces is GRID_LENGTH^2
 
-	typedef QVector<const unsigned int*> FaceVector; //points to first index in Index list for a face
+	typedef std::vector<const unsigned int*> FaceVector; // points to first index in Index list for a face
 
 	struct QuadTreeNode
 	{

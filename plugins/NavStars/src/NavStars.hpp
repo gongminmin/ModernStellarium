@@ -145,7 +145,7 @@ private:
 	//! List of the navigational stars' HIP numbers.
 	QList<int> starNumbers;
 	//! List of pointers to the objects representing the stars.
-	QVector<StelObjectP> stars;
+	std::vector<StelObjectP> stars;
 	
 	StelTextureSP markerTexture;
 	//! Color used to paint each star's marker and additional label.

@@ -436,7 +436,7 @@ public:
 	static PlanetOrbitColorStyle orbitColorStyle;
 
 	//! Return the list of planets which project some shadow on this planet
-	QVector<const Planet*> getCandidatesForShadow() const;
+	std::vector<const Planet*> getCandidatesForShadow() const;
 	
 protected:
 	struct PlanetOBJModel
@@ -452,13 +452,13 @@ protected:
 		//! The BBox of the original model before any transformations
 		AABBox bbox;
 		//! Contains the original positions in model space in km, they need scaling and projection
-		QVector<Vec3f> posArray;
+		std::vector<Vec3f> posArray;
 		//! True when the positions need to be rescaled before drawing
 		bool needsRescale;
 		//! Contains the scaled positions (sphere scale in AU), need StelProjector transformation for display
-		QVector<Vec3f> scaledArray;
+		std::vector<Vec3f> scaledArray;
 		//! Used to store the projected array data, avoids re-allocation each frame
-		QVector<Vec3f> projectedPosArray;
+		std::vector<Vec3f> projectedPosArray;
 		//! An OpenGL buffer for the projected positions
 		QOpenGLBuffer* projPosBuffer;
 		//! The single texture to use
@@ -629,7 +629,7 @@ private:
 	{
 		Mat4d modelMatrix;
 		Mat4d mTarget;
-		QVector<const Planet*> shadowCandidates;
+		std::vector<const Planet*> shadowCandidates;
 		QMatrix4x4 shadowCandidatesData;
 		Vec3d eyePos;
 	};

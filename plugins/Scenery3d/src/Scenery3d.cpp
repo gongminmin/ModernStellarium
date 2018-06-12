@@ -206,7 +206,7 @@ void Scenery3d::update(double deltaTime)
 		//update material fade info, if necessary
 		double curTime = core->getJD();
 		S3DScene::MaterialList& matList = currentScene->getMaterialList();
-		for(int i = 0; i<matList.size();++i)
+		for(size_t i = 0; i<matList.size();++i)
 		{
 			S3DScene::Material& mat = matList[i];
 			if(mat.traits.hasTimeFade)

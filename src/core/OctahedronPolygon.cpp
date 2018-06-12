@@ -57,25 +57,27 @@ QDataStream& operator>>(QDataStream& in, EdgeVertex& v)
 	return in;
 }
 
-SubContour::SubContour(const QVector<Vec3d>& vertices, bool closed) : QVector<EdgeVertex>(vertices.size(), EdgeVertex(true))
+SubContour::SubContour(const std::vector<Vec3d>& vertices, bool closed) : std::vector<EdgeVertex>(vertices.size(), EdgeVertex(true))
 {
 	// Create the contour list by adding the matching edge flags
-	for (int i=0;i<vertices.size();++i)
+	for (size_t i=0;i<vertices.size();++i)
 		(*this)[i].vertex = vertices.at(i);
 	if (closed==false)
 	{
-		this->first().edgeFlag=false;
-		this->last().edgeFlag=false;
+		this->front().edgeFlag=false;
+		this->back().edgeFlag=false;
 	}
 }
 
 SubContour SubContour::reversed() const
 {
 	SubContour res;
-	QVectorIterator<EdgeVertex> iter(*this);
-	iter.toBack();
-	while (iter.hasPrevious())
-		res.append(iter.previous());
+	std::vector<EdgeVertex>::const_iterator iter = this->end();
+	while (iter != this->begin())
+	{
+		--iter;
+		res.push_back(*iter);
+	}
 	return res;
 }
 
@@ -93,7 +95,7 @@ QString SubContour::toJSON() const
 	return res;
 }
 
-OctahedronPolygon::OctahedronPolygon(const QVector<Vec3d>& contour) : fillCachedVertexArray(StelVertexArray::Triangles), outlineCachedVertexArray(StelVertexArray::Lines)
+OctahedronPolygon::OctahedronPolygon(const std::vector<Vec3d>& contour) : fillCachedVertexArray(StelVertexArray::Triangles), outlineCachedVertexArray(StelVertexArray::Lines)
 {
 	sides.resize(8);
 	appendSubContour(SubContour(contour));
@@ -101,7 +103,7 @@ OctahedronPolygon::OctahedronPolygon(const QVector<Vec3d>& contour) : fillCached
 	updateVertexArray();
 }
 
-OctahedronPolygon::OctahedronPolygon(const QVector<QVector<Vec3d> >& contours) : fillCachedVertexArray(StelVertexArray::Triangles), outlineCachedVertexArray(StelVertexArray::Lines)
+OctahedronPolygon::OctahedronPolygon(const std::vector<std::vector<Vec3d> >& contours) : fillCachedVertexArray(StelVertexArray::Triangles), outlineCachedVertexArray(StelVertexArray::Lines)
 {
 	sides.resize(8);
 	for (const auto& contour : contours)
@@ -127,7 +129,7 @@ OctahedronPolygon::OctahedronPolygon(const QList<OctahedronPolygon>& octs) : fil
 		for (int i=0;i<8;++i)
 		{
 			Q_ASSERT(oct.sides.size()==8);
-			sides[i] += oct.sides[i];
+			sides[i].insert(sides[i].end(), oct.sides[i].begin(), oct.sides[i].end());
 		}
 		tesselate(WindingPositive);
 	}
@@ -136,9 +138,9 @@ OctahedronPolygon::OctahedronPolygon(const QList<OctahedronPolygon>& octs) : fil
 
 void OctahedronPolygon::appendSubContour(const SubContour& inContour)
 {
-	QVarLengthArray<QVector<SubContour>,8 > resultSides;
+	QVarLengthArray<std::vector<SubContour>, 8> resultSides;
 	resultSides.resize(8);
-	QVector<SubContour> splittedContour1[2];
+	std::vector<SubContour> splittedContour1[2];
 	// Split the contour on the plan Y=0
 	splitContourByPlan(1, inContour, splittedContour1);
 	
@@ -180,7 +182,7 @@ void OctahedronPolygon::appendSubContour(const SubContour& inContour)
 	
 	
 	// Re-split the contours on the plan X=0
-	QVector<SubContour> splittedVertices2[4];
+	std::vector<SubContour> splittedVertices2[4];
 	for (const auto& subContour : splittedContour1[0])
 		splitContourByPlan(0, subContour, splittedVertices2);
 	for (const auto& subContour : splittedContour1[1])
@@ -189,23 +191,23 @@ void OctahedronPolygon::appendSubContour(const SubContour& inContour)
 	// Now complete the contours which cross the areas from one side to another by adding poles
 	for (int c=0;c<4;++c)
 	{
-		for (int i=0;i<splittedVertices2[c].size();++i)
+		for (size_t i=0;i<splittedVertices2[c].size();++i)
 		{
 			SubContour& tmpSubContour = splittedVertices2[c][i];
 			// If the contour was not splitted, don't try to connect
-			if (tmpSubContour.last().edgeFlag==true)
+			if (tmpSubContour.back().edgeFlag==true)
 				continue;
-			Vec3d v = tmpSubContour.first().vertex^tmpSubContour.last().vertex;
+			Vec3d v = tmpSubContour.front().vertex^tmpSubContour.back().vertex;
 			//qDebug() << v.toString();
 			if (v[2]>0.00000001)
 			{
 				// A south pole has to be added
-				tmpSubContour << EdgeVertex(Vec3d(0,0,-1), false);
+				tmpSubContour.push_back(EdgeVertex(Vec3d(0,0,-1), false));
 			}
 			else if (v[2]<-0.0000001)
 			{
 				// A north pole has to be added
-				tmpSubContour << EdgeVertex(Vec3d(0,0,1), false);
+				tmpSubContour.push_back(EdgeVertex(Vec3d(0,0,1), false));
 			}
 			else
 			{
@@ -224,7 +226,7 @@ void OctahedronPolygon::appendSubContour(const SubContour& inContour)
 	Q_ASSERT(sides.size()==8 && resultSides.size()==8);
 	for (int i=0;i<8;++i)
 	{
-		sides[i] += resultSides[i];
+		sides[i].insert(sides[i].end(), resultSides[i].begin(), resultSides[i].end());
 	}
 }
 
@@ -234,9 +236,9 @@ double OctahedronPolygon::getArea() const
 	// Use Girard's theorem for each subtriangles
 	double area = 0.;
 	Vec3d v1, v2, v3;
-	const QVector<Vec3d>& trianglesArray = getFillVertexArray().vertex;
+	const std::vector<Vec3d>& trianglesArray = getFillVertexArray().vertex;
 	Q_ASSERT(getFillVertexArray().primitiveType==StelVertexArray::Triangles);
-	for (int i=0;i<trianglesArray.size()/3;++i)
+	for (size_t i=0;i<trianglesArray.size()/3;++i)
 	{
 		area += OctahedronPolygon::sphericalTriangleArea(trianglesArray.at(i*3), trianglesArray.at(i*3+1), trianglesArray.at(i*3+2));
 	}
@@ -246,9 +248,9 @@ double OctahedronPolygon::getArea() const
 // Return a point located inside the polygon. Actually, inside the first triangle in this case.
 Vec3d OctahedronPolygon::getPointInside() const
 {
-	const QVector<Vec3d>& trianglesArray = getFillVertexArray().vertex;
+	const std::vector<Vec3d>& trianglesArray = getFillVertexArray().vertex;
 	Q_ASSERT(getFillVertexArray().primitiveType==StelVertexArray::Triangles);
-	Q_ASSERT(!trianglesArray.isEmpty());
+	Q_ASSERT(!trianglesArray.empty());
 	Vec3d res(trianglesArray[0]);
 	res+=trianglesArray[1];
 	res+=trianglesArray[2];
@@ -261,7 +263,7 @@ void OctahedronPolygon::append(const OctahedronPolygon& other)
 	Q_ASSERT(sides.size()==8 && other.sides.size()==8);
 	for (int i=0;i<8;++i)
 	{
-		sides[i] += other.sides[i];
+		sides[i].insert(sides[i].end(), other.sides[i].begin(), other.sides[i].end());
 	}
 }
 
@@ -272,15 +274,15 @@ void OctahedronPolygon::appendReversed(const OctahedronPolygon& other)
 	{
 		for (const auto& sub : other.sides[i])
 		{
-			sides[i] += sub.reversed();
+			sides[i].push_back(sub.reversed());
 		}
 	}
 }
 
-void OctahedronPolygon::projectOnOctahedron(QVarLengthArray<QVector<SubContour>,8 >& inSides)
+void OctahedronPolygon::projectOnOctahedron(QVarLengthArray<std::vector<SubContour>, 8>& inSides)
 {
 	Q_ASSERT(inSides.size()==8);
-	QVector<SubContour>* subs = inSides.data();
+	std::vector<SubContour>* subs = inSides.data();
 
 	for (int i=0;i<8;++i)
 	{
@@ -314,7 +316,7 @@ bool OctahedronPolygon::triangleContains2D(const Vec3d& a, const Vec3d& b, const
 // Store data for the GLUES tesselation callbacks
 struct OctTessTrianglesCallbackData
 {
-	QVector<Vec3d> result;			//! Contains the resulting tesselated vertices.
+	std::vector<Vec3d> result; //! Contains the resulting tesselated vertices.
 	QList<Vec3d> tempVertices;		//! Used to store the temporary combined vertices
 };
 
@@ -326,7 +328,7 @@ void errorCallback(GLenum errno)
 
 void vertexTrianglesCallback(Vec3d* vertexData, OctTessTrianglesCallbackData* userData)
 {
-	userData->result.append(*vertexData);
+	userData->result.push_back(*vertexData);
 }
 
 void noOpCallback(GLboolean) {;}
@@ -346,17 +348,17 @@ void checkBeginTrianglesCallback(GLenum type)
 }
 #endif
 
-QVector<Vec3d> OctahedronPolygon::tesselateOneSideTriangles(GLUEStesselator* tess, int sidenb) const
+std::vector<Vec3d> OctahedronPolygon::tesselateOneSideTriangles(GLUEStesselator* tess, int sidenb) const
 {
-	const QVector<SubContour>& contours = sides[sidenb];
-	Q_ASSERT(!contours.isEmpty());
+	const std::vector<SubContour>& contours = sides[sidenb];
+	Q_ASSERT(!contours.empty());
 	OctTessTrianglesCallbackData data;
 	gluesTessNormal(tess, 0.,0., (sidenb%2==0 ? -1. : 1.));
 	gluesTessBeginPolygon(tess, &data);
-	for (int c=0;c<contours.size();++c)
+	for (size_t c=0;c<contours.size();++c)
 	{
 		gluesTessBeginContour(tess);
-		for (int i=0;i<contours.at(c).size();++i)
+		for (size_t i=0;i<contours.at(c).size();++i)
 		{
 			gluesTessVertex(tess, const_cast<double*>((const double*)contours[c][i].vertex.data()), (void*)&(contours[c][i].vertex));
 		}
@@ -395,25 +397,25 @@ void OctahedronPolygon::updateVertexArray()
 	// Call the tesselator on each side
 	for (int sidenb=0;sidenb<8;++sidenb)
 	{
-		if (sides[sidenb].isEmpty())
+		if (sides[sidenb].empty())
 			continue;
 		const Vec3d& sideDirection = sideDirections[sidenb];
-		QVector<Vec3d> res = tesselateOneSideTriangles(tess, sidenb);
+		std::vector<Vec3d> res = tesselateOneSideTriangles(tess, sidenb);
 		Q_ASSERT(res.size()%3==0);	// There should be only triangles here
-		for (int j=0;j<=res.size()-3;j+=3)
+		for (size_t j=0;j<=res.size()-3;j+=3)
 		{
 			// Post processing, GLU seems to sometimes output triangles oriented in the wrong direction..
 			// Get rid of them in an ugly way. TODO Need to find the real cause.
 			if (((sidenb&1)==0 ?
-			isTriangleConvexPositive2D(res.at(j+2), res.at(j+1), res.at(j)) :
-			isTriangleConvexPositive2D(res.at(j), res.at(j+1), res.at(j+2))))
+			isTriangleConvexPositive2D(res[j+2], res[j+1], res[j]) :
+			isTriangleConvexPositive2D(res[j], res[j+1], res[j+2])))
 			{
-				fillCachedVertexArray.vertex+=res.at(j);
-				unprojectOctahedron(fillCachedVertexArray.vertex.last(), sideDirection);
-				fillCachedVertexArray.vertex+=res.at(j+1);
-				unprojectOctahedron(fillCachedVertexArray.vertex.last(), sideDirection);
-				fillCachedVertexArray.vertex+=res.at(j+2);
-				unprojectOctahedron(fillCachedVertexArray.vertex.last(), sideDirection);
+				fillCachedVertexArray.vertex.push_back(res[j]);
+				unprojectOctahedron(fillCachedVertexArray.vertex.back(), sideDirection);
+				fillCachedVertexArray.vertex.push_back(res[j + 1]);
+				unprojectOctahedron(fillCachedVertexArray.vertex.back(), sideDirection);
+				fillCachedVertexArray.vertex.push_back(res[j + 2]);
+				unprojectOctahedron(fillCachedVertexArray.vertex.back(), sideDirection);
 			}
 			else
 			{
@@ -426,17 +428,17 @@ void OctahedronPolygon::updateVertexArray()
 		EdgeVertex previous;
 		for (const auto& c : sides[sidenb])
 		{
-			Q_ASSERT(!c.isEmpty());
-			previous = c.first();
+			Q_ASSERT(!c.empty());
+			previous = c.front();
 			unprojectOctahedron(previous.vertex, sideDirection);
-			for (int j=0;j<c.size()-1;++j)
+			for (size_t j=0;j<c.size()-1;++j)
 			{
 				if (previous.edgeFlag || c.at(j+1).edgeFlag)
 				{
-					outlineCachedVertexArray.vertex.append(previous.vertex);
-					previous=c.at(j+1);
+					outlineCachedVertexArray.vertex.push_back(previous.vertex);
+					previous=c[j+1];
 					unprojectOctahedron(previous.vertex, sideDirection);
-					outlineCachedVertexArray.vertex.append(previous.vertex);
+					outlineCachedVertexArray.vertex.push_back(previous.vertex);
 				}
 				else
 				{
@@ -445,11 +447,11 @@ void OctahedronPolygon::updateVertexArray()
 				}
 			}
 			// Last point connects with first point
-			if (previous.edgeFlag || c.first().edgeFlag)
+			if (previous.edgeFlag || c.front().edgeFlag)
 			{
-				outlineCachedVertexArray.vertex.append(previous.vertex);
-				outlineCachedVertexArray.vertex.append(c.first().vertex);
-				unprojectOctahedron(outlineCachedVertexArray.vertex.last(), sideDirection);
+				outlineCachedVertexArray.vertex.push_back(previous.vertex);
+				outlineCachedVertexArray.vertex.push_back(c.front().vertex);
+				unprojectOctahedron(outlineCachedVertexArray.vertex.back(), sideDirection);
 			}
 		}
 	}
@@ -458,9 +460,9 @@ void OctahedronPolygon::updateVertexArray()
 
 #ifndef NDEBUG
 	// Check that all triangles are properly oriented
-	QVector<Vec3d> c;
+	std::vector<Vec3d> c;
 	c.resize(3);
-	for (int j=0;j<fillCachedVertexArray.vertex.size()/3;++j)
+	for (size_t j=0;j<fillCachedVertexArray.vertex.size()/3;++j)
 	{
 		c[0]=fillCachedVertexArray.vertex.at(j*3);
 		c[1]=fillCachedVertexArray.vertex.at(j*3+1);
@@ -470,7 +472,7 @@ void OctahedronPolygon::updateVertexArray()
 #else
 	// If I don't let this like that, the bahaviour will fail in Release mode!!!!
 	// It is either a bug in GCC either a memory problem which appears only when optimizations are activated.
-	QVector<Vec3d> c;
+	std::vector<Vec3d> c;
 	c.resize(3);
 #endif
 }
@@ -478,21 +480,21 @@ void OctahedronPolygon::updateVertexArray()
 struct OctTessLineLoopCallbackData
 {
 	SubContour result;				//! Contains the resulting tesselated vertices.
-	QVector<SubContour> resultList;
+	std::vector<SubContour> resultList;
 	QList<EdgeVertex> tempVertices;	//! Used to store the temporary combined vertices
 };
 
-QVector<SubContour> OctahedronPolygon::tesselateOneSideLineLoop(GLUEStesselator* tess, int sidenb) const
+std::vector<SubContour> OctahedronPolygon::tesselateOneSideLineLoop(GLUEStesselator* tess, int sidenb) const
 {
-	const QVector<SubContour>& contours = sides[sidenb];
-	Q_ASSERT(!contours.isEmpty());
+	const std::vector<SubContour>& contours = sides[sidenb];
+	Q_ASSERT(!contours.empty());
 	OctTessLineLoopCallbackData data;
 	gluesTessNormal(tess, 0.,0., (sidenb%2==0 ? -1. : 1.));
 	gluesTessBeginPolygon(tess, &data);
-	for (int c=0;c<contours.size();++c)
+	for (size_t c=0;c<contours.size();++c)
 	{
 		gluesTessBeginContour(tess);
-		for (int i=0;i<contours.at(c).size();++i)
+		for (size_t i=0;i<contours.at(c).size();++i)
 		{
 			Q_ASSERT(contours[c][i].vertex[2]<0.000001);
 			gluesTessVertex(tess, const_cast<double*>((const double*)contours[c][i].vertex.data()), const_cast<void*>((const void*)&(contours[c][i])));
@@ -512,10 +514,10 @@ inline bool tooClose(const Vec3d& e1, const Vec3d& e2)
 void vertexLineLoopCallback(EdgeVertex* vertexData, OctTessLineLoopCallbackData* userData)
 {
 	Q_ASSERT(vertexData->vertex[2]<0.0000001);
-	if (userData->result.isEmpty() || !tooClose(userData->result.last().vertex, vertexData->vertex))
-		userData->result.append(*vertexData);
+	if (userData->result.empty() || !tooClose(userData->result.back().vertex, vertexData->vertex))
+		userData->result.push_back(*vertexData);
 	else
-		userData->result.last().edgeFlag = userData->result.last().edgeFlag && vertexData->edgeFlag;
+		userData->result.back().edgeFlag = userData->result.back().edgeFlag && vertexData->edgeFlag;
 }
 
 void combineLineLoopCallback(double coords[3], EdgeVertex* vertex_data[4], GLfloat[4], EdgeVertex** outData, OctTessLineLoopCallbackData* userData)
@@ -545,7 +547,7 @@ void endLineLoopCallback(OctTessLineLoopCallbackData* data)
 {
 	// Store the finished contour and prepare for the next one
 	if (data->result.size()>2)
-		data->resultList.append(data->result);
+		data->resultList.push_back(data->result);
 	data->result.clear();
 }
 
@@ -567,7 +569,7 @@ void OctahedronPolygon::tesselate(TessWindingRule windingRule)
 	// Call the tesselator on each side
 	for (int i=0;i<8;++i)
 	{
-		if (sides[i].isEmpty())
+		if (sides[i].empty())
 			continue;
 		sides[i] = tesselateOneSideLineLoop(tess, i);
 	}
@@ -639,9 +641,9 @@ bool OctahedronPolygon::contains(const OctahedronPolygon& mpoly) const
 
 bool OctahedronPolygon::contains(const Vec3d& p) const
 {
-	if (sides[getSideNumber(p)].isEmpty())
+	if (sides[getSideNumber(p)].empty())
 		return false;
-	for (int i=0;i<fillCachedVertexArray.vertex.size()/3;++i)
+	for (size_t i=0;i<fillCachedVertexArray.vertex.size()/3;++i)
 	{
 		if (sideHalfSpaceContains(fillCachedVertexArray.vertex.at(i*3+1), fillCachedVertexArray.vertex.at(i*3), p) &&
 			sideHalfSpaceContains(fillCachedVertexArray.vertex.at(i*3+2), fillCachedVertexArray.vertex.at(i*3+1), p) &&
@@ -653,21 +655,21 @@ bool OctahedronPolygon::contains(const Vec3d& p) const
 
 bool OctahedronPolygon::isEmpty() const
 {
-	return sides[0].isEmpty() && sides[1].isEmpty() && sides[2].isEmpty() && sides[3].isEmpty() &&
-			sides[4].isEmpty() && sides[5].isEmpty() && sides[6].isEmpty() && sides[7].isEmpty();
+	return sides[0].empty() && sides[1].empty() && sides[2].empty() && sides[3].empty() &&
+			sides[4].empty() && sides[5].empty() && sides[6].empty() && sides[7].empty();
 }
 
 
-void OctahedronPolygon::splitContourByPlan(int onLine, const SubContour& inputContour, QVector<SubContour> result[2])
+void OctahedronPolygon::splitContourByPlan(int onLine, const SubContour& inputContour, std::vector<SubContour> result[2])
 {
  	SubContour currentSubContour;
 	SubContour unfinishedSubContour;
-	int previousQuadrant=getSide(inputContour.first().vertex, onLine);
+	int previousQuadrant=getSide(inputContour.front().vertex, onLine);
 	int currentQuadrant=0;
 	Vec3d tmpVertex;
-	EdgeVertex previousVertex=inputContour.first();
+	EdgeVertex previousVertex=inputContour.front();
 	EdgeVertex currentVertex;
-	int i=0;
+    size_t i=0;
 	bool ok=true;
 	const Vec3d plan(onLine==0?1:0, onLine==1?1:0, onLine==2?1:0);
 
@@ -680,18 +682,18 @@ void OctahedronPolygon::splitContourByPlan(int onLine, const SubContour& inputCo
 		currentQuadrant = getSide(currentVertex.vertex, onLine);
 		if (currentQuadrant==previousQuadrant)
 		{
-			unfinishedSubContour << currentVertex;
+			unfinishedSubContour.push_back(currentVertex);
 		}
 		else
 		{
-			Q_ASSERT(currentSubContour.isEmpty());
+			Q_ASSERT(currentSubContour.empty());
 			// We crossed the line
 			tmpVertex = greatCircleIntersection(previousVertex.vertex, currentVertex.vertex, plan, ok);
 			if (!ok)
 			{
 				// There was a problem, probably the 2 vertices are too close, just keep them like that
 				// since they are each at a different side of the plan.
-				currentSubContour << currentVertex;
+				currentSubContour.push_back(currentVertex);
 			}
 			else
 			{
@@ -703,8 +705,8 @@ void OctahedronPolygon::splitContourByPlan(int onLine, const SubContour& inputCo
 				Q_ASSERT(getSide(tmpVertexSides[0], onLine)==0);
 				Q_ASSERT(getSide(tmpVertexSides[1], onLine)==1);
 				
-				unfinishedSubContour << EdgeVertex(tmpVertexSides[previousQuadrant], false); // Last point of the contour, it's not an edge
-				currentSubContour << EdgeVertex(tmpVertexSides[currentQuadrant], false);
+				unfinishedSubContour.push_back(EdgeVertex(tmpVertexSides[previousQuadrant], false)); // Last point of the contour, it's not an edge
+				currentSubContour.push_back(EdgeVertex(tmpVertexSides[currentQuadrant], false));
 			}
 			previousQuadrant = currentQuadrant;
 			previousVertex=currentVertex;
@@ -722,7 +724,7 @@ void OctahedronPolygon::splitContourByPlan(int onLine, const SubContour& inputCo
 		currentQuadrant = getSide(currentVertex.vertex, onLine);
 		if (currentQuadrant==previousQuadrant)
 		{
-			currentSubContour << currentVertex;
+			currentSubContour.push_back(currentVertex);
 		}
 		else
 		{
@@ -732,11 +734,11 @@ void OctahedronPolygon::splitContourByPlan(int onLine, const SubContour& inputCo
 			{
 				// There was a problem, probably the 2 vertices are too close, just keep them like that
 				// since they are each at a different side of the plan.
-				currentSubContour.last().edgeFlag = true;
-				result[previousQuadrant] << currentSubContour;
+				currentSubContour.back().edgeFlag = true;
+				result[previousQuadrant].push_back(currentSubContour);
 				currentSubContour.clear();
-				currentSubContour << currentVertex;
-				currentSubContour.last().edgeFlag = true;
+				currentSubContour.push_back(currentVertex);
+				currentSubContour.back().edgeFlag = true;
 			}
 			else
 			{
@@ -748,11 +750,11 @@ void OctahedronPolygon::splitContourByPlan(int onLine, const SubContour& inputCo
 				Q_ASSERT(getSide(tmpVertexSides[0], onLine)==0);
 				Q_ASSERT(getSide(tmpVertexSides[1], onLine)==1);
 				
-				currentSubContour << EdgeVertex(tmpVertexSides[previousQuadrant], false); 
-				result[previousQuadrant] << currentSubContour;
+				currentSubContour.push_back(EdgeVertex(tmpVertexSides[previousQuadrant], false));
+				result[previousQuadrant].push_back(currentSubContour);
 				currentSubContour.clear();
-				currentSubContour << EdgeVertex(tmpVertexSides[currentQuadrant], false);
-				currentSubContour << currentVertex;
+				currentSubContour.push_back(EdgeVertex(tmpVertexSides[currentQuadrant], false));
+				currentSubContour.push_back(currentVertex);
 			}
 			previousQuadrant = currentQuadrant;
 		}
@@ -762,20 +764,20 @@ void OctahedronPolygon::splitContourByPlan(int onLine, const SubContour& inputCo
 	
 	// Handle the last line between the last and first point
 	previousQuadrant = currentQuadrant;
-	currentQuadrant = getSide(inputContour.first().vertex, onLine);
+	currentQuadrant = getSide(inputContour.front().vertex, onLine);
 	if (currentQuadrant==previousQuadrant)
 	{
 	}
 	else
 	{
 		// We crossed the line
-		tmpVertex = greatCircleIntersection(previousVertex.vertex, inputContour.first().vertex, plan, ok);
+		tmpVertex = greatCircleIntersection(previousVertex.vertex, inputContour.front().vertex, plan, ok);
 		if (!ok)
 		{
 			// There was a problem, probably the 2 vertices are too close, just keep them like that
 			// since they are each at a different side of the plan.
-			currentSubContour.last().edgeFlag = true;
-			result[previousQuadrant] << currentSubContour;
+			currentSubContour.back().edgeFlag = true;
+			result[previousQuadrant].push_back(currentSubContour);
 			currentSubContour.clear();
 		}
 		else
@@ -788,17 +790,17 @@ void OctahedronPolygon::splitContourByPlan(int onLine, const SubContour& inputCo
 			Q_ASSERT(getSide(tmpVertexSides[0], onLine)==0);
 			Q_ASSERT(getSide(tmpVertexSides[1], onLine)==1);
 			
-			currentSubContour << EdgeVertex(tmpVertexSides[previousQuadrant], false);	// Last point of the contour, it's not an edge
-			result[previousQuadrant] << currentSubContour;
+			currentSubContour.push_back(EdgeVertex(tmpVertexSides[previousQuadrant], false));	// Last point of the contour, it's not an edge
+			result[previousQuadrant].push_back(currentSubContour);
 			currentSubContour.clear();
-			currentSubContour << EdgeVertex(tmpVertexSides[currentQuadrant], false);
+			currentSubContour.push_back(EdgeVertex(tmpVertexSides[currentQuadrant], false));
 		}
 	}
 
 	// Append the last contour made from the last vertices + the previous unfinished ones
-	currentSubContour << unfinishedSubContour;
+	currentSubContour.insert(currentSubContour.end(), unfinishedSubContour.begin(), unfinishedSubContour.end());
 	
-	result[currentQuadrant] << currentSubContour;
+	result[currentQuadrant].push_back(currentSubContour);
 	
 //	qDebug() << onLine << inputContour.toJSON();
 //	if (!result[0].isEmpty())
@@ -809,8 +811,8 @@ void OctahedronPolygon::splitContourByPlan(int onLine, const SubContour& inputCo
 
 void OctahedronPolygon::computeBoundingCap()
 {
-	const QVector<Vec3d>& trianglesArray = outlineCachedVertexArray.vertex;
-	if (trianglesArray.isEmpty())
+	const std::vector<Vec3d>& trianglesArray = outlineCachedVertexArray.vertex;
+	if (trianglesArray.empty())
 	{
 		capN.set(1,0,0);
 		capD = 2.;
@@ -850,16 +852,16 @@ OctahedronPolygon OctahedronPolygon::createAllSkyOctahedronPolygon()
 	};
 
 	// Create the 8 base triangles
-	QVector<SubContour> side;
+	std::vector<SubContour> side;
 	SubContour sc;
 	for (int i=0;i<8;++i)
 	{
 		sc.clear();
 		side.clear();
-		sc << EdgeVertex(vertice[verticeIndice[i][0]], false)
-				<< EdgeVertex(vertice[verticeIndice[i][1]], false)
-				<< EdgeVertex(vertice[verticeIndice[i][2]], false);
-		side.append(sc);
+		sc.insert(sc.end(), { EdgeVertex(vertice[verticeIndice[i][0]], false),
+			EdgeVertex(vertice[verticeIndice[i][1]], false),
+			EdgeVertex(vertice[verticeIndice[i][2]], false) });
+		side.push_back(sc);
 		poly.sides[i]=side;
 	}
 	projectOnOctahedron(poly.sides);

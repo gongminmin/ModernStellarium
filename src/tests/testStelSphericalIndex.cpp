@@ -78,7 +78,7 @@ void TestStelSphericalIndex::testBase()
 	grid.processAll(countFunc);
 	QVERIFY(countFunc.count==0);
 	
-	QVector<Vec3d> c1(4);
+	std::vector<Vec3d> c1(4);
 	StelUtils::spheToRect(-0.5, -0.5, c1[3]);
 	StelUtils::spheToRect(0.5, -0.5, c1[2]);
 	StelUtils::spheToRect(0.5, 0.5, c1[1]);

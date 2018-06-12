@@ -217,9 +217,9 @@ void S3DScene::setModel(const StelOBJ &model)
 	//copy materials
 	const StelOBJ::MaterialList& objMats = modelData.getMaterialList();
 	materials.reserve(objMats.size());
-	for(int i=0;i<objMats.size();++i)
+	for(size_t i=0;i<objMats.size();++i)
 	{
-		materials.append(objMats[i]);
+		materials.push_back(objMats[i]);
 		//start loading textures
 		materials[i].loadTexturesAsync();
 	}
@@ -328,7 +328,7 @@ bool S3DScene::glLoad()
 	double currentJD = StelApp::getInstance().getCore()->getJD();
 
 	//make sure textures are loaded
-	for(int i =0; i< materials.size();++i)
+	for(size_t i =0; i< materials.size();++i)
 	{
 		S3DScene::Material& mat = materials[i];
 		//ambient and specular textures currently unused

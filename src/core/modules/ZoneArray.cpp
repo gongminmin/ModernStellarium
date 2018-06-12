@@ -461,7 +461,7 @@ SpecialZoneArray<Star>::~SpecialZoneArray(void)
 template<class Star>
 void SpecialZoneArray<Star>::draw(StelPainter* sPainter, int index, bool isInsideViewport, const RCMag* rcmag_table,
 				  int limitMagIndex, StelCore* core, int maxMagStarName, float names_brightness,
-				  const QVector<SphericalCap> &boundingCaps) const
+				  const std::vector<SphericalCap> &boundingCaps) const
 {
 	StelSkyDrawer* drawer = core->getSkyDrawer();
 	Vec3f vf;

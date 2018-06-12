@@ -154,7 +154,7 @@ void Landscape::createPolygonalHorizon(const QString& lineFileName, const float 
 	horizonModeList << "azDeg_altDeg" << "azDeg_zdDeg" << "azRad_altRad" << "azRad_zdRad" << "azGrad_zdGrad" << "azGrad_zdGrad";
 	const horizonListMode coordMode=(horizonListMode) horizonModeList.indexOf(listMode);
 
-	QVector<Vec3d> horiPoints(0);
+	std::vector<Vec3d> horiPoints;
 	QFile file(lineFileName);
 
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -217,12 +217,12 @@ void Landscape::createPolygonalHorizon(const QString& lineFileName, const float 
 
 		StelUtils::spheToRect(az, alt, point);
 		if (polygonInverted)
-			horiPoints.prepend(point);
+			horiPoints.insert(horiPoints.begin(), point);
 		else
-			horiPoints.append(point);
+			horiPoints.push_back(point);
 	}
 	file.close();
-	//horiPoints.append(horiPoints.at(0)); // close loop? Apparently not necessary.
+	//horiPoints.push_back(horiPoints.at(0)); // close loop? Apparently not necessary.
 
 	//qDebug() << "created horiPoints with " << horiPoints.count() << "points:";
 	//for (int i=0; i<horiPoints.count(); ++i)
@@ -425,7 +425,7 @@ void LandscapeOldStyle::load(const QSettings& landscapeIni, const QString& lands
 		// if that query is not going to be prevented by the polygon that already has been loaded at that point...
 		if ( (!horizonPolygon) && calibrated ) { // for uncalibrated landscapes the texture is currently never queried, so no need to store.
 			QImage *image = new QImage(texturePath);
-			sidesImages.append(image); // indices identical to those in sideTexs
+			sidesImages.push_back(image); // indices identical to those in sideTexs
 			memorySize+=image->byteCount();
 		}
 		// Also allow light textures. The light textures must cover the same geometry as the sides. It is allowed that not all or even any light textures are present!
@@ -443,7 +443,7 @@ void LandscapeOldStyle::load(const QSettings& landscapeIni, const QString& lands
 	}
 	if ( (!horizonPolygon) && calibrated )
 	{
-		Q_ASSERT(sidesImages.size()==nbSideTexs);
+		Q_ASSERT(static_cast<int>(sidesImages.size())==nbSideTexs);
 	}
 	QMap<int, int> texToSide;
 	// Init sides parameters
@@ -581,14 +581,14 @@ void LandscapeOldStyle::load(const QSettings& landscapeIni, const QString& lands
 				float ty0 = sides[ti].texCoords[1];
 				for (int k=0;k<=stacks*2;k+=2)
 				{
-					precompSide.arr.texCoords << Vec2f(tx0, ty0) << Vec2f(tx1, ty0);
+					precompSide.arr.texCoords.insert(precompSide.arr.texCoords.end(), { Vec2f(tx0, ty0), Vec2f(tx1, ty0) });
 					if (calibrated && !tanMode)
 					{
 						float tanZ=radius * std::tan(z*M_PI/180.f);
-						precompSide.arr.vertex << Vec3d(x0, y0, tanZ) << Vec3d(x1, y1, tanZ);
+						precompSide.arr.vertex.insert(precompSide.arr.vertex.end(), { Vec3d(x0, y0, tanZ), Vec3d(x1, y1, tanZ) });
 					} else
 					{
-						precompSide.arr.vertex << Vec3d(x0, y0, z) << Vec3d(x1, y1, z);
+						precompSide.arr.vertex.insert(precompSide.arr.vertex.end(), { Vec3d(x0, y0, z), Vec3d(x1, y1, z) });
 					}
 					z += d_z;
 					ty0 += d_ty;
@@ -596,8 +596,8 @@ void LandscapeOldStyle::load(const QSettings& landscapeIni, const QString& lands
 				unsigned int offset = j*(stacks+1)*2;
 				for (int k = 2;k<stacks*2+2;k+=2)
 				{
-					precompSide.arr.indices << offset+k-2 << offset+k-1 << offset+k;
-					precompSide.arr.indices << offset+k   << offset+k-1 << offset+k+1;
+					precompSide.arr.indices.insert(precompSide.arr.indices.end(), { static_cast<unsigned short>(offset+k-2), static_cast<unsigned short>(offset+k-1), static_cast<unsigned short>(offset+k) });
+					precompSide.arr.indices.insert(precompSide.arr.indices.end(), { static_cast<unsigned short>(offset+k), static_cast<unsigned short>(offset+k-1), static_cast<unsigned short>(offset+k+1) });
 				}
 				y0 = y1;
 				x0 = x1;
@@ -731,7 +731,7 @@ void LandscapeOldStyle::drawGround(StelCore* core, StelPainter& sPainter) const
 	{
 		groundTex->bind();
 	}
-	sPainter.setArrays((Vec3d*)groundVertexArr.constData(), (Vec2f*)groundTexCoordArr.constData());
+	sPainter.setArrays((Vec3d*)groundVertexArr.data(), (Vec2f*)groundTexCoordArr.data());
 	sPainter.drawFromArray(StelPainter::Triangles, groundVertexArr.size()/3);
 }
 

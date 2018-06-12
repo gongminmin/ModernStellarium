@@ -24,13 +24,13 @@
 #include "StelVertexArray.hpp"
 #include "VecMath.hpp"
 
-#include <QVector>
 #include <QVariant>
 #include <QDebug>
 #include <QVarLengthArray>
 #include <QDataStream>
 
 #include <memory>
+#include <vector>
 #include <stdio.h>
 
 class SphericalRegion;
@@ -40,6 +40,39 @@ class SphericalCap;
 class SphericalPoint;
 class AllSkySphericalRegion;
 class EmptySphericalRegion;
+
+template <typename Container>
+inline QDataStream& operator>>(QDataStream& s, Container& c)
+{
+	c.clear();
+	quint32 n;
+	s >> n;
+	c.reserve(n);
+	for (quint32 i = 0; i < n; ++i)
+	{
+		typename Container::value_type t;
+		s >> t;
+		if (s.status() != QDataStream::Ok)
+		{
+			c.clear();
+			break;
+		}
+		c.push_back(t);
+	}
+
+	return s;
+}
+
+template <typename Container>
+inline QDataStream& operator<<(QDataStream& s, const Container& v)
+{
+	s << quint32(v.size());
+	for (const typename Container::value_type& t : v)
+	{
+		s << t;
+	}
+	return s;
+}
 
 //! @file StelSphereGeometry.hpp
 //! Define all SphericalGeometry primitives as well as the SphericalRegionP type.
@@ -163,7 +196,7 @@ public:
 	virtual Vec3d getPointInside() const {return getOctahedronPolygon().getPointInside();}
 
 	//! Return the list of SphericalCap bounding the ConvexPolygon.
-	virtual QVector<SphericalCap> getBoundingSphericalCaps() const;
+	virtual std::vector<SphericalCap> getBoundingSphericalCaps() const;
 
 	//! Return a bounding SphericalCap. This method is heavily used and therefore needs to be very fast.
 	//! The returned SphericalCap doesn't have to be the smallest one, but smaller is better.
@@ -186,7 +219,7 @@ public:
 
 	//! Get the contours defining the SphericalPolygon when combined using a positive winding rule.
 	//! The default implementation return a list of tesselated triangles derived from the OctahedronPolygon.
-	virtual QVector<QVector<Vec3d > > getSimplifiedContours() const;
+	virtual std::vector<std::vector<Vec3d>> getSimplifiedContours() const;
 	
 	//! Serialize the region into a QVariant list matching the JSON format.
 	virtual QVariantList toQVariant() const = 0;
@@ -364,10 +397,10 @@ public:
 	bool operator==(const SphericalCap& other) const {return (n==other.n && d==other.d);}
 
 	//! Return the list of closed contours defining the polygon boundaries.
-	QVector<Vec3d> getClosedOutlineContour() const;
+	std::vector<Vec3d> getClosedOutlineContour() const;
 
 	//! Return whether the cap intersect with a convex contour defined by nbVertice.
-	bool intersectsConvexContour(const Vec3d* vertice, int nbVertice) const;
+	bool intersectsConvexContour(const Vec3d* vertice, size_t nbVertice) const;
 
 	//! Return whether the cap contains the passed triangle.
 	bool containsTriangle(const Vec3d* vertice) const;
@@ -554,9 +587,9 @@ public:
 
 	SphericalPolygon() {;}
 	//! Constructor from a list of contours.
-	SphericalPolygon(const QVector<QVector<Vec3d> >& contours) : octahedronPolygon(contours) {;}
+	SphericalPolygon(const std::vector<std::vector<Vec3d>>& contours) : octahedronPolygon(contours) { ; }
 	//! Constructor from one contour.
-	SphericalPolygon(const QVector<Vec3d>& contour) : octahedronPolygon(contour) {;}
+	SphericalPolygon(const std::vector<Vec3d>& contour) : octahedronPolygon(contour) { ; }
 	SphericalPolygon(const OctahedronPolygon& octContour) : octahedronPolygon(octContour) {;}
 	SphericalPolygon(const QList<OctahedronPolygon>& octContours) : octahedronPolygon(octContours) {;}
 
@@ -599,14 +632,14 @@ public:
 	//! Set the contours defining the SphericalPolygon.
 	//! @param contours the list of contours defining the polygon area. The contours are combined using
 	//! the positive winding rule, meaning that the polygon is the union of the positive contours minus the negative ones.
-	void setContours(const QVector<QVector<Vec3d> >& contours) {octahedronPolygon = OctahedronPolygon(contours);}
+	void setContours(const std::vector<std::vector<Vec3d>>& contours) {octahedronPolygon = OctahedronPolygon(contours);}
 
 	//! Set a single contour defining the SphericalPolygon.
 	//! @param contour a contour defining the polygon area.
-	void setContour(const QVector<Vec3d>& contour) {octahedronPolygon = OctahedronPolygon(contour);}
+	void setContour(const std::vector<Vec3d>& contour) {octahedronPolygon = OctahedronPolygon(contour);}
 
 	//! Return the list of closed contours defining the polygon boundaries.
-	QVector<QVector<Vec3d> > getClosedOutlineContours() const {Q_ASSERT(0); return QVector<QVector<Vec3d> >();}
+	std::vector<std::vector<Vec3d>> getClosedOutlineContours() const {Q_ASSERT(0); return std::vector<std::vector<Vec3d>>();}
 
 	//! Deserialize the region. This method must allow as fast as possible deserialization.
 	static SphericalRegionP deserialize(QDataStream& in);
@@ -635,23 +668,23 @@ public:
 	SphericalConvexPolygon() {;}
 
 	//! Constructor from a list of contours.
-	SphericalConvexPolygon(const QVector<QVector<Vec3d> >& contours) {Q_ASSERT(contours.size()==1); setContour(contours.at(0));}
+	SphericalConvexPolygon(const std::vector<std::vector<Vec3d>>& contours) {Q_ASSERT(contours.size()==1); setContour(contours.at(0));}
 	//! Constructor from one contour.
-	SphericalConvexPolygon(const QVector<Vec3d>& contour) {setContour(contour);}
+	SphericalConvexPolygon(const std::vector<Vec3d>& contour) {setContour(contour);}
 	//! Special constructor for triangle.
-	SphericalConvexPolygon(const Vec3d &e0,const Vec3d &e1,const Vec3d &e2) {contour << e0 << e1 << e2; updateBoundingCap();}
+	SphericalConvexPolygon(const Vec3d &e0,const Vec3d &e1,const Vec3d &e2) {contour.insert(contour.end(), { e0, e1, e2 }); updateBoundingCap();}
 	//! Special constructor for quads.
-	SphericalConvexPolygon(const Vec3d &e0,const Vec3d &e1,const Vec3d &e2, const Vec3d &e3)  {contour << e0 << e1 << e2 << e3; updateBoundingCap();}
+	SphericalConvexPolygon(const Vec3d &e0,const Vec3d &e1,const Vec3d &e2, const Vec3d &e3)  {contour.insert(contour.end(), { e0, e1, e2, e3 }); updateBoundingCap();}
 
 	virtual SphericalRegionType getType() const {return SphericalRegion::ConvexPolygon;}
 	virtual OctahedronPolygon getOctahedronPolygon() const {return OctahedronPolygon(contour);}
 	virtual StelVertexArray getFillVertexArray() const {return StelVertexArray(contour, StelVertexArray::TriangleFan);}
 	virtual StelVertexArray getOutlineVertexArray() const {return StelVertexArray(contour, StelVertexArray::LineLoop);}
 	virtual double getArea() const;
-	virtual bool isEmpty() const {return contour.isEmpty();}
+	virtual bool isEmpty() const {return contour.empty();}
 	virtual Vec3d getPointInside() const;
 	virtual SphericalCap getBoundingCap() const {return cachedBoundingCap;}
-	QVector<SphericalCap> getBoundingSphericalCaps() const;
+	std::vector<SphericalCap> getBoundingSphericalCaps() const;
 	//! Serialize the region into a QVariant map matching the JSON format.
 	//! The format is
 	//! @code["CONVEX_POLYGON", [[ra,dec], [ra,dec], [ra,dec], [ra,dec]]]@endcode
@@ -694,23 +727,23 @@ public:
 	////////////////////////////////////////////////////////////////////
 	//! Set a single contour defining the SphericalPolygon.
 	//! @param acontour a contour defining the polygon area.
-	void setContour(const QVector<Vec3d>& acontour) {contour=acontour; updateBoundingCap();}
+	void setContour(const std::vector<Vec3d>& acontour) {contour=acontour; updateBoundingCap();}
 
 	//! Get the single contour defining the SphericalConvexPolygon.
-	const QVector<Vec3d>& getConvexContour() const {return contour;}
+	const std::vector<Vec3d>& getConvexContour() const { return contour; }
 
 	//! Check if the polygon is valid, i.e. it has no side >180.
 	bool checkValid() const;
 
 	//! Check if the passed contour is convex and valid, i.e. it has no side >180.
-	static bool checkValidContour(const QVector<Vec3d>& contour);
+	static bool checkValidContour(const std::vector<Vec3d>& contour);
 
 	//! Deserialize the region. This method must allow as fast as possible deserialization.
 	static SphericalRegionP deserialize(QDataStream& in);
 
 protected:
 	//! A list of vertices of the convex contour.
-	QVector<Vec3d> contour;
+	std::vector<Vec3d> contour;
 
 	//! Cache the bounding cap.
 	SphericalCap cachedBoundingCap;
@@ -723,12 +756,12 @@ protected:
 	//! @param nbThisContour nb of vertice of the contour.
 	//! @param points the points to test.
 	//! @param nbPoints the number of points to test.
-	static bool areAllPointsOutsideOneSide(const Vec3d* thisContour, int nbThisContour, const Vec3d* points, int nbPoints);
+	static bool areAllPointsOutsideOneSide(const Vec3d* thisContour, size_t nbThisContour, const Vec3d* points, size_t nbPoints);
 
 	//! Computes whether the passed points are all outside of at least one SphericalCap defining the polygon boundary.
-	bool areAllPointsOutsideOneSide(const QVector<Vec3d>& points) const
+	bool areAllPointsOutsideOneSide(const std::vector<Vec3d>& points) const
 	{
-		return areAllPointsOutsideOneSide(contour.constData(), contour.size(), points.constData(), points.size());
+		return areAllPointsOutsideOneSide(contour.data(), contour.size(), points.data(), points.size());
 	}
 
 	bool containsConvexContour(const Vec3d* vertice, int nbVertex) const;
@@ -748,7 +781,7 @@ protected:
 //	SphericalConvexPolygonSet() {;}
 //
 //	//! Constructor from a list of contours.
-//	SphericalConvexPolygonSet(const QVector<QVector<Vec3d> >& contours);
+//	SphericalConvexPolygonSet(const std::vector<std::vector<Vec3d>>& contours);
 //
 //	virtual SphericalRegionType getType() const {return SphericalRegion::ConvexPolygonSet;}
 //	virtual OctahedronPolygon getOctahedronPolygon() const;
@@ -758,7 +791,7 @@ protected:
 //	virtual bool isEmpty() const;
 //	virtual Vec3d getPointInside() const;
 //	virtual SphericalCap getBoundingCap() const {return cachedBoundingCap;}
-//	QVector<SphericalCap> getBoundingSphericalCaps() const;
+//	std::vector<SphericalCap> getBoundingSphericalCaps() const;
 //	//! Serialize the region into a QVariant map matching the JSON format.
 //	//! The format is
 //	//! @code["CONVEX_POLYGON_SET", [[ra,dec], [ra,dec], [ra,dec], [ra,dec]], [[ra,dec], [ra,dec], [ra,dec], [ra,dec]]]@endcode
@@ -786,7 +819,7 @@ protected:
 //	static SphericalRegionP deserialize(QDataStream& in);
 //
 //protected:
-//	QVector<SphericalConvexPolygon> contours;
+//	std::vector<SphericalConvexPolygon> contours;
 //
 //	//! Cache the bounding cap.
 //	SphericalCap cachedBoundingCap;
@@ -810,9 +843,9 @@ public:
 
 	SphericalTexturedPolygon() {;}
 	//! Constructor from a list of contours.
-	SphericalTexturedPolygon(const QVector<QVector<TextureVertex> >& contours) {Q_UNUSED(contours); Q_ASSERT(0);}
+	SphericalTexturedPolygon(const std::vector<std::vector<TextureVertex>>& contours) {Q_UNUSED(contours); Q_ASSERT(0);}
 	//! Constructor from one contour.
-	SphericalTexturedPolygon(const QVector<TextureVertex>& contour) {Q_UNUSED(contour); Q_ASSERT(0);}
+	SphericalTexturedPolygon(const std::vector<TextureVertex>& contour) {Q_UNUSED(contour); Q_ASSERT(0);}
 
 	//! Return an openGL compatible array of texture coords to be used using vertex arrays.
 	virtual StelVertexArray getFillVertexArray() const {Q_ASSERT(0); return StelVertexArray();}
@@ -830,16 +863,16 @@ public:
 	// Methods specific to SphericalTexturedPolygon
 	//! Set the contours defining the SphericalPolygon.
 	//! @param contours the list of contours defining the polygon area using the WindingPositive winding rule.
-	void setContours(const QVector<QVector<TextureVertex> >& contours) {Q_UNUSED(contours); Q_ASSERT(0);}
+	void setContours(const std::vector<std::vector<TextureVertex>>& contours) {Q_UNUSED(contours); Q_ASSERT(0);}
 
 	//! Set a single contour defining the SphericalPolygon.
 	//! @param contour a contour defining the polygon area.
-	void setContour(const QVector<TextureVertex>& contour) {Q_UNUSED(contour); Q_ASSERT(0);}
+	void setContour(const std::vector<TextureVertex>& contour) {Q_UNUSED(contour); Q_ASSERT(0);}
 
 private:
 	//! A list of uv textures coordinates corresponding to the triangle vertices.
 	//! There should be 1 uv position per vertex.
-	QVector<Vec2f> textureCoords;
+	std::vector<Vec2f> textureCoords;
 };
 
 
@@ -854,13 +887,13 @@ public:
 	SphericalTexturedConvexPolygon() {;}
 
 	//! Constructor from one contour.
-	SphericalTexturedConvexPolygon(const QVector<Vec3d>& contour, const QVector<Vec2f>& texCoord) {setContour(contour, texCoord);}
+	SphericalTexturedConvexPolygon(const std::vector<Vec3d>& contour, const std::vector<Vec2f>& texCoord) {setContour(contour, texCoord);}
 
 	//! Special constructor for quads.
 	//! Use the 4 textures corners for the 4 vertices.
 	SphericalTexturedConvexPolygon(const Vec3d &e0,const Vec3d &e1,const Vec3d &e2, const Vec3d &e3) : SphericalConvexPolygon(e0,e1,e2,e3)
 	{
-		textureCoords << Vec2f(0.f, 0.f) << Vec2f(1.f, 0.f) << Vec2f(1.f, 1.f) << Vec2f(0.f, 1.f);
+		textureCoords.insert(textureCoords.end(), { Vec2f(0.f, 0.f), Vec2f(1.f, 0.f), Vec2f(1.f, 1.f), Vec2f(0.f, 1.f) });
 	}
 
 	//! Return an openGL compatible array to be displayed using vertex arrays.
@@ -870,7 +903,7 @@ public:
 	//! Set a single contour defining the SphericalPolygon.
 	//! @param acontour a contour defining the polygon area.
 	//! @param texCoord a list of texture coordinates matching the vertices of the contour.
-	virtual void setContour(const QVector<Vec3d>& acontour, const QVector<Vec2f>& texCoord) {SphericalConvexPolygon::setContour(acontour); textureCoords=texCoord;}
+	virtual void setContour(const std::vector<Vec3d>& acontour, const std::vector<Vec2f>& texCoord) {SphericalConvexPolygon::setContour(acontour); textureCoords=texCoord;}
 
 	//! Serialize the region into a QVariant map matching the JSON format.
 	//! The format is:
@@ -885,7 +918,7 @@ public:
 protected:
 	//! A list of uv textures coordinates corresponding to the triangle vertices.
 	//! There should be 1 uv position per vertex.
-	QVector<Vec2f> textureCoords;
+	std::vector<Vec2f> textureCoords;
 };
 
 

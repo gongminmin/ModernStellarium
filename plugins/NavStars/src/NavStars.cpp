@@ -158,10 +158,10 @@ void NavStars::draw(StelCore* core)
 		return;
 	}
 	
-	if (stars.isEmpty())
+	if (stars.empty())
 	{
 		StelObjectMgr* omgr = GETSTELMODULE(StelObjectMgr);
-		stars.fill(StelObjectP(), starNumbers.size());
+		stars.resize(starNumbers.size());
 		for (int i = 0; i < starNumbers.size(); ++i)
 		{
 			QString name = QString("HIP %1").arg(starNumbers.at(i));

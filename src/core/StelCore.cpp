@@ -2476,7 +2476,7 @@ typedef struct iau_constline{
 	QString constellation; // 3-letter code of constellation
 } iau_constelspan;
 
-static QVector<iau_constelspan> iau_constlineVec;
+static std::vector<iau_constelspan> iau_constlineVec;
 static bool iau_constlineVecInitialized=false;
 
 // File iau_constellations_spans.dat is converted from file data.dat from ADC catalog VI/42.
@@ -2532,7 +2532,7 @@ QString StelCore::getIAUConstellation(const Vec3d positionEqJnow) const
 			numList=list.at(2).split(QRegExp(":"));
 			span.decLow=atof(numList.at(0).toLatin1()) + atof(numList.at(1).toLatin1())/60.;
 			span.constellation=list.at(3);
-			iau_constlineVec.append(span);
+			iau_constlineVec.push_back(span);
 		}
 		file.close();
 		iau_constlineVecInitialized=true;
@@ -2542,7 +2542,7 @@ QString StelCore::getIAUConstellation(const Vec3d positionEqJnow) const
 	int entry=0;
 	while (iau_constlineVec.at(entry).decLow > dec1875)
 		entry++;
-	while (entry<iau_constlineVec.size()){
+	while (entry<static_cast<int>(iau_constlineVec.size())){
 
 		while (iau_constlineVec.at(entry).RAhigh <= RA1875)
 			entry++;

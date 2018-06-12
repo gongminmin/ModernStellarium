@@ -375,7 +375,7 @@ public:
 	QString getLatestSelectedDSODesignation();
 
 	//! Get the list of all deep-sky objects.
-	const QVector<NebulaP>& getAllDeepSkyObjects() const { return dsoArray; }
+	const std::vector<NebulaP>& getAllDeepSkyObjects() const { return dsoArray; }
 
 	//! Get the list of deep-sky objects by type.
 	QList<NebulaP> getDeepSkyObjectsByType(const QString& objType);
@@ -972,7 +972,7 @@ private:
 	// Load outlines for DSO
 	bool loadDSOOutlines(const QString& filename);
 
-	QVector<NebulaP> dsoArray;		// The DSO list
+	std::vector<NebulaP> dsoArray;		// The DSO list
 	QHash<unsigned int, NebulaP> dsoIndex;
 
 	LinearFader hintsFader;

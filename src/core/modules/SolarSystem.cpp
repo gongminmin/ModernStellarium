@@ -1314,7 +1314,7 @@ void SolarSystem::draw(StelCore* core)
 		bool showMagnitudes = getFlagEphemerisMagnitudes();
 		QString info = "";
 
-		for (int i =0; i< AstroCalcDialog::EphemerisListCoords.count(); i++)
+		for (int i =0; i< static_cast<int>(AstroCalcDialog::EphemerisListCoords.size()); i++)
 		{
 			// draw EphemerisListJ2000[i];
 			Vec3d win;

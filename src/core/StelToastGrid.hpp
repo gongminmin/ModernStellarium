@@ -20,7 +20,7 @@
 #ifndef STELTOASTGRID_HPP
 #define STELTOASTGRID_HPP
 
-#include <QVector>
+#include <vector>
 #include "VecMath.hpp"
 
 //! Compute 2^x
@@ -41,25 +41,25 @@ public:
 	//! @param x the x coordinate of the tile.
 	//! @param y the y coordinate of the tile.
 	//! @param resolution the resolution of the returned array. TODO: UNITS?
-	QVector<Vec3d> getVertexArray(int level, int x, int y, int resolution) const;
+	std::vector<Vec3d> getVertexArray(int level, int x, int y, int resolution) const;
 	//! Get the texture array for a given tile.
 	//! The position are stored in a grid
 	//! @param level the TOAST level of the tile.
 	//! @param x the x coordinate of the tile.
 	//! @param y the y coordinate of the tile.
 	//! @param resolution the resolution of the returned array. TODO: UNITS?
-	QVector<Vec2f> getTextureArray(int level, int x, int y, int resolution) const;
+	std::vector<Vec2f> getTextureArray(int level, int x, int y, int resolution) const;
 	//! Get the index of the vertex from getVertexArray sorted as a list of triangles.
 	//! @param level the TOAST level of the tile.
 	//! @param x the x coordinate of the tile.
 	//! @param y the y coordinate of the tile.
 	//! @param resolution the resolution of the returned array.  TODO: UNITS?
-	QVector<unsigned short> getTrianglesIndex(int level, int x, int y, int resolution) const;
+	std::vector<unsigned short> getTrianglesIndex(int level, int x, int y, int resolution) const;
 	//! Returns the polygon contouring a given tile.
 	//! @param level the TOAST level of the tile.
 	//! @param x the x coordinate of the tile.
 	//! @param y the y coordinate of the tile.
-	QVector<Vec3d> getPolygon(int level, int x, int y) const;
+	std::vector<Vec3d> getPolygon(int level, int x, int y) const;
 	//! Return the max TOAST level of this grid.
 	int getMaxLevel() const {return maxLevel;}
 
@@ -84,7 +84,7 @@ private:
 	//! the size of the grid
 	int size;
 	//! The actual grid data
-	QVector<Vec3d> grid;
+	std::vector<Vec3d> grid;
 };
 
 #endif // STELTOASTGRID_HPP

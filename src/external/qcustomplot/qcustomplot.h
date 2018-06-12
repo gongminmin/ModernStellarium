@@ -33,7 +33,6 @@
 #include <QPaintEvent>
 #include <QMouseEvent>
 #include <QPixmap>
-#include <QVector>
 #include <QString>
 #include <QDateTime>
 #include <QMultiMap>
@@ -45,6 +44,7 @@
 #include <QMargins>
 #include <qmath.h>
 #include <limits>
+#include <vector>
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #  include <qnumeric.h>
 #  include <QPrinter>
@@ -746,7 +746,7 @@ protected:
   void sizeConstraintsChanged() const;
   void adoptElement(QCPLayoutElement *el);
   void releaseElement(QCPLayoutElement *el);
-  QVector<int> getSectionSizes(QVector<int> maxSizes, QVector<int> minSizes, QVector<double> stretchFactors, int totalSize) const;
+  std::vector<int> getSectionSizes(std::vector<int> maxSizes, std::vector<int> minSizes, std::vector<double> stretchFactors, int totalSize) const;
   
 private:
   Q_DISABLE_COPY(QCPLayout)
@@ -812,8 +812,8 @@ protected:
   int mColumnSpacing, mRowSpacing;
   
   // non-virtual methods:
-  void getMinimumRowColSizes(QVector<int> *minColWidths, QVector<int> *minRowHeights) const;
-  void getMaximumRowColSizes(QVector<int> *maxColWidths, QVector<int> *maxRowHeights) const;
+  void getMinimumRowColSizes(std::vector<int> *minColWidths, std::vector<int> *minRowHeights) const;
+  void getMaximumRowColSizes(std::vector<int> *maxColWidths, std::vector<int> *maxRowHeights) const;
   
 private:
   Q_DISABLE_COPY(QCPLayoutGrid)
@@ -1005,8 +1005,8 @@ class QCP_LIB_DECL QCPAxis : public QCPLayerable
   Q_PROPERTY(QString numberFormat READ numberFormat WRITE setNumberFormat)
   Q_PROPERTY(int numberPrecision READ numberPrecision WRITE setNumberPrecision)
   Q_PROPERTY(double tickStep READ tickStep WRITE setTickStep)
-  Q_PROPERTY(QVector<double> tickVector READ tickVector WRITE setTickVector)
-  Q_PROPERTY(QVector<QString> tickVectorLabels READ tickVectorLabels WRITE setTickVectorLabels)
+  Q_PROPERTY(std::vector<double> tickVector READ tickVector WRITE setTickVector)
+  Q_PROPERTY(std::vector<QString> tickVectorLabels READ tickVectorLabels WRITE setTickVectorLabels)
   Q_PROPERTY(int tickLengthIn READ tickLengthIn WRITE setTickLengthIn)
   Q_PROPERTY(int tickLengthOut READ tickLengthOut WRITE setTickLengthOut)
   Q_PROPERTY(int subTickCount READ subTickCount WRITE setSubTickCount)
@@ -1113,8 +1113,8 @@ public:
   QString numberFormat() const;
   int numberPrecision() const { return mNumberPrecision; }
   double tickStep() const { return mTickStep; }
-  QVector<double> tickVector() const { return mTickVector; }
-  QVector<QString> tickVectorLabels() const { return mTickVectorLabels; }
+  std::vector<double> tickVector() const { return mTickVector; }
+  std::vector<QString> tickVectorLabels() const { return mTickVectorLabels; }
   int tickLengthIn() const;
   int tickLengthOut() const;
   int subTickCount() const { return mSubTickCount; }
@@ -1169,8 +1169,8 @@ public:
   void setNumberFormat(const QString &formatCode);
   void setNumberPrecision(int precision);
   void setTickStep(double step);
-  void setTickVector(const QVector<double> &vec);
-  void setTickVectorLabels(const QVector<QString> &vec);
+  void setTickVector(const std::vector<double> &vec);
+  void setTickVectorLabels(const std::vector<QString> &vec);
   void setTickLength(int inside, int outside=0);
   void setTickLengthIn(int inside);
   void setTickLengthOut(int outside);
@@ -1274,9 +1274,9 @@ protected:
   QCPGrid *mGrid;
   QCPAxisPainterPrivate *mAxisPainter;
   int mLowestVisibleTick, mHighestVisibleTick;
-  QVector<double> mTickVector;
-  QVector<QString> mTickVectorLabels;
-  QVector<double> mSubTickVector;
+  std::vector<double> mTickVector;
+  std::vector<QString> mTickVectorLabels;
+  std::vector<double> mSubTickVector;
   bool mCachedMarginValid;
   int mCachedMargin;
   
@@ -1354,9 +1354,9 @@ public:
   bool abbreviateDecimalPowers;
   bool reversedEndings;
   
-  QVector<double> subTickPositions;
-  QVector<double> tickPositions;
-  QVector<QString> tickLabels;
+  std::vector<double> subTickPositions;
+  std::vector<double> tickPositions;
+  std::vector<QString> tickLabels;
   
 protected:
   struct CachedLabel
@@ -1964,7 +1964,7 @@ protected:
   bool mPeriodic;
   
   // non-property members:
-  QVector<QRgb> mColorBuffer;
+  std::vector<QRgb> mColorBuffer;
   bool mColorBufferInvalidated;
 };
 
@@ -2541,13 +2541,13 @@ public:
   
   // setters:
   void setData(QCPDataMap *data, bool copy=false);
-  void setData(const QVector<double> &key, const QVector<double> &value);
-  void setDataKeyError(const QVector<double> &key, const QVector<double> &value, const QVector<double> &keyError);
-  void setDataKeyError(const QVector<double> &key, const QVector<double> &value, const QVector<double> &keyErrorMinus, const QVector<double> &keyErrorPlus);
-  void setDataValueError(const QVector<double> &key, const QVector<double> &value, const QVector<double> &valueError);
-  void setDataValueError(const QVector<double> &key, const QVector<double> &value, const QVector<double> &valueErrorMinus, const QVector<double> &valueErrorPlus);
-  void setDataBothError(const QVector<double> &key, const QVector<double> &value, const QVector<double> &keyError, const QVector<double> &valueError);
-  void setDataBothError(const QVector<double> &key, const QVector<double> &value, const QVector<double> &keyErrorMinus, const QVector<double> &keyErrorPlus, const QVector<double> &valueErrorMinus, const QVector<double> &valueErrorPlus);
+  void setData(const std::vector<double> &key, const std::vector<double> &value);
+  void setDataKeyError(const std::vector<double> &key, const std::vector<double> &value, const std::vector<double> &keyError);
+  void setDataKeyError(const std::vector<double> &key, const std::vector<double> &value, const std::vector<double> &keyErrorMinus, const std::vector<double> &keyErrorPlus);
+  void setDataValueError(const std::vector<double> &key, const std::vector<double> &value, const std::vector<double> &valueError);
+  void setDataValueError(const std::vector<double> &key, const std::vector<double> &value, const std::vector<double> &valueErrorMinus, const std::vector<double> &valueErrorPlus);
+  void setDataBothError(const std::vector<double> &key, const std::vector<double> &value, const std::vector<double> &keyError, const std::vector<double> &valueError);
+  void setDataBothError(const std::vector<double> &key, const std::vector<double> &value, const std::vector<double> &keyErrorMinus, const std::vector<double> &keyErrorPlus, const std::vector<double> &valueErrorMinus, const std::vector<double> &valueErrorPlus);
   void setLineStyle(LineStyle ls);
   void setScatterStyle(const QCPScatterStyle &style);
   void setErrorType(ErrorType errorType);
@@ -2561,7 +2561,7 @@ public:
   void addData(const QCPDataMap &dataMap);
   void addData(const QCPData &data);
   void addData(double key, double value);
-  void addData(const QVector<double> &keys, const QVector<double> &values);
+  void addData(const std::vector<double> &keys, const std::vector<double> &values);
   void removeDataBefore(double key);
   void removeDataAfter(double key);
   void removeData(double fromKey, double toKey);
@@ -2598,32 +2598,32 @@ protected:
   virtual QCPRange getValueRange(bool &foundRange, SignDomain inSignDomain, bool includeErrors) const; // overloads base class interface
   
   // introduced virtual methods:
-  virtual void drawFill(QCPPainter *painter, QVector<QPointF> *lineData) const;
-  virtual void drawScatterPlot(QCPPainter *painter, QVector<QCPData> *scatterData) const;
-  virtual void drawLinePlot(QCPPainter *painter, QVector<QPointF> *lineData) const;
-  virtual void drawImpulsePlot(QCPPainter *painter, QVector<QPointF> *lineData) const;
+  virtual void drawFill(QCPPainter *painter, std::vector<QPointF> *lineData) const;
+  virtual void drawScatterPlot(QCPPainter *painter, std::vector<QCPData> *scatterData) const;
+  virtual void drawLinePlot(QCPPainter *painter, std::vector<QPointF> *lineData) const;
+  virtual void drawImpulsePlot(QCPPainter *painter, std::vector<QPointF> *lineData) const;
   
   // non-virtual methods:
-  void getPreparedData(QVector<QCPData> *lineData, QVector<QCPData> *scatterData) const;
-  void getPlotData(QVector<QPointF> *lineData, QVector<QCPData> *scatterData) const;
-  void getScatterPlotData(QVector<QCPData> *scatterData) const;
-  void getLinePlotData(QVector<QPointF> *linePixelData, QVector<QCPData> *scatterData) const;
-  void getStepLeftPlotData(QVector<QPointF> *linePixelData, QVector<QCPData> *scatterData) const;
-  void getStepRightPlotData(QVector<QPointF> *linePixelData, QVector<QCPData> *scatterData) const;
-  void getStepCenterPlotData(QVector<QPointF> *linePixelData, QVector<QCPData> *scatterData) const;
-  void getImpulsePlotData(QVector<QPointF> *linePixelData, QVector<QCPData> *scatterData) const;
+  void getPreparedData(std::vector<QCPData> *lineData, std::vector<QCPData> *scatterData) const;
+  void getPlotData(std::vector<QPointF> *lineData, std::vector<QCPData> *scatterData) const;
+  void getScatterPlotData(std::vector<QCPData> *scatterData) const;
+  void getLinePlotData(std::vector<QPointF> *linePixelData, std::vector<QCPData> *scatterData) const;
+  void getStepLeftPlotData(std::vector<QPointF> *linePixelData, std::vector<QCPData> *scatterData) const;
+  void getStepRightPlotData(std::vector<QPointF> *linePixelData, std::vector<QCPData> *scatterData) const;
+  void getStepCenterPlotData(std::vector<QPointF> *linePixelData, std::vector<QCPData> *scatterData) const;
+  void getImpulsePlotData(std::vector<QPointF> *linePixelData, std::vector<QCPData> *scatterData) const;
   void drawError(QCPPainter *painter, double x, double y, const QCPData &data) const;
   void getVisibleDataBounds(QCPDataMap::const_iterator &lower, QCPDataMap::const_iterator &upper) const;
   int countDataInBounds(const QCPDataMap::const_iterator &lower, const QCPDataMap::const_iterator &upper, int maxCount) const;
-  void addFillBasePoints(QVector<QPointF> *lineData) const;
-  void removeFillBasePoints(QVector<QPointF> *lineData) const;
+  void addFillBasePoints(std::vector<QPointF> *lineData) const;
+  void removeFillBasePoints(std::vector<QPointF> *lineData) const;
   QPointF lowerFillBasePoint(double lowerKey) const;
   QPointF upperFillBasePoint(double upperKey) const;
-  const QPolygonF getChannelFillPolygon(const QVector<QPointF> *lineData) const;
-  int findIndexBelowX(const QVector<QPointF> *data, double x) const;
-  int findIndexAboveX(const QVector<QPointF> *data, double x) const;
-  int findIndexBelowY(const QVector<QPointF> *data, double y) const;
-  int findIndexAboveY(const QVector<QPointF> *data, double y) const;
+  const QPolygonF getChannelFillPolygon(const std::vector<QPointF> *lineData) const;
+  int findIndexBelowX(const std::vector<QPointF> *data, double x) const;
+  int findIndexAboveX(const std::vector<QPointF> *data, double x) const;
+  int findIndexBelowY(const std::vector<QPointF> *data, double y) const;
+  int findIndexAboveY(const std::vector<QPointF> *data, double y) const;
   double pointDistance(const QPointF &pixelPoint) const;
   
   friend class QCustomPlot;
@@ -2683,8 +2683,8 @@ public:
   
   // setters:
   void setData(QCPCurveDataMap *data, bool copy=false);
-  void setData(const QVector<double> &t, const QVector<double> &key, const QVector<double> &value);
-  void setData(const QVector<double> &key, const QVector<double> &value);
+  void setData(const std::vector<double> &t, const std::vector<double> &key, const std::vector<double> &value);
+  void setData(const std::vector<double> &key, const std::vector<double> &value);
   void setScatterStyle(const QCPScatterStyle &style);
   void setLineStyle(LineStyle style);
   
@@ -2693,7 +2693,7 @@ public:
   void addData(const QCPCurveData &data);
   void addData(double t, double key, double value);
   void addData(double key, double value);
-  void addData(const QVector<double> &ts, const QVector<double> &keys, const QVector<double> &values);
+  void addData(const std::vector<double> &ts, const std::vector<double> &keys, const std::vector<double> &values);
   void removeDataBefore(double t);
   void removeDataAfter(double t);
   void removeData(double fromt, double tot);
@@ -2716,16 +2716,16 @@ protected:
   virtual QCPRange getValueRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
   
   // introduced virtual methods:
-  virtual void drawScatterPlot(QCPPainter *painter, const QVector<QPointF> *pointData) const;
+  virtual void drawScatterPlot(QCPPainter *painter, const std::vector<QPointF> *pointData) const;
   
   // non-virtual methods:
-  void getCurveData(QVector<QPointF> *lineData) const;
+  void getCurveData(std::vector<QPointF> *lineData) const;
   int getRegion(double x, double y, double rectLeft, double rectTop, double rectRight, double rectBottom) const;
   QPointF getOptimizedPoint(int prevRegion, double prevKey, double prevValue, double key, double value, double rectLeft, double rectTop, double rectRight, double rectBottom) const;
-  QVector<QPointF> getOptimizedCornerPoints(int prevRegion, int currentRegion, double prevKey, double prevValue, double key, double value, double rectLeft, double rectTop, double rectRight, double rectBottom) const;
+  std::vector<QPointF> getOptimizedCornerPoints(int prevRegion, int currentRegion, double prevKey, double prevValue, double key, double value, double rectLeft, double rectTop, double rectRight, double rectBottom) const;
   bool mayTraverse(int prevRegion, int currentRegion) const;
   bool getTraverse(double prevKey, double prevValue, double key, double value, double rectLeft, double rectTop, double rectRight, double rectBottom, QPointF &crossA, QPointF &crossB) const;
-  void getTraverseCornerPoints(int prevRegion, int currentRegion, double rectLeft, double rectTop, double rectRight, double rectBottom, QVector<QPointF> &beforeTraverse, QVector<QPointF> &afterTraverse) const;
+  void getTraverseCornerPoints(int prevRegion, int currentRegion, double rectLeft, double rectTop, double rectRight, double rectBottom, std::vector<QPointF> &beforeTraverse, std::vector<QPointF> &afterTraverse) const;
   double pointDistance(const QPointF &pixelPoint) const;
   
   friend class QCustomPlot;
@@ -2862,7 +2862,7 @@ public:
   void setBarsGroup(QCPBarsGroup *barsGroup);
   void setBaseValue(double baseValue);
   void setData(QCPBarDataMap *data, bool copy=false);
-  void setData(const QVector<double> &key, const QVector<double> &value);
+  void setData(const std::vector<double> &key, const std::vector<double> &value);
   
   // non-property methods:
   void moveBelow(QCPBars *bars);
@@ -2870,7 +2870,7 @@ public:
   void addData(const QCPBarDataMap &dataMap);
   void addData(const QCPBarData &data);
   void addData(double key, double value);
-  void addData(const QVector<double> &keys, const QVector<double> &values);
+  void addData(const std::vector<double> &keys, const std::vector<double> &values);
   void removeDataBefore(double key);
   void removeDataAfter(double key);
   void removeData(double fromKey, double toKey);
@@ -2922,7 +2922,7 @@ class QCP_LIB_DECL QCPStatisticalBox : public QCPAbstractPlottable
   Q_PROPERTY(double median READ median WRITE setMedian)
   Q_PROPERTY(double upperQuartile READ upperQuartile WRITE setUpperQuartile)
   Q_PROPERTY(double maximum READ maximum WRITE setMaximum)
-  Q_PROPERTY(QVector<double> outliers READ outliers WRITE setOutliers)
+  Q_PROPERTY(std::vector<double> outliers READ outliers WRITE setOutliers)
   Q_PROPERTY(double width READ width WRITE setWidth)
   Q_PROPERTY(double whiskerWidth READ whiskerWidth WRITE setWhiskerWidth)
   Q_PROPERTY(QPen whiskerPen READ whiskerPen WRITE setWhiskerPen)
@@ -2940,7 +2940,7 @@ public:
   double median() const { return mMedian; }
   double upperQuartile() const { return mUpperQuartile; }
   double maximum() const { return mMaximum; }
-  QVector<double> outliers() const { return mOutliers; }
+  std::vector<double> outliers() const { return mOutliers; }
   double width() const { return mWidth; }
   double whiskerWidth() const { return mWhiskerWidth; }
   QPen whiskerPen() const { return mWhiskerPen; }
@@ -2955,7 +2955,7 @@ public:
   void setMedian(double value);
   void setUpperQuartile(double value);
   void setMaximum(double value);
-  void setOutliers(const QVector<double> &values);
+  void setOutliers(const std::vector<double> &values);
   void setData(double key, double minimum, double lowerQuartile, double median, double upperQuartile, double maximum);
   void setWidth(double width);
   void setWhiskerWidth(double width);
@@ -2970,7 +2970,7 @@ public:
   
 protected:
   // property members:
-  QVector<double> mOutliers;
+  std::vector<double> mOutliers;
   double mKey, mMinimum, mLowerQuartile, mMedian, mUpperQuartile, mMaximum;
   double mWidth;
   double mWhiskerWidth;
@@ -3181,7 +3181,7 @@ public:
   
   // setters:
   void setData(QCPFinancialDataMap *data, bool copy=false);
-  void setData(const QVector<double> &key, const QVector<double> &open, const QVector<double> &high, const QVector<double> &low, const QVector<double> &close);
+  void setData(const std::vector<double> &key, const std::vector<double> &open, const std::vector<double> &high, const std::vector<double> &low, const std::vector<double> &close);
   void setChartStyle(ChartStyle style);
   void setWidth(double width);
   void setTwoColored(bool twoColored);
@@ -3194,7 +3194,7 @@ public:
   void addData(const QCPFinancialDataMap &dataMap);
   void addData(const QCPFinancialData &data);
   void addData(double key, double open, double high, double low, double close);
-  void addData(const QVector<double> &key, const QVector<double> &open, const QVector<double> &high, const QVector<double> &low, const QVector<double> &close);
+  void addData(const std::vector<double> &key, const std::vector<double> &open, const std::vector<double> &high, const std::vector<double> &low, const std::vector<double> &close);
   void removeDataBefore(double key);
   void removeDataAfter(double key);
   void removeData(double fromKey, double toKey);
@@ -3205,7 +3205,7 @@ public:
   virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const;
   
   // static methods:
-  static QCPFinancialDataMap timeSeriesToOhlc(const QVector<double> &time, const QVector<double> &value, double timeBinSize, double timeBinOffset = 0);
+  static QCPFinancialDataMap timeSeriesToOhlc(const std::vector<double> &time, const std::vector<double> &value, double timeBinSize, double timeBinOffset = 0);
   
 protected:
   // property members:

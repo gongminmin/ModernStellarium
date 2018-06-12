@@ -178,7 +178,7 @@ private:
 	const S3DScene::Material* lastMaterial;
 	QOpenGLShaderProgram* curShader;
 	QSet<QOpenGLShaderProgram*> initializedShaders;
-	QVector<const StelOBJ::MaterialGroup*> transparentGroups;
+	std::vector<const StelOBJ::MaterialGroup*> transparentGroups;
 
 	// debug info
 	int drawnTriangles,drawnModels;
@@ -210,8 +210,8 @@ private:
 	bool cubeMappingCreated; //true if any cubemapping objects have been initialized and need to be cleaned up eventually
 
 	//cube geometry
-	QVector<Vec3f> cubeVertices, transformedCubeVertices;
-	QVector<Vec2f> cubeTexcoords;
+	std::vector<Vec3f> cubeVertices, transformedCubeVertices;
+	std::vector<Vec2f> cubeTexcoords;
 	QOpenGLBuffer cubeVertexBuffer;
 	QOpenGLBuffer transformedCubeVertexBuffer;
 	QOpenGLBuffer cubeIndexBuffer;
@@ -256,23 +256,23 @@ private:
 	GlobalShaderParameters shaderParameters;
 
 	//Shadow Map FBO handles
-	QVector<GLuint> shadowFBOs;
+	std::vector<GLuint> shadowFBOs;
 	//Holds the shadow textures
-	QVector<GLuint> shadowMapsArray;
+	std::vector<GLuint> shadowMapsArray;
 	//Holds the shadow transformation matrix per split (Crop/Projection/View)
-	QVector<QMatrix4x4> shadowCPM;
+	std::vector<QMatrix4x4> shadowCPM;
 	//Holds the xy-scaling of the orthographic light cam + pos of near/far planes in view coords
 	//Needed for consistent shadow filter sizes and PCSS effect
-	QVector<QVector4D> shadowFrustumSize;
+	std::vector<QVector4D> shadowFrustumSize;
 	// Frustum of the view camera, constrainted to the shadowFarZ instead of the camFarZ
 	Frustum camFrustShadow;
 	//near/far planes for the orthographic light that fits the whole scene
 	float lightOrthoNear;
 	float lightOrthoFar;
 	//Array holding the split frustums
-	QVector<Frustum> frustumArray;
+	std::vector<Frustum> frustumArray;
 	//Vector holding the convex split bodies for focused shadow mapping
-	QVector<Polyhedron> focusBodies;
+	std::vector<Polyhedron> focusBodies;
 
 	float parallaxScale;
 

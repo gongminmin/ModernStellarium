@@ -168,7 +168,7 @@ class SyncRemotePeer : public QObject
 {
 	Q_OBJECT
 public:
-	SyncRemotePeer(QAbstractSocket* socket, bool isServer, const QVector<SyncMessageHandler*>& handlerList);
+	SyncRemotePeer(QAbstractSocket* socket, bool isServer, const std::vector<SyncMessageHandler*>& handlerList);
 	~SyncRemotePeer();
 
 
@@ -214,7 +214,7 @@ private:
 	SyncProtocol::SyncHeader msgHeader; //the last message header read/currently being processed
 	qint64 lastReceiveTime; // The time the last data of this peer was received
 	qint64 lastSendTime; //The time the last data was written to this peer
-	QVector<SyncMessageHandler*> handlerList;
+	std::vector<SyncMessageHandler*> handlerList;
 	QByteArray msgWriteBuffer; //Byte array used to construct messages before writing them
 
 	friend class ServerAuthHandler;

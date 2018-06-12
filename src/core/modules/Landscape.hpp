@@ -286,15 +286,15 @@ private:
 	// drawLight==true for illumination layer, it then selects only the self-illuminating panels.
 	void drawDecor(StelCore* core, StelPainter&, const bool drawLight=false) const;
 	void drawGround(StelCore* core, StelPainter&) const;
-	QVector<double> groundVertexArr;
-	QVector<float> groundTexCoordArr;
+	std::vector<double> groundVertexArr;
+	std::vector<float> groundTexCoordArr;
 	StelTextureSP* sideTexs;
 	int nbSideTexs;
 	int nbSide;
 	landscapeTexCoord* sides;
 	StelTextureSP fogTex;
 	StelTextureSP groundTex;
-	QVector<QImage*> sidesImages; // Required for opacity lookup
+	std::vector<QImage*> sidesImages; // Required for opacity lookup
 	int nbDecorRepeat;
 	float fogAltAngle;
 	float fogAngleShift;

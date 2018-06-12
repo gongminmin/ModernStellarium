@@ -194,7 +194,7 @@ void S3DRenderer::setupPassUniforms(QOpenGLShaderProgram *shader)
 		{
 			//send size of light ortho for each frustum
 			loc = shaderManager.uniformLocation(shader,ShaderMgr::UNIFORM_VEC_LIGHTORTHOSCALE);
-			shader->setUniformValueArray(loc,shadowFrustumSize.constData(),shaderParameters.frustumSplits);
+			shader->setUniformValueArray(loc,shadowFrustumSize.data(),shaderParameters.frustumSplits);
 		}
 	}
 
@@ -316,12 +316,12 @@ bool S3DRenderer::drawArrays(bool shading, bool blendAlphaAdditive)
 	//TODO optimize: clump models with same material together when first loading to minimize state changes
 
 	const S3DScene::ObjectList& objectList = currentScene->getObjects();
-	for(int i=0; i<objectList.size(); ++i)
+	for(size_t i=0; i<objectList.size(); ++i)
 	{
 		const StelOBJ::Object& obj = objectList.at(i);
 		const StelOBJ::MaterialGroupList& matGroups = obj.groups;
 
-		for(int j = 0; j < matGroups.size();++j)
+		for(size_t j = 0; j < matGroups.size();++j)
 		{
 			const StelOBJ::MaterialGroup& matGroup = matGroups.at(j);
 			const S3DScene::Material* pMaterial = &currentScene->getMaterial(matGroup.materialIndex);
@@ -335,7 +335,7 @@ bool S3DRenderer::drawArrays(bool shading, bool blendAlphaAdditive)
 				if(pMaterial->traits.hasTransparency || pMaterial->traits.isFading)
 				{
 					//process transparent objects later, with Z sorting
-					transparentGroups.append(&matGroup);
+					transparentGroups.push_back(&matGroup);
 					continue;
 				}
 			}
@@ -358,7 +358,7 @@ bool S3DRenderer::drawArrays(bool shading, bool blendAlphaAdditive)
 		zSortValue = currentScene->getEyePosition().toVec3f();
 		std::sort(transparentGroups.begin(),transparentGroups.end(),zSortFunction);
 
-		for(int i = 0; i<transparentGroups.size();++i)
+		for(size_t i = 0; i<transparentGroups.size();++i)
 		{
 			success = drawMaterialGroup(*transparentGroups[i],shading,blendAlphaAdditive);
 			if(!success)
@@ -672,7 +672,7 @@ void S3DRenderer::adjustShadowFrustum(const Vec3d& viewPos, const Vec3d& viewDir
 	Vec3f vDir = viewDir.toVec3f();
 	vDir.normalize();
 
-	const QVector<Vec3f> &verts = p.getVerts();
+	const std::vector<Vec3f> &verts = p.getVerts();
 	for(int i=0; i<p.getVertCount(); i++)
 	{
 		//Find the distance to the camera
@@ -1243,7 +1243,7 @@ void S3DRenderer::drawFromCubeMap()
 	//}
 
 	//transform vertices on CPU side - maybe we could do this multithreaded, kicked off at the beginning of the frame?
-	altAzProjector->project(cubeVertices.count(),cubeVertices.constData(),transformedCubeVertices.data());
+	altAzProjector->project(static_cast<int>(cubeVertices.size()),cubeVertices.data(),transformedCubeVertices.data());
 
 	//setup shader params
 	projectionMatrix = altAzProjector->getProjectionMatrix().convertToQMatrix();
@@ -1253,13 +1253,13 @@ void S3DRenderer::drawFromCubeMap()
 	if(cubemappingMode>=S3DEnum::CM_CUBEMAP)
 		cubeShader->setAttributeBuffer(StelOpenGLArray::ATTLOC_TEXCOORD,GL_FLOAT,0,3);
 	else // 2D tex coords are stored in the same buffer, but with an offset
-		cubeShader->setAttributeBuffer(StelOpenGLArray::ATTLOC_TEXCOORD,GL_FLOAT,cubeVertices.size() * sizeof(Vec3f),2);
+		cubeShader->setAttributeBuffer(StelOpenGLArray::ATTLOC_TEXCOORD,GL_FLOAT,static_cast<int>(cubeVertices.size() * sizeof(Vec3f)),2);
 	cubeShader->enableAttributeArray(StelOpenGLArray::ATTLOC_TEXCOORD);
 	cubeVertexBuffer.release();
 
 	//upload transformed vertex data
 	transformedCubeVertexBuffer.bind();
-	transformedCubeVertexBuffer.allocate(transformedCubeVertices.constData(), transformedCubeVertices.size() * sizeof(Vec3f));
+	transformedCubeVertexBuffer.allocate(transformedCubeVertices.data(), static_cast<int>(transformedCubeVertices.size() * sizeof(Vec3f)));
 	cubeShader->setAttributeBuffer(StelOpenGLArray::ATTLOC_VERTEX, GL_FLOAT, 0,3);
 	cubeShader->enableAttributeArray(StelOpenGLArray::ATTLOC_VERTEX);
 	transformedCubeVertexBuffer.release();
@@ -2080,9 +2080,9 @@ bool S3DRenderer::initCubemapping()
 	const double d_sub_tex = 1.0 / sub;
 
 	//create the front cubemap face vertices
-	QVector<Vec3f> cubePlaneFront;
-	QVector<Vec2f> cubePlaneFrontTex;
-	QVector<unsigned short> frontIndices;
+	std::vector<Vec3f> cubePlaneFront;
+	std::vector<Vec2f> cubePlaneFrontTex;
+	std::vector<unsigned short> frontIndices;
 	cubePlaneFront.reserve(vtxCount);
 	cubePlaneFrontTex.reserve(vtxCount);
 
@@ -2099,8 +2099,8 @@ bool S3DRenderer::initCubemapping()
 			float tx = x * d_sub_tex;
 			float ty = y * d_sub_tex;
 
-			cubePlaneFront<< Vec3f(xp, 1.0f, yp);
-			cubePlaneFrontTex<<Vec2f(tx,ty);
+			cubePlaneFront.push_back(Vec3f(xp, 1.0f, yp));
+			cubePlaneFrontTex.push_back(Vec2f(tx,ty));
 
 			vertexIdx[y][x] = y*(sub+1)+x;
 		}
@@ -2116,18 +2116,18 @@ bool S3DRenderer::initCubemapping()
 		for( int x = 0; x<sub; x++)
 		{
 			//first tri (top one)
-			frontIndices<<vertexIdx[y+1][x];
-			frontIndices<<vertexIdx[y][x];
-			frontIndices<<vertexIdx[y+1][x+1];
+			frontIndices.push_back(vertexIdx[y+1][x]);
+			frontIndices.push_back(vertexIdx[y][x]);
+			frontIndices.push_back(vertexIdx[y+1][x+1]);
 
 			//second tri
-			frontIndices<<vertexIdx[y+1][x+1];
-			frontIndices<<vertexIdx[y][x];
-			frontIndices<<vertexIdx[y][x+1];
+			frontIndices.push_back(vertexIdx[y+1][x+1]);
+			frontIndices.push_back(vertexIdx[y][x]);
+			frontIndices.push_back(vertexIdx[y][x+1]);
 		}
 	}
 
-	int idxCount = frontIndices.size();
+	int idxCount = static_cast<int>(frontIndices.size());
 
 	//create the other faces
 	//note that edge vertices of the faces are duplicated
@@ -2136,7 +2136,7 @@ bool S3DRenderer::initCubemapping()
 	cubeVertices.reserve(vtxCount * 6);
 	cubeTexcoords.clear();
 	cubeTexcoords.reserve(vtxCount * 6);
-	QVector<unsigned short> cubeIndices; //index data is not needed afterwards on CPU side, so use a local vector
+	std::vector<unsigned short> cubeIndices; //index data is not needed afterwards on CPU side, so use a local vector
 	cubeIndices.reserve(idxCount * 6);
 	//init with copies of front face
 	for(int i = 0;i<6;++i)
@@ -2149,15 +2149,15 @@ bool S3DRenderer::initCubemapping()
 		//W face y=-1
 		//up face z=1
 		//down face z=-1
-		cubeVertices<<cubePlaneFront;
-		cubeTexcoords<<cubePlaneFrontTex;
-		cubeIndices<<frontIndices;
+		cubeVertices.insert(cubeVertices.end(), cubePlaneFront.begin(), cubePlaneFront.end());
+		cubeTexcoords.insert(cubeTexcoords.end(), cubePlaneFrontTex.begin(), cubePlaneFrontTex.end());
+		cubeIndices.insert(cubeIndices.end(), frontIndices.begin(), frontIndices.end());
 	}
 
 	Q_ASSERT(cubeVertices.size() == cubeTexcoords.size());
 
 	transformedCubeVertices.resize(cubeVertices.size());
-	cubeIndexCount = cubeIndices.size();
+	cubeIndexCount = static_cast<int>(cubeIndices.size());
 
 	qCDebug(s3drenderer)<<"Using cube with"<<cubeVertices.size()<<"vertices and" <<cubeIndexCount<<"indices";
 
@@ -2176,13 +2176,13 @@ bool S3DRenderer::initCubemapping()
 	//upload original cube vertices + indices to GL
 	cubeVertexBuffer.bind();
 	//store original vertex pos (=3D vertex coords) + 2D tex coords in same buffer
-	cubeVertexBuffer.allocate(cubeVertices.size() * (sizeof(Vec3f) + sizeof(Vec2f)) );
-	cubeVertexBuffer.write(0, cubeVertices.constData(), cubeVertices.size() * sizeof(Vec3f));
-	cubeVertexBuffer.write(cubeVertices.size() * sizeof(Vec3f), cubeTexcoords.constData(), cubeTexcoords.size() * sizeof(Vec2f));
+	cubeVertexBuffer.allocate(static_cast<int>(cubeVertices.size() * (sizeof(Vec3f) + sizeof(Vec2f))));
+	cubeVertexBuffer.write(0, cubeVertices.data(), static_cast<int>(cubeVertices.size() * sizeof(Vec3f)));
+	cubeVertexBuffer.write(static_cast<int>(cubeVertices.size() * sizeof(Vec3f)), cubeTexcoords.data(), static_cast<int>(cubeTexcoords.size() * sizeof(Vec2f)));
 	cubeVertexBuffer.release();
 
 	cubeIndexBuffer.bind();
-	cubeIndexBuffer.allocate(cubeIndices.constData(),cubeIndices.size() * sizeof(unsigned short));
+	cubeIndexBuffer.allocate(cubeIndices.data(),static_cast<int>(cubeIndices.size() * sizeof(unsigned short)));
 	cubeIndexBuffer.release();
 
 	//reset cubemap timer to make sure it is rerendered immediately after re-init
@@ -2203,8 +2203,8 @@ void S3DRenderer::deleteShadowmapping()
 	if(shadowFBOs.size()>0) //kinda hack that finds out if shadowmap related objects have been created
 	{
 		//we can delete them all at once then
-		glDeleteFramebuffers(shadowFBOs.size(),shadowFBOs.constData());
-		glDeleteTextures(shadowMapsArray.size(),shadowMapsArray.constData());
+		glDeleteFramebuffers(static_cast<GLsizei>(shadowFBOs.size()),shadowFBOs.data());
+		glDeleteTextures(static_cast<GLsizei>(shadowMapsArray.size()),shadowMapsArray.data());
 
 		shadowFBOs.clear();
 		shadowMapsArray.clear();

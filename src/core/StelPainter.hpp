@@ -134,7 +134,7 @@ public:
 	//! Draw a curve defined by a list of points.
 	//! The points should be already tesselated to ensure that the path will look smooth.
 	//! The algorithm take care of cutting the path if it crosses a viewport discontinuity.
-	void drawPath(const QVector<Vec3d> &points, const QVector<Vec4f> &colors);
+	void drawPath(const std::vector<Vec3d>& points, const std::vector<Vec4f>& colors);
 
 	//! Draw a simple circle, 2d viewport coordinates in pixel
 	void drawCircle(float x, float y, float r);
@@ -224,7 +224,7 @@ public:
 	//! @param level the number of concentric circles.
 	//! @param vertexArr the vertex array in which the resulting vertices are returned.
 	//! @param texCoordArr the vertex array in which the resulting texture coordinates are returned.
-	static void computeFanDisk(float radius, int innerFanSlices, int level, QVector<double>& vertexArr, QVector<float>& texCoordArr);
+	static void computeFanDisk(float radius, int innerFanSlices, int level, std::vector<double>& vertexArr, std::vector<float>& texCoordArr);
 
 	//! Draw a fisheye texture in a sphere.
 	void sSphereMap(float radius, int slices, int stacks, float textureFov = 2.f*M_PI, int orientInside = 0);
@@ -305,7 +305,7 @@ public:
 	//! If @param indices is Q_NULLPTR, this operation will consume @param count values from the enabled arrays, starting at @param offset.
 	//! Else it will consume @param count elements of @param indices, starting at @param offset, which are used to index into the
 	//! enabled arrays.
-	void drawFromArray(DrawingMode mode, int count, int offset=0, bool doProj=true, const unsigned short *indices=Q_NULLPTR);
+	void drawFromArray(DrawingMode mode, size_t count, int offset=0, bool doProj=true, const unsigned short *indices=Q_NULLPTR);
 
 	//! Draws the primitives defined in the StelVertexArray.
 	//! @param checkDiscontinuity will check and suppress discontinuities if necessary.
@@ -360,7 +360,7 @@ private:
 
 	//! Project an array using the current projection.
 	//! @return a descriptor of the new array
-	ArrayDesc projectArray(const ArrayDesc& array, int offset, int count, const unsigned short *indices=Q_NULLPTR);
+	ArrayDesc projectArray(const ArrayDesc& array, int offset, size_t count, const unsigned short *indices=Q_NULLPTR);
 
 	//! Project the passed triangle on the screen ensuring that it will look smooth, even for non linear distortion
 	//! by splitting it into subtriangles. The resulting vertex arrays are appended to the passed out* ones.
@@ -378,8 +378,8 @@ private:
 	void drawTextGravity180(float x, float y, const QString& str, float xshift = 0, float yshift = 0);
 
 	// Used by the method below
-	static QVector<Vec2f> smallCircleVertexArray;
-	static QVector<Vec4f> smallCircleColorArray;
+	static std::vector<Vec2f> smallCircleVertexArray;
+	static std::vector<Vec4f> smallCircleColorArray;
 	void drawSmallCircleVertexArray();
 
 	//! The associated instance of projector

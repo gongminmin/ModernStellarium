@@ -108,8 +108,8 @@ private:
 
 	StelTextureSP m_bolideTexture;  //! Meteor bolide texture
 	const int m_segments;           //! Number of segments along the train (useful to curve along projection distortions)
-	QVector<Vec4f> m_trainColorVector;
-	QVector<Vec4f> m_lineColorVector;
+	std::vector<Vec4f> m_trainColorVector;
+	std::vector<Vec4f> m_lineColorVector;
 };
 
 #endif // _METEOR_HPP_

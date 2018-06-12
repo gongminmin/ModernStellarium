@@ -104,7 +104,7 @@ public:
 		bool updateFadeInfo(double currentJD);
 	};
 
-	typedef QVector<Material> MaterialList;
+	typedef std::vector<Material> MaterialList;
 	//for now, this does not use custom extensions...
 	typedef StelOBJ::ObjectList ObjectList;
 

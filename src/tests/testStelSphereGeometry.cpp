@@ -35,41 +35,43 @@ QTEST_GUILESS_MAIN(TestStelSphericalGeometry)
 void TestStelSphericalGeometry::initTestCase()
 {
 	// Testing code for new polygon code
-	QVector<QVector<Vec3d> > contours;
-	QVector<Vec3d> c1(4);
+	std::vector<std::vector<Vec3d>> contours;
+	std::vector<Vec3d> c1(4);
 	StelUtils::spheToRect(-0.5, -0.5, c1[3]);
 	StelUtils::spheToRect(0.5, -0.5, c1[2]);
 	StelUtils::spheToRect(0.5, 0.5, c1[1]);
 	StelUtils::spheToRect(-0.5, 0.5, c1[0]);
-	contours.append(c1);
-	QVector<Vec3d> c2(4);
+	contours.push_back(c1);
+	std::vector<Vec3d> c2(4);
 	StelUtils::spheToRect(-0.2, 0.2, c2[3]);
 	StelUtils::spheToRect(0.2, 0.2, c2[2]);
 	StelUtils::spheToRect(0.2, -0.2, c2[1]);
 	StelUtils::spheToRect(-0.2, -0.2, c2[0]);
-	contours.append(c2);
+	contours.push_back(c2);
 
 	holySquare.setContours(contours);
 	bigSquare.setContour(c1);
 	bigSquareConvex.setContour(c1);
-	QVector<Vec3d> c2inv(4);
+	std::vector<Vec3d> c2inv(4);
 	c2inv[0]=c2[3]; c2inv[1]=c2[2]; c2inv[2]=c2[1]; c2inv[3]=c2[0];
 	smallSquare.setContour(c2inv);
 	smallSquareConvex.setContour(c2inv);
 
-	QVector<Vec3d> triCont;
-	triCont << Vec3d(1,0,0) << Vec3d(0,0,1) << Vec3d(0,1,0);
+	std::vector<Vec3d> triCont;
+	triCont.push_back(Vec3d(1, 0, 0));
+	triCont.push_back(Vec3d(0, 0, 1));
+	triCont.push_back(Vec3d(0, 1, 0));
 	triangle.setContour(triCont);
 
 
-	QVector<Vec3d> c4(4);
+	std::vector<Vec3d> c4(4);
 	StelUtils::spheToRect(M_PI-0.5, -0.5, c4[3]);
 	StelUtils::spheToRect(M_PI+0.5, -0.5, c4[2]);
 	StelUtils::spheToRect(M_PI+0.5, 0.5, c4[1]);
 	StelUtils::spheToRect(M_PI-0.5, 0.5, c4[0]);
 	opositeSquare.setContour(c4);
 
-	QVector<Vec3d> cpole(4);
+	std::vector<Vec3d> cpole(4);
 	StelUtils::spheToRect(0.1,M_PI/2.-0.1, cpole[3]);
 	StelUtils::spheToRect(0.1+M_PI/2., M_PI/2.-0.1, cpole[2]);
 	StelUtils::spheToRect(0.1+M_PI, M_PI/2.-0.1, cpole[1]);
@@ -424,7 +426,7 @@ void TestStelSphericalGeometry::testOctahedronPolygon()
 	OctahedronPolygon splittedSub(contour);
 	QCOMPARE(splittedSub.getArea(), smallSquareConvex.getArea());
 
-	//QVector<Vec3d> va = northPoleSquare.getOutlineVertexArray().vertex;
+	//std::vector<Vec3d> va = northPoleSquare.getOutlineVertexArray().vertex;
 	//QCOMPARE(va.size(),16);
 	//va = southPoleSquare.getOutlineVertexArray().vertex;
 	//QCOMPARE(va.size(),16);
@@ -526,19 +528,19 @@ void TestStelSphericalGeometry::testSerialize()
 
 void TestStelSphericalGeometry::benchmarkCreatePolygon()
 {
-	QVector<QVector<Vec3d> > contours;
-	QVector<Vec3d> c1(4);
+	std::vector<std::vector<Vec3d>> contours;
+	std::vector<Vec3d> c1(4);
 	StelUtils::spheToRect(-0.5, -0.5, c1[3]);
 	StelUtils::spheToRect(0.5, -0.5, c1[2]);
 	StelUtils::spheToRect(0.5, 0.5, c1[1]);
 	StelUtils::spheToRect(-0.5, 0.5, c1[0]);
-	contours.append(c1);
-	QVector<Vec3d> c2(4);
+	contours.push_back(c1);
+	std::vector<Vec3d> c2(4);
 	StelUtils::spheToRect(-0.2, 0.2, c2[3]);
 	StelUtils::spheToRect(0.2, 0.2, c2[2]);
 	StelUtils::spheToRect(0.2, -0.2, c2[1]);
 	StelUtils::spheToRect(-0.2, -0.2, c2[0]);
-	contours.append(c2);
+	contours.push_back(c2);
 	QBENCHMARK
 	{
 		SphericalPolygon holySquare(contours);

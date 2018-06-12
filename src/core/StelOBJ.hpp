@@ -23,11 +23,12 @@
 
 #include "GeomMath.hpp"
 
+#include <vector>
+
 #include <qopengl.h>
 #include <QLoggingCategory>
 #include <QString>
 #include <QIODevice>
-#include <QVector>
 #include <QHash>
 
 Q_DECLARE_LOGGING_CATEGORY(stelOBJ)
@@ -120,7 +121,7 @@ public:
 		//! Loads all materials contained in an .mtl file.
 		//! Does not check if the texture map files exist.
 		//! @return empty vector on error
-		static QVector<Material> loadFromFile(const QString& filename);
+		static std::vector<Material> loadFromFile(const QString& filename);
 	protected:
 		//! Parses a bool from a parameter list (like included in the ::additionalParams)
 		//! using the same logic StelOBJ uses internally
@@ -168,7 +169,7 @@ public:
 		AABBox boundingbox;
 	};
 
-	typedef QVector<MaterialGroup> MaterialGroupList;
+	typedef std::vector<MaterialGroup> MaterialGroupList;
 
 	//! Represents an OBJ object as defined with the 'o' statement.
 	//! There is an default object for faces defined before any 'o' statement
@@ -202,14 +203,14 @@ public:
 		friend class StelOBJ;
 	};
 
-	typedef QVector<Vec3f> V3Vec;
-	typedef QVector<Vec2f> V2Vec;
-	typedef QVector<Vertex> VertexList;
-	typedef QVector<unsigned int> IndexList;
-	typedef QVector<unsigned short> ShortIndexList;
-	typedef QVector<Material> MaterialList;
+	typedef std::vector<Vec3f> V3Vec;
+	typedef std::vector<Vec2f> V2Vec;
+	typedef std::vector<Vertex> VertexList;
+	typedef std::vector<unsigned int> IndexList;
+	typedef std::vector<unsigned short> ShortIndexList;
+	typedef std::vector<Material> MaterialList;
 	typedef QMap<QString, int> MaterialMap;
-	typedef QVector<Object> ObjectList;
+	typedef std::vector<Object> ObjectList;
 	typedef QMap<QString, int> ObjectMap;
 
 	//! Constructs an empty StelOBJ. Use load() to load data from a .obj file.
@@ -221,7 +222,7 @@ public:
 
 	//! Returns the number of faces. We only use triangle faces, so this is
 	//! always the index count divided by 3.
-	inline unsigned int getFaceCount() const { return m_indices.size() / 3; }
+	inline unsigned int getFaceCount() const { return static_cast<unsigned int>(m_indices.size() / 3); }
 
 	//! Returns an vertex list, suitable for loading into OpenGL arrays
 	inline const VertexList& getVertexList() const { return m_vertices; }
@@ -297,7 +298,7 @@ public:
 	//! This is intended to be used together with splitVertexData(), when you want your own vertex format.
 	void clearVertexData();
 private:
-	typedef QVector<QStringRef> ParseParams;
+	typedef std::vector<QStringRef> ParseParams;
 	typedef QHash<Vertex, int> VertexCache;
 
 	struct CurrentParserState

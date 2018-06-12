@@ -74,7 +74,7 @@ private:
 	void setToInitialValues();
 	void updateTextBrowser(const SceneInfo& si);
 
-	QVector<QAbstractButton*> shortcutButtons;
+	std::vector<QAbstractButton*> shortcutButtons;
 	Ui_scenery3dDialogForm* ui;
 	Scenery3d* mgr;
 };

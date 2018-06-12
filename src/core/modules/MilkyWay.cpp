@@ -72,8 +72,7 @@ void MilkyWay::init()
 
 	// A new texture was provided by Fabien. Better resolution, but in equatorial coordinates. I had to enhance it a bit, and shift it by 90 degrees.
 	vertexArray = new StelVertexArray(StelPainter::computeSphereNoLight(1.f,1.f,45,15,1, true)); // GZ orig: slices=stacks=20.
-	vertexArray->colors.resize(vertexArray->vertex.length());
-	vertexArray->colors.fill(Vec3f(1.0, 0.3, 0.9));
+	vertexArray->colors.assign(vertexArray->vertex.size(), Vec3f(1.0, 0.3, 0.9));
 
 	QString displayGroup = N_("Display Options");
 	addAction("actionShow_MilkyWay", displayGroup, N_("Milky Way"), "flagMilkyWayDisplayed", "M");
@@ -175,7 +174,7 @@ void MilkyWay::draw(StelCore* core)
 		const Extinction& extinction=drawer->getExtinction();
 		vertexArray->colors.clear();
 
-		for (int i=0; i<vertexArray->vertex.size(); ++i)
+		for (size_t i=0; i<vertexArray->vertex.size(); ++i)
 		{
 			Vec3d vertAltAz=core->j2000ToAltAz(vertexArray->vertex.at(i), StelCore::RefractionOn);
 			Q_ASSERT(fabs(vertAltAz.lengthSquared()-1.0) < 0.001);
@@ -184,11 +183,11 @@ void MilkyWay::draw(StelCore* core)
 			extinction.forward(vertAltAz, &oneMag);
 			float extinctionFactor=std::pow(0.3f , oneMag) * (1.1f-bortleIntensity*0.1f); // drop of one magnitude: should be factor 2.5 or 40%. We take 30%, it looks more realistic.
 			Vec3f thisColor=Vec3f(c[0]*extinctionFactor, c[1]*extinctionFactor, c[2]*extinctionFactor);
-			vertexArray->colors.append(thisColor);
+			vertexArray->colors.push_back(thisColor);
 		}
 	}
 	else
-		vertexArray->colors.fill(Vec3f(c[0], c[1], c[2]));
+		vertexArray->colors.assign(vertexArray->colors.size(), Vec3f(c[0], c[1], c[2]));
 
 	StelPainter sPainter(prj);
 	sPainter.setCullFace(true);

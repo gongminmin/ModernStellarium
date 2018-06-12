@@ -23,7 +23,7 @@
 
 #include "VecMath.hpp"
 
-#include <QVector>
+#include <vector>
 
 class Plane;
 
@@ -42,10 +42,10 @@ public:
 	};
 
 	//! Holds all vertices of this polygon
-	QVector<Vec3f> vertices;
+	std::vector<Vec3f> vertices;
 
 	//! Intersect by specified plane and store the intersection points
-	void intersect(const Plane &p, QVector<Vec3f> &intersectionPoints);
+	void intersect(const Plane &p, std::vector<Vec3f> &intersectionPoints);
 
 	//! Reverse the vertices order
 	void reverseOrder();

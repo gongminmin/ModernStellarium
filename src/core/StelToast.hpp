@@ -20,11 +20,12 @@
 #ifndef _STELTOAST_HPP_
 #define _STELTOAST_HPP_
 
+#include <vector>
+
 #include <QCache>
 #include <QObject>
 #include <QString>
 #include <QTimeLine>
-#include <QVector>
 
 #include "StelSphereGeometry.hpp"
 #include "StelTexture.hpp"
@@ -109,10 +110,10 @@ private:
 
 	// QList<SphericalRegionP> skyConvexPolygons;
 	//! OpenGL arrays
-	QVector<Vec3d> vertexArray;
-	QVector<Vec2f> textureArray;
-	QVector<unsigned short> indexArray;
-	QVector<Vec3f> colorArray; // for extinction
+	std::vector<Vec3d> vertexArray;
+	std::vector<Vec2f> textureArray;
+	std::vector<unsigned short> indexArray;
+	std::vector<Vec3f> colorArray; // for extinction
 	// Used for smooth fade in
 	QTimeLine texFader;
 };

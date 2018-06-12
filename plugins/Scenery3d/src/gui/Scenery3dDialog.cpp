@@ -119,7 +119,7 @@ void Scenery3dDialog::createDialogContent()
 		connect(ac,&StelAction::toggled,ui->checkBoxTorchlight, &QCheckBox::setChecked);
 		connect(ui->checkBoxTorchlight,&QCheckBox::toggled,ac, &StelAction::setChecked);
 		connect(ac,&StelAction::changed,this,&Scenery3dDialog::updateShortcutStrings);
-		shortcutButtons.append(ui->checkBoxTorchlight);
+		shortcutButtons.push_back(ui->checkBoxTorchlight);
 	}
 	ac = acMgr->findAction("actionShow_Scenery3d_locationinfo");
 	if(ac)
@@ -130,7 +130,7 @@ void Scenery3dDialog::createDialogContent()
 		connect(ac,&StelAction::toggled,ui->checkBoxShowGridCoordinates, &QCheckBox::setChecked);
 		connect(ui->checkBoxShowGridCoordinates,&QCheckBox::toggled,ac, &StelAction::setChecked);
 		connect(ac,&StelAction::changed,this,&Scenery3dDialog::updateShortcutStrings);
-		shortcutButtons.append(ui->checkBoxShowGridCoordinates);
+		shortcutButtons.push_back(ui->checkBoxShowGridCoordinates);
 	}
 
 	//connectSlotsByName does not work in our case (because this class does not "own" the GUI in the Qt sense)

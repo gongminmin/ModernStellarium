@@ -20,9 +20,10 @@
 #ifndef _STARMGR_HPP_
 #define _STARMGR_HPP_
 
+#include <vector>
+
 #include <QFont>
 #include <QVariantMap>
-#include <QVector>
 #include "StelFader.hpp"
 #include "StelObjectModule.hpp"
 #include "StelTextureTypes.hpp"
@@ -431,7 +432,7 @@ private:
 	int lastMaxSearchLevel;
 	
 	// A ZoneArray per grid level
-	QVector<ZoneArray*> gridLevels;
+	std::vector<ZoneArray*> gridLevels;
 	static void initTriangleFunc(int lev, int index,
 								 const Vec3f &c0,
 								 const Vec3f &c1,

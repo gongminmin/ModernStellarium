@@ -88,7 +88,7 @@ bool SyncServer::start(int port)
 void SyncServer::addSender(SyncServerEventSender *snd)
 {
 	snd->server = this;
-	senderList.append(snd);
+	senderList.push_back(snd);
 }
 
 void SyncServer::broadcastMessage(const SyncMessage &msg)
@@ -176,7 +176,7 @@ void SyncServer::checkStopState()
 {
 	if(stopping)
 	{
-		if(clients.isEmpty())
+		if(clients.empty())
 		{
 			qCDebug(syncServer)<<"All clients disconnected";
 			stopping = false;
@@ -197,7 +197,7 @@ void SyncServer::handleNewConnection()
 	SyncRemotePeer* newClient = new SyncRemotePeer(newConn,false,handlerList);
 	newClient->peerLog("New client connection");
 	//add to client list
-	clients.append(newClient);
+	clients.push_back(newClient);
 
 	qCDebug(syncServer)<<clients.size()<<"current connections";
 
@@ -227,7 +227,17 @@ void SyncServer::clientDisconnected(bool clean)
 	{
 		qCWarning(syncServer)<<"Client disconnected with error"<<peer->getError();
 	}
-	clients.removeAll(peer);
+	for (auto iter = clients.begin(); iter != clients.end();)
+	{
+		if (*iter == peer)
+		{
+			iter = clients.erase(iter);
+		}
+		else
+		{
+			++iter;
+		}
+	}
 	peer->deleteLater();
 	qCDebug(syncServer)<<clients.size()<<"current connections";
 	checkStopState();

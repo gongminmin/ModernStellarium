@@ -47,7 +47,7 @@ void Heightmap::setMeshData(const IdxList &indexList, const PosList &posList, co
 	//re-calc min/max
 	min = Vec2f(std::numeric_limits<float>::max());
 	max = Vec2f(-std::numeric_limits<float>::max());
-	for(int i = 0;i<posList.size();++i)
+	for(size_t i = 0;i<posList.size();++i)
 	{
 		min[0] = std::min(min[0], posList.at(i)[0]);
 		min[1] = std::min(min[1], posList.at(i)[1]);
@@ -122,7 +122,7 @@ float Heightmap::GridSpace::getHeight(const PosList& posList, const float x, con
 
 	// this was actually broken for a very long time
 	// and checked ALL faces instead of only the ones in the grid cell...
-	for(int i=0; i<faces.size(); ++i)
+	for(size_t i=0; i<faces.size(); ++i)
 	{
 		//points into the index list
 		const unsigned int* pTriangle = faces[i];
@@ -144,7 +144,7 @@ void Heightmap::initQuadtree()
 	rootNode = new QuadTreeNode(min,max);
 
 	//add all triangles to the tree
-	for(int i = 0;i<indexList.size();i+=3)
+	for(size_t i = 0;i<indexList.size();i+=3)
 	{
 		rootNode->putTriangle(&indexList.at(i),posList);
 	}
@@ -159,7 +159,7 @@ void Heightmap::initGrid()
 	delete[] grid;
 	grid = new GridSpace[GRID_LENGTH*GRID_LENGTH];
 
-	for(int i = 0;i<indexList.size(); i+=3)
+	for(size_t i = 0;i<indexList.size(); i+=3)
 	{
 		const unsigned int* pTriangle = &(indexList.at(i));
 		//determine the triangle BBox
@@ -386,7 +386,7 @@ void Heightmap::QuadTreeNode::putTriangle(const unsigned int *pTriangle, const P
 		}
 	}
 	//it gets put into the current node
-	faces.append(pTriangle);
+	faces.push_back(pTriangle);
 }
 
 float Heightmap::QuadTreeNode::getHeightAtPoint(const Vec2f &point, const Heightmap::PosList& posList) const
@@ -404,7 +404,7 @@ float Heightmap::QuadTreeNode::getHeightAtPoint(const Vec2f &point, const Height
 		//iterate through all current faces,
 		//calculate barycentric coordinates of point on the 2D-projected triangle,
 		//and finally, if the point is inside, the height on the triangle
-		for(int i=0;i<curNode->faces.size();++i)
+		for(size_t i=0;i<curNode->faces.size();++i)
 		{
 			const unsigned int* pTriangle = curNode->faces[i];
 			height = std::max(height,face_height_at(posList,pTriangle,point[0],point[1]));
@@ -431,7 +431,7 @@ Heightmap::FaceVector Heightmap::QuadTreeNode::getTriangleCandidatesAtPoint(cons
 			break;
 
 		//append all current node faces
-		ret<<curNode->faces;
+		ret.insert(ret.end(), curNode->faces.begin(), curNode->faces.end());
 		if(children)
 			curNode = &children[q];
 		else

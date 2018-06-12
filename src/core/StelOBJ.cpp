@@ -24,12 +24,34 @@
 #include "StelUtils.hpp"
 
 #include <QBuffer>
+#include <QDebug>
 #include <QDir>
 #include <QElapsedTimer>
 #include <QFile>
 #include <QFileInfo>
 #include <QRegularExpression>
 #include <QTextStream>
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
+template <typename T, typename Alloc>
+inline QDebug operator<<(QDebug debug, const std::vector<T, Alloc> &c)
+{
+    const bool oldSetting = debug.autoInsertSpaces();
+    debug.nospace() << "std::vector" << '(';
+    typename std::vector<T, Alloc>::const_iterator it = c.begin(), end = c.end();
+    if (it != end) {
+        debug << *it;
+        ++it;
+    }
+    while (it != end) {
+        debug << ", " << *it;
+        ++it;
+    }
+    debug << ')';
+    debug.setAutoInsertSpaces(oldSetting);
+    return debug.maybeSpace();
+}
+#endif
 
 Q_LOGGING_CATEGORY(stelOBJ,"stel.OBJ")
 
@@ -101,7 +123,7 @@ bool StelOBJ::load(const QString& filename, const VertexOrder vertexOrder)
 
 //macro to increase a list by size one and return a reference to the last element
 //used instead of append() to avoid memory copies
-#define INC_LIST(a) (a.resize(a.size()+1), a.last())
+#define INC_LIST(a) (a.resize(a.size()+1), a.back())
 
 bool StelOBJ::parseBool(const ParseParams &params, bool &out, int paramsStart)
 {
@@ -233,7 +255,7 @@ StelOBJ::Object* StelOBJ::getCurrentObject(CurrentParserState &state)
 	Object& obj = INC_LIST(m_objects);
 	obj.name = "<default object>";
 	obj.isDefaultObject = true;
-	m_objectMap.insert(obj.name, m_objects.size()-1);
+	m_objectMap.insert(obj.name, static_cast<int>(m_objects.size()-1));
 	state.currentObject = &obj;
 	return &obj;
 }
@@ -254,9 +276,9 @@ StelOBJ::MaterialGroup* StelOBJ::getCurrentMaterialGroup(CurrentParserState &sta
 	MaterialGroup& grp = INC_LIST(curObj->groups);
 	grp.materialIndex = matIdx;
 	//the object should always be the most recently added one
-	grp.objectIndex = m_objects.size()-1;
+	grp.objectIndex = static_cast<int>(m_objects.size()-1);
 	//the start index is positioned after the end of the index list
-	grp.startIndex = m_indices.size();
+	grp.startIndex = static_cast<int>(m_indices.size());
 	state.currentMaterialGroup = &grp;
 	return &grp;
 }
@@ -275,7 +297,7 @@ int StelOBJ::getCurrentMaterialIndex(CurrentParserState &state)
 	mat.Kd = QVector3D(0.8f, 0.8f, 0.8f);
 	mat.Ka = QVector3D(0.1f, 0.1f, 0.1f);
 
-	m_materialMap.insert(mat.name, m_materials.size()-1);
+	m_materialMap.insert(mat.name, static_cast<int>(m_materials.size()-1));
 	state.currentMaterialIdx = 0;
 	return 0;
 }
@@ -301,7 +323,7 @@ bool StelOBJ::parseFace(const ParseParams& params, const V3Vec& posList, const V
 		return false;
 	}
 
-	int vtxAmount = params.size()-1;
+	size_t vtxAmount = params.size()-1;
 
 	//parse each one seperately
 	int mode = 0;
@@ -313,13 +335,13 @@ bool StelOBJ::parseFace(const ParseParams& params, const V3Vec& posList, const V
 	//negative indices indicate relative data, i.e. -1 would mean the last position/texture/normal that was parsed
 	//this macro fixes it up so that it always uses absolute numbers
 	//note: the indices start with 1, this is fixed up later
-	#define FIX_REL(a, list) if(a<0) {a += list.size()+1; }
+	#define FIX_REL(a, list) if(a<0) {a += static_cast<int>(list.size()+1); }
 
 	//loop to parse each section seperately
-	for(int i =0; i<vtxAmount;++i)
+	for(size_t i =0; i<vtxAmount;++i)
 	{
 		//split on slash
-		QVector<QStringRef> split = params.at(i+1).split('/');
+		std::vector<QStringRef> split = params[i + 1].split('/').toStdVector();
 		switch(split.size())
 		{
 			case 1: //no slash, only position
@@ -388,9 +410,9 @@ bool StelOBJ::parseFace(const ParseParams& params, const V3Vec& posList, const V
 		else
 		{
 			//vertex unknown, add it to the vertex list and cache
-			unsigned int idx = m_vertices.size();
+			unsigned int idx = static_cast<unsigned int>(m_vertices.size());
 			vertCache.insert(v,idx);
-			m_vertices.append(v);
+			m_vertices.push_back(v);
 			vIdx.append(idx);
 		}
 	}
@@ -400,12 +422,12 @@ bool StelOBJ::parseFace(const ParseParams& params, const V3Vec& posList, const V
 
 	//vertex data has been loaded, create the faces
 	//we use triangle-fan triangulation
-	for(int i=2;i<vtxAmount;++i)
+	for(size_t i=2;i<vtxAmount;++i)
 	{
 		//the first one is always the same
-		m_indices.append(vIdx[0]);
-		m_indices.append(vIdx[i-1]);
-		m_indices.append(vIdx[i]);
+		m_indices.push_back(vIdx[0]);
+		m_indices.push_back(vIdx[static_cast<int>(i-1)]);
+		m_indices.push_back(vIdx[static_cast<int>(i)]);
 		//add the triangle to the group
 		grp->indexCount+=3;
 	}
@@ -440,8 +462,8 @@ StelOBJ::MaterialList StelOBJ::Material::loadFromFile(const QString &filename)
 		//make sure only spaces are the separator
 		QString line = stream.readLine().simplified();
 		//split line by space
-		QVector<QStringRef> splits = line.splitRef(' ',QString::SkipEmptyParts);
-		if(!splits.isEmpty())
+		std::vector<QStringRef> splits = line.splitRef(' ',QString::SkipEmptyParts).toStdVector();
+		if(!splits.empty())
 		{
 			const QStringRef& cmd = splits.at(0);
 
@@ -628,7 +650,7 @@ StelOBJ::MaterialList StelOBJ::Material::loadFromFile(const QString &filename)
 					//unknown command, add to additional params
 					//we need to convert to actual string instances to store them
 					QStringList list;
-					for(int i = 1; i<splits.size();++i)
+					for(size_t i = 1; i<splits.size();++i)
 					{
 						list.append(splits.at(i).toString());
 					}
@@ -685,18 +707,18 @@ void StelOBJ::addObject(const QString &name, CurrentParserState &state)
 	//check if the last object contained anything, if not remove it
 	if(state.currentObject)
 	{
-		if(state.currentObject->groups.isEmpty())
+		if(state.currentObject->groups.empty())
 		{
-			Q_ASSERT(state.currentObject == &m_objects.last());
+			Q_ASSERT(state.currentObject == &m_objects.back());
 			m_objectMap.remove(state.currentObject->name);
-			m_objects.removeLast();
+			m_objects.pop_back();
 		}
 	}
 
 	//create new object
 	Object& obj = INC_LIST(m_objects);
 	obj.name = name;
-	m_objectMap.insert(obj.name,m_objects.size()-1);
+	m_objectMap.insert(obj.name,static_cast<int>(m_objects.size()-1));
 	state.currentObject = &obj;
 	//also clear material group to make sure a new group is created
 	state.currentMaterialGroup = Q_NULLPTR;
@@ -738,8 +760,8 @@ bool StelOBJ::load(QIODevice& device, const QString &basePath, const VertexOrder
 		QString line = stream.readLine().trimmed();
 
 		//split line by whitespace
-		QVector<QStringRef> splits = line.splitRef(separator,QString::SkipEmptyParts);
-		if(!splits.isEmpty())
+		std::vector<QStringRef> splits = line.splitRef(separator,QString::SkipEmptyParts).toStdVector();
+		if(!splits.empty())
 		{
 			const QStringRef& cmd = splits.at(0);
 
@@ -871,11 +893,11 @@ bool StelOBJ::load(QIODevice& device, const QString &basePath, const VertexOrder
 					MaterialList newMaterials = Material::loadFromFile(baseDir.absoluteFilePath(fileName));
 					for (const auto& m : newMaterials)
 					{
-						m_materials.append(m);
+						m_materials.push_back(m);
 						//the map has the index of the material
 						//because pointers may change during parsing
 						//because of list resizeing
-						m_materialMap.insert(m.name,m_materials.size()-1);
+						m_materialMap.insert(m.name,static_cast<int>(m_materials.size()-1));
 					}
 					qCDebug(stelOBJ)<<newMaterials.size()<<"materials loaded from MTL file"<<fileName;
 				}
@@ -931,8 +953,8 @@ bool StelOBJ::load(QIODevice& device, const QString &basePath, const VertexOrder
 	device.close();
 
 	//finished loading, squeeze the arrays to save some memory
-	m_vertices.squeeze();
-	m_indices.squeeze();
+	m_vertices.shrink_to_fit();
+	m_indices.shrink_to_fit();
 
 	Q_ASSERT(m_indices.size() % 3 == 0);
 
@@ -942,7 +964,7 @@ bool StelOBJ::load(QIODevice& device, const QString &basePath, const VertexOrder
 	qCDebug(stelOBJ, "Created %d vertices, %d faces, %d objects", m_vertices.size(), getFaceCount(), m_objects.size());
 
 	//perform post processing
-	performPostProcessing(normalList.isEmpty());
+	performPostProcessing(normalList.empty());
 	m_isLoaded = true;
 	return true;
 }
@@ -956,7 +978,7 @@ void StelOBJ::Object::postprocess(const StelOBJ &obj, Vec3d &centroid)
 	boundingbox.reset();
 
 	//iterate through the groups
-	for(int i =0;i<groups.size();++i)
+	for(size_t i =0;i<groups.size();++i)
 	{
 		MaterialGroup& grp = groups[i];
 		Vec3d accVertex(0.);
@@ -996,11 +1018,11 @@ void StelOBJ::generateNormals()
 	float edge2[3] = {0.0f, 0.0f, 0.0f};
 	float normal[3] = {0.0f, 0.0f, 0.0f};
 	float invlength = 0.0f;
-	int totalVertices = m_vertices.size();
-	int totalTriangles = m_indices.size() / 3;
+	size_t totalVertices = m_vertices.size();
+	size_t totalTriangles = m_indices.size() / 3;
 
 	// Initialize all the vertex normals.
-	for (int i=0; i<totalVertices; ++i)
+	for (size_t i=0; i<totalVertices; ++i)
 	{
 		pVertex0 = &m_vertices[i];
 		pVertex0->normal[0] = 0.0f;
@@ -1009,7 +1031,7 @@ void StelOBJ::generateNormals()
 	}
 
 	// Calculate the vertex normals.
-	for (int i=0; i<totalTriangles; ++i)
+	for (size_t i=0; i<totalTriangles; ++i)
 	{
 		pTriangle = &m_indices.at(i*3);
 
@@ -1046,7 +1068,7 @@ void StelOBJ::generateNormals()
 	}
 
 	// Normalize the vertex normals.
-	for (int i=0; i<totalVertices; ++i)
+	for (size_t i=0; i<totalVertices; ++i)
 	{
 		pVertex0 = &m_vertices[i];
 
@@ -1078,11 +1100,11 @@ void StelOBJ::generateTangents()
 	float nDotT = 0.0f;
 	float bDotB = 0.0f;
 	float invlength = 0.0f;
-	const int totalVertices = m_vertices.size();
-	const int totalTriangles = m_indices.size() / 3;
+	const size_t totalVertices = m_vertices.size();
+	const size_t totalTriangles = m_indices.size() / 3;
 
 	// Initialize all the vertex tangents and bitangents.
-	for (int i=0; i<totalVertices; ++i)
+	for (size_t i=0; i<totalVertices; ++i)
 	{
 		pVertex0 = &m_vertices[i];
 
@@ -1097,7 +1119,7 @@ void StelOBJ::generateTangents()
 	}
 
 	// Calculate the vertex tangents and bitangents.
-	for (int i=0; i<totalTriangles; ++i)
+	for (size_t i=0; i<totalTriangles; ++i)
 	{
 		pTriangle = &m_indices.at(i*3);
 
@@ -1171,7 +1193,7 @@ void StelOBJ::generateTangents()
 	}
 
 	// Orthogonalize and normalize the vertex tangents.
-	for (int i=0; i<totalVertices; ++i)
+	for (size_t i=0; i<totalVertices; ++i)
 	{
 		pVertex0 = &m_vertices[i];
 
@@ -1240,7 +1262,7 @@ void StelOBJ::generateAABB()
 	//calculate AABB and centroid for each object
 	Vec3d accCentroid(0.);
 	m_bbox.reset();
-	for(int i =0;i<m_objects.size();++i)
+	for(size_t i =0;i<m_objects.size();++i)
 	{
 		Vec3d centr(0.);
 		Object& o = m_objects[i];
@@ -1287,9 +1309,9 @@ StelOBJ::ShortIndexList StelOBJ::getShortIndexList() const
 	}
 
 	ret.reserve(m_indices.size());
-	for(int i =0;i<m_indices.size();++i)
+	for(size_t i =0;i<m_indices.size();++i)
 	{
-		ret.append(m_indices.at(i));
+		ret.push_back(m_indices[i]);
 	}
 
 	qCDebug(stelOBJ)<<"Indices converted to short in"<<timer.elapsed()<<"ms";
@@ -1301,7 +1323,7 @@ void StelOBJ::scale(double factor)
 	QElapsedTimer timer;
 	timer.start();
 
-	for(int i = 0;i<m_vertices.size();++i)
+	for(size_t i = 0;i<m_vertices.size();++i)
 	{
 		GLfloat* dat = m_vertices[i].position;
 		dat[0] *= factor;
@@ -1320,7 +1342,7 @@ void StelOBJ::transform(const QMatrix4x4 &mat, bool onlyPosition)
 	QMatrix3x3 normalMat = mat.normalMatrix();
 
 	//Transform all vertices and normals by mat
-	for(int i=0; i<m_vertices.size(); ++i)
+	for(size_t i=0; i<m_vertices.size(); ++i)
 	{
 		Vertex& pVertex = m_vertices[i];
 
@@ -1359,7 +1381,7 @@ void StelOBJ::splitVertexData(V3Vec *position,
 	QElapsedTimer timer;
 	timer.start();
 
-	const int size = m_vertices.size();
+	const size_t size = m_vertices.size();
 	//resize arrays
 	if(position)
 		position->resize(size);
@@ -1372,7 +1394,7 @@ void StelOBJ::splitVertexData(V3Vec *position,
 	if(bitangent)
 		bitangent->resize(size);
 
-	for(int i = 0;i<size;++i)
+	for(size_t i = 0;i<size;++i)
 	{
 		const Vertex& vtx = m_vertices.at(i);
 		if(position)

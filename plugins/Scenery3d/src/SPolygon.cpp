@@ -34,15 +34,15 @@ SPolygon::SPolygon(const Vec3f &c0, const Vec3f &c1, const Vec3f &c2, const Vec3
 
 SPolygon::~SPolygon() {}
 
-void SPolygon::intersect(const Plane &p, QVector<Vec3f> &intersectionPoints)
+void SPolygon::intersect(const Plane &p, std::vector<Vec3f> &intersectionPoints)
 {
 	if(vertices.size() < 3) return;
 
-	QVector<Vec3f> newVerts;
+	std::vector<Vec3f> newVerts;
 
-	for(int i=0; i<vertices.size(); i++)
+	for(size_t i=0; i<vertices.size(); i++)
 	{
-		unsigned int next = (i+1) % vertices.size();
+		size_t next = (i+1) % vertices.size();
 
 		bool curOut = !p.isBehind(vertices[i]);
 		bool nextOut = !p.isBehind(vertices[next]);
@@ -59,11 +59,11 @@ void SPolygon::intersect(const Plane &p, QVector<Vec3f> &intersectionPoints)
 			if(p.intersect(line, val))
 			{
 				Vec3f intersection = line.getPoint(val);
-				newVerts.append(intersection);
-				intersectionPoints.append(intersection);
+				newVerts.push_back(intersection);
+				intersectionPoints.push_back(intersection);
 			}
 
-			newVerts.append(vertices[next]);
+			newVerts.push_back(vertices[next]);
 			continue;
 		}
 
@@ -73,15 +73,15 @@ void SPolygon::intersect(const Plane &p, QVector<Vec3f> &intersectionPoints)
 			if(p.intersect(line, val))
 			{
 				Vec3f intersection = line.getPoint(val);
-				newVerts.append(intersection);
-				intersectionPoints.append(intersection);
+				newVerts.push_back(intersection);
+				intersectionPoints.push_back(intersection);
 			}
 
 			continue;
 		}
 
 		//since both are inside, just add the next vertex
-		newVerts.append(vertices[next]);
+		newVerts.push_back(vertices[next]);
 	}
 
 	vertices.clear();
@@ -105,14 +105,14 @@ void SPolygon::addUniqueVert(const Vec3f &v)
 {
 	bool flag = true;
 
-	for(int i=0; i<vertices.size() && flag; i++)
+	for(size_t i=0; i<vertices.size() && flag; i++)
 	{
 		flag = ! v.fuzzyEquals(vertices[i]);
 	}
 
 	if(flag)
 	{
-		vertices.append(v);
+		vertices.push_back(v);
 	}
 }
 
@@ -123,7 +123,7 @@ void SPolygon::render()
 	glExtFuncs->glColor3f(0.4f,0.4f,0.4f);
 
 	glExtFuncs->glBegin(GL_LINE_LOOP);
-	for(int j = 0;j<vertices.size();++j)
+	for(size_t j = 0;j<vertices.size();++j)
 	{
 		glExtFuncs->glVertex3fv(vertices.at(j).v);
 	}

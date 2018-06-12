@@ -159,7 +159,7 @@ void Planet::PlanetOBJModel::performScaling(double scale)
 	scaledArray = posArray;
 
 	//pre-scale the cpu-side array
-	for(int i = 0; i<posArray.size();++i)
+	for(size_t i = 0; i<posArray.size();++i)
 	{
 		scaledArray[i]*=scale;
 	}
@@ -865,9 +865,9 @@ bool willCastShadow(const Planet* thisPlanet, const Planet* p)
 	return false;
 }
 
-QVector<const Planet*> Planet::getCandidatesForShadow() const
+std::vector<const Planet*> Planet::getCandidatesForShadow() const
 {
-	QVector<const Planet*> res;
+	std::vector<const Planet*> res;
 	const SolarSystem *ssystem=GETSTELMODULE(SolarSystem);
 	const Planet* sun = ssystem->getSun().get();
 	if (this==sun || (parent.get()==sun && satellites.empty()))
@@ -876,10 +876,10 @@ QVector<const Planet*> Planet::getCandidatesForShadow() const
 	for (const auto& planet : satellites)
 	{
 		if (willCastShadow(this, planet.get()))
-			res.append(planet.get());
+			res.push_back(planet.get());
 	}
 	if (willCastShadow(this, parent.get()))
-		res.append(parent.get());
+		res.push_back(parent.get());
 	// Test satellites mutual occultations.
 	if (parent.get() != sun)
 	{
@@ -889,7 +889,7 @@ QVector<const Planet*> Planet::getCandidatesForShadow() const
 			if(planet.get() == this )
 				continue;
 			if (willCastShadow(this, planet.get()))
-				res.append(planet.get());
+				res.push_back(planet.get());
 		}
 	}
 	
@@ -2349,9 +2349,9 @@ void Planet::draw3dModel(StelCore* core, StelProjector::ModelViewTranformP trans
 
 struct Planet3DModel
 {
-	QVector<float> vertexArr;
-	QVector<float> texCoordArr;
-	QVector<unsigned short> indiceArr;
+	std::vector<float> vertexArr;
+	std::vector<float> texCoordArr;
+	std::vector<unsigned short> indiceArr;
 };
 
 
@@ -2387,20 +2387,20 @@ void sSphere(Planet3DModel* model, const float radius, const float oneMinusOblat
 			x = -cos_sin_theta_p[1] * cos_sin_rho_p[1];
 			y = cos_sin_theta_p[0] * cos_sin_rho_p[1];
 			z = cos_sin_rho_p[0];
-			model->texCoordArr << s << t;
-			model->vertexArr << x * radius << y * radius << z * oneMinusOblateness * radius;
+			model->texCoordArr.insert(model->texCoordArr.end(), { s, t });
+			model->vertexArr.insert(model->vertexArr.end(), { x * radius, y * radius, z * oneMinusOblateness * radius });
 			x = -cos_sin_theta_p[1] * cos_sin_rho_p[3];
 			y = cos_sin_theta_p[0] * cos_sin_rho_p[3];
 			z = cos_sin_rho_p[2];
-			model->texCoordArr << s << t - dt;
-			model->vertexArr << x * radius << y * radius << z * oneMinusOblateness * radius;
+			model->texCoordArr.insert(model->texCoordArr.end(), { s, t - dt });
+			model->vertexArr.insert(model->vertexArr.end(), { x * radius, y * radius, z * oneMinusOblateness * radius });
 			s += ds;
 		}
 		unsigned int offset = i*(slices+1)*2;
 		for (j = 2;j<slices*2+2;j+=2)
 		{
-			model->indiceArr << offset+j-2 << offset+j-1 << offset+j;
-			model->indiceArr << offset+j << offset+j-1 << offset+j+1;
+			model->indiceArr.insert(model->indiceArr.end(), { static_cast<unsigned short>(offset+j-2), static_cast<unsigned short>(offset+j-1), static_cast<unsigned short>(offset+j) });
+			model->indiceArr.insert(model->indiceArr.end(), { static_cast<unsigned short>(offset+j), static_cast<unsigned short>(offset+j-1), static_cast<unsigned short>(offset+j+1) });
 		}
 		t -= dt;
 	}
@@ -2408,9 +2408,9 @@ void sSphere(Planet3DModel* model, const float radius, const float oneMinusOblat
 
 struct Ring3DModel
 {
-	QVector<float> vertexArr;
-	QVector<float> texCoordArr;
-	QVector<unsigned short> indiceArr;
+	std::vector<float> vertexArr;
+	std::vector<float> texCoordArr;
+	std::vector<unsigned short> indiceArr;
 };
 
 
@@ -2435,8 +2435,8 @@ void sRing(Ring3DModel* model, const float rMin, const float rMax, int slices, c
 		{
 			x = r*cos_sin_theta_p[0];
 			y = r*cos_sin_theta_p[1];
-			model->texCoordArr << tex_r0 << 0.5f;
-			model->vertexArr << x << y << 0.f;
+			model->texCoordArr.insert(model->texCoordArr.end(), { tex_r0, 0.5f });
+			model->vertexArr.insert(model->vertexArr.end(), { x, y, 0.f });
 		}
 		r+=dr;
 	}
@@ -2444,8 +2444,8 @@ void sRing(Ring3DModel* model, const float rMin, const float rMax, int slices, c
 	{
 		for (int j=0; j<slices; ++j)
 		{
-			model->indiceArr << i*slices+j << (i+1)*slices+j << i*slices+j+1;
-			model->indiceArr << i*slices+j+1 << (i+1)*slices+j << (i+1)*slices+j+1;
+			model->indiceArr.insert(model->indiceArr.end(), { static_cast<unsigned short>(i*slices+j), static_cast<unsigned short>((i+1)*slices+j), static_cast<unsigned short>(i*slices+j+1) });
+			model->indiceArr.insert(model->indiceArr.end(), { static_cast<unsigned short>(i*slices+j+1), static_cast<unsigned short>((i+1)*slices+j), static_cast<unsigned short>((i+1)*slices+j+1) });
 		}
 	}
 }
@@ -2483,7 +2483,7 @@ Planet::RenderData Planet::setCommonShaderUniforms(const StelPainter& painter, Q
 		data.shadowCandidates.resize(4);
 	}
 	Mat4d shadowModelMatrix;
-	for (int i=0;i<data.shadowCandidates.size();++i)
+	for (int i=0;i<static_cast<int>(data.shadowCandidates.size());++i)
 	{
 		data.shadowCandidates.at(i)->computeModelMatrix(shadowModelMatrix);
 		const Vec4d position = data.mTarget * shadowModelMatrix.getColumn(3);
@@ -2514,7 +2514,7 @@ Planet::RenderData Planet::setCommonShaderUniforms(const StelPainter& painter, Q
 	GL(shader->setUniformValue(shaderVars.diffuseLight, light.diffuse[0], light.diffuse[1], light.diffuse[2]));
 	GL(shader->setUniformValue(shaderVars.ambientLight, light.ambient[0], light.ambient[1], light.ambient[2]));
 	GL(shader->setUniformValue(shaderVars.tex, 0));
-	GL(shader->setUniformValue(shaderVars.shadowCount, data.shadowCandidates.size()));
+	GL(shader->setUniformValue(shaderVars.shadowCount, static_cast<int>(data.shadowCandidates.size())));
 	GL(shader->setUniformValue(shaderVars.shadowData, data.shadowCandidatesData));
 	GL(shader->setUniformValue(shaderVars.sunInfo, data.mTarget[12], data.mTarget[13], data.mTarget[14], sun->getRadius()));
 	GL(shader->setUniformValue(shaderVars.skyBrightness, lmgr->getLuminance()));
@@ -2560,9 +2560,9 @@ void Planet::drawSphere(StelPainter* painter, float screenSz, bool drawOnlyRing)
 	Planet3DModel model;
 	sSphere(&model, radius*sphereScale, oneMinusOblateness, nb_facet, nb_facet);
 	
-	QVector<float> projectedVertexArr(model.vertexArr.size());
+	std::vector<float> projectedVertexArr(model.vertexArr.size());
 	for (int i=0;i<model.vertexArr.size()/3;++i)
-		painter->getProjector()->project(*((Vec3f*)(model.vertexArr.constData()+i*3)), *((Vec3f*)(projectedVertexArr.data()+i*3)));
+		painter->getProjector()->project(*((Vec3f*)(model.vertexArr.data()+i*3)), *((Vec3f*)(projectedVertexArr.data()+i*3)));
 	
 	const SolarSystem* ssm = GETSTELMODULE(SolarSystem);
 
@@ -2570,8 +2570,8 @@ void Planet::drawSphere(StelPainter* painter, float screenSz, bool drawOnlyRing)
 	{
 		texMap->bind();
 		//painter->setColor(2, 2, 0.2); // This is now in draw3dModel() to apply extinction
-		painter->setArrays((Vec3f*)projectedVertexArr.constData(), (Vec2f*)model.texCoordArr.constData());
-		painter->drawFromArray(StelPainter::Triangles, model.indiceArr.size(), 0, false, model.indiceArr.constData());
+		painter->setArrays((Vec3f*)projectedVertexArr.data(), (Vec2f*)model.texCoordArr.data());
+		painter->drawFromArray(StelPainter::Triangles, model.indiceArr.size(), 0, false, model.indiceArr.data());
 		return;
 	}
 
@@ -2631,18 +2631,18 @@ void Planet::drawSphere(StelPainter* painter, float screenSz, bool drawOnlyRing)
 	{
 		GL(normalMap->bind(2));
 		GL(moonShaderProgram->setUniformValue(moonShaderVars.normalMap, 2));
-		if (!rData.shadowCandidates.isEmpty())
+		if (!rData.shadowCandidates.empty())
 		{
 			GL(texEarthShadow->bind(3));
 			GL(moonShaderProgram->setUniformValue(moonShaderVars.earthShadow, 3));
 		}
 	}
 
-	GL(shader->setAttributeArray(shaderVars->vertex, (const GLfloat*)projectedVertexArr.constData(), 3));
+	GL(shader->setAttributeArray(shaderVars->vertex, (const GLfloat*)projectedVertexArr.data(), 3));
 	GL(shader->enableAttributeArray(shaderVars->vertex));
-	GL(shader->setAttributeArray(shaderVars->unprojectedVertex, (const GLfloat*)model.vertexArr.constData(), 3));
+	GL(shader->setAttributeArray(shaderVars->unprojectedVertex, (const GLfloat*)model.vertexArr.data(), 3));
 	GL(shader->enableAttributeArray(shaderVars->unprojectedVertex));
-	GL(shader->setAttributeArray(shaderVars->texCoord, (const GLfloat*)model.texCoordArr.constData(), 2));
+	GL(shader->setAttributeArray(shaderVars->texCoord, (const GLfloat*)model.texCoordArr.data(), 2));
 	GL(shader->enableAttributeArray(shaderVars->texCoord));
 
 	if (rings && !drawOnlyRing)
@@ -2653,7 +2653,7 @@ void Planet::drawSphere(StelPainter* painter, float screenSz, bool drawOnlyRing)
 	}
 	
 	if (!drawOnlyRing)
-		GL(gl->glDrawElements(GL_TRIANGLES, model.indiceArr.size(), GL_UNSIGNED_SHORT, model.indiceArr.constData()));
+		GL(gl->glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(model.indiceArr.size()), GL_UNSIGNED_SHORT, model.indiceArr.data()));
 
 	if (rings)
 	{
@@ -2680,20 +2680,20 @@ void Planet::drawSphere(StelPainter* painter, float screenSz, bool drawOnlyRing)
 		GL(ringPlanetShaderProgram->setUniformValue(ringPlanetShaderVars.shadowData, shadowCandidatesData));
 		
 		projectedVertexArr.resize(ringModel.vertexArr.size());
-		for (int i=0;i<ringModel.vertexArr.size()/3;++i)
-			painter->getProjector()->project(*((Vec3f*)(ringModel.vertexArr.constData()+i*3)), *((Vec3f*)(projectedVertexArr.data()+i*3)));
+		for (size_t i=0;i<ringModel.vertexArr.size()/3;++i)
+			painter->getProjector()->project(*((Vec3f*)(ringModel.vertexArr.data()+i*3)), *((Vec3f*)(projectedVertexArr.data()+i*3)));
 		
-		GL(ringPlanetShaderProgram->setAttributeArray(ringPlanetShaderVars.vertex, (const GLfloat*)projectedVertexArr.constData(), 3));
+		GL(ringPlanetShaderProgram->setAttributeArray(ringPlanetShaderVars.vertex, (const GLfloat*)projectedVertexArr.data(), 3));
 		GL(ringPlanetShaderProgram->enableAttributeArray(ringPlanetShaderVars.vertex));
-		GL(ringPlanetShaderProgram->setAttributeArray(ringPlanetShaderVars.unprojectedVertex, (const GLfloat*)ringModel.vertexArr.constData(), 3));
+		GL(ringPlanetShaderProgram->setAttributeArray(ringPlanetShaderVars.unprojectedVertex, (const GLfloat*)ringModel.vertexArr.data(), 3));
 		GL(ringPlanetShaderProgram->enableAttributeArray(ringPlanetShaderVars.unprojectedVertex));
-		GL(ringPlanetShaderProgram->setAttributeArray(ringPlanetShaderVars.texCoord, (const GLfloat*)ringModel.texCoordArr.constData(), 2));
+		GL(ringPlanetShaderProgram->setAttributeArray(ringPlanetShaderVars.texCoord, (const GLfloat*)ringModel.texCoordArr.data(), 2));
 		GL(ringPlanetShaderProgram->enableAttributeArray(ringPlanetShaderVars.texCoord));
 		
 		if (rData.eyePos[2]<0)
 			gl->glCullFace(GL_FRONT);
 
-		GL(gl->glDrawElements(GL_TRIANGLES, ringModel.indiceArr.size(), GL_UNSIGNED_SHORT, ringModel.indiceArr.constData()));
+		GL(gl->glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(ringModel.indiceArr.size()), GL_UNSIGNED_SHORT, ringModel.indiceArr.data()));
 		
 		if (rData.eyePos[2]<0)
 			gl->glCullFace(GL_BACK);
@@ -2730,8 +2730,8 @@ void Planet::drawSurvey(StelCore* core, StelPainter* painter)
 
 	GL(shader->bind());
 	RenderData rData = setCommonShaderUniforms(*painter, shader, *shaderVars);
-	QVector<Vec3f> projectedVertsArray;
-	QVector<Vec3f> vertsArray;
+	std::vector<Vec3f> projectedVertsArray;
+	std::vector<Vec3f> vertsArray;
 	double angle = getSpheroidAngularSize(core) * M_PI / 180.;
 
 	if (rings)
@@ -2749,10 +2749,10 @@ void Planet::drawSurvey(StelCore* core, StelPainter* painter)
 	painter->getProjector()->getModelViewTransform()->combine(Mat4d::zrotation(M_PI / 2.0));
 	painter->getProjector()->getModelViewTransform()->combine(Mat4d::scaling(Vec3d(1, 1, oneMinusOblateness)));
 
-	survey->draw(painter, angle, [&](const QVector<Vec3d>& verts, const QVector<Vec2f>& tex, const QVector<uint16_t>& indices) {
+	survey->draw(painter, angle, [&](const std::vector<Vec3d>& verts, const std::vector<Vec2f>& tex, const std::vector<uint16_t>& indices) {
 		projectedVertsArray.resize(verts.size());
 		vertsArray.resize(verts.size());
-		for (int i = 0; i < verts.size(); i++)
+		for (size_t i = 0; i < verts.size(); i++)
 		{
 			Vec3d v;
 			v = verts[i];
@@ -2764,13 +2764,13 @@ void Planet::drawSurvey(StelCore* core, StelPainter* painter)
 			v = Mat4d::zrotation(M_PI / 2.0) * v;
 			vertsArray[i] = Vec3f(v[0], v[1], v[2]);
 		}
-		GL(shader->setAttributeArray(shaderVars->vertex, (const GLfloat*)projectedVertsArray.constData(), 3));
+		GL(shader->setAttributeArray(shaderVars->vertex, (const GLfloat*)projectedVertsArray.data(), 3));
 		GL(shader->enableAttributeArray(shaderVars->vertex));
-		GL(shader->setAttributeArray(shaderVars->unprojectedVertex, (const GLfloat*)vertsArray.constData(), 3));
+		GL(shader->setAttributeArray(shaderVars->unprojectedVertex, (const GLfloat*)vertsArray.data(), 3));
 		GL(shader->enableAttributeArray(shaderVars->unprojectedVertex));
-		GL(shader->setAttributeArray(shaderVars->texCoord, (const GLfloat*)tex.constData(), 2));
+		GL(shader->setAttributeArray(shaderVars->texCoord, (const GLfloat*)tex.data(), 2));
 		GL(shader->enableAttributeArray(shaderVars->texCoord));
-		GL(gl->glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, indices.constData()));
+		GL(gl->glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_SHORT, indices.data()));
 	});
 
 	// Restore painter state.
@@ -2796,7 +2796,7 @@ Planet::PlanetOBJModel* Planet::loadObjModel() const
 		qWarning()<<"Planet OBJ model has more than one material defined, this may cause problems ...";
 
 	//start texture loading
-	const StelOBJ::Material& mat = mdl->obj->getMaterialList().at(mdl->obj->getObjectList().first().groups.first().materialIndex);
+	const StelOBJ::Material& mat = mdl->obj->getMaterialList().at(mdl->obj->getObjectList().front().groups.front().materialIndex);
 	if(mat.map_Kd.isEmpty())
 	{
 		//we use a custom 1x1 pixel texture in this case
@@ -2955,7 +2955,7 @@ bool Planet::drawObjModel(StelPainter *painter, float screenSz)
 	//project the data
 	//because the StelOpenGLArray might use a VAO, we have to use a OGL buffer here in all cases
 	objModel->projPosBuffer->bind();
-	const int vtxCount = objModel->posArray.size();
+	const int vtxCount = static_cast<int>(objModel->posArray.size());
 
 	const StelProjectorP& projector = painter->getProjector();
 
@@ -2968,8 +2968,8 @@ bool Planet::drawObjModel(StelPainter *painter, float screenSz)
 	// caused a 40% FPS drop for some reason!
 	// (in theory, this should be faster because it should avoid copying the array)
 	// So, lets not do that and just use this simple way in all cases:
-	projector->project(vtxCount, objModel->scaledArray.constData(),objModel->projectedPosArray.data());
-	objModel->projPosBuffer->allocate(objModel->projectedPosArray.constData(),vtxCount * sizeof(Vec3f));
+	projector->project(vtxCount, objModel->scaledArray.data(),objModel->projectedPosArray.data());
+	objModel->projPosBuffer->allocate(objModel->projectedPosArray.data(),vtxCount * sizeof(Vec3f));
 
 	//unprojectedVertex, normalIn and texCoord are set by the StelOpenGLArray
 	//we only need to set the freshly projected data

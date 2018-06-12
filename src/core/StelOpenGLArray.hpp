@@ -22,11 +22,12 @@
 
 #include "VecMath.hpp"
 
+#include <vector>
+
 #include <QLoggingCategory>
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions>
 #include <QOpenGLVertexArrayObject>
-#include <QVector>
 
 class StelOBJ;
 class QOpenGLFunctions;

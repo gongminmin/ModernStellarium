@@ -45,7 +45,7 @@ private:
 		QRegExp pattern;
 		QTextCharFormat* format;
 	};
-	QVector<HighlightingRule> highlightingRules;
+	std::vector<HighlightingRule> highlightingRules;
 
 	QTextCharFormat keywordFormat;
 	QTextCharFormat moduleFormat;

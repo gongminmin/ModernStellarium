@@ -25,17 +25,17 @@ QTEST_GUILESS_MAIN(TestStelVertexArray)
 
 void TestStelVertexArray::initTestCase()
 {
-	QVector<Vec3d> vertices;
-	QVector<Vec2f> textureCoords;
+	std::vector<Vec3d> vertices;
+	std::vector<Vec2f> textureCoords;
 
 	for (int i = 0; i < 1000; ++i)
 	{
 		Vec3d v(i+1, i+1, i+1);
 		v.normalize();
-		vertices.append(v);
+		vertices.push_back(v);
 
 		Vec2f t(i, i);
-		textureCoords.append(t);
+		textureCoords.push_back(t);
 	}
 
 	array = StelVertexArray(vertices, StelVertexArray::TriangleStrip, textureCoords);

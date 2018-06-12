@@ -40,7 +40,7 @@ StelScriptSyntaxHighlighter::StelScriptSyntaxHighlighter(QTextDocument *parent)
 	// comments
 	rule.pattern = QRegExp("//[^\n]*");
 	rule.format = &commentFormat;
-	highlightingRules.append(rule);
+	highlightingRules.push_back(rule);
 
 	// ECMAscript reserved words
 	QStringList keywordPatterns;
@@ -95,7 +95,7 @@ StelScriptSyntaxHighlighter::StelScriptSyntaxHighlighter(QTextDocument *parent)
 	{
 		rule.pattern = QRegExp(pattern);
 		rule.format = &keywordFormat;
-		highlightingRules.append(rule);
+		highlightingRules.push_back(rule);
 	}
 
 	// highlight object names which can be used in scripting
@@ -124,30 +124,30 @@ StelScriptSyntaxHighlighter::StelScriptSyntaxHighlighter(QTextDocument *parent)
 	{
 		rule.pattern = QRegExp(pattern);
 		rule.format = &moduleFormat;
-		highlightingRules.append(rule);
+		highlightingRules.push_back(rule);
 	}
 
 	for (const auto& pattern : knownFunctionNames)
 	{
 		rule.pattern = QRegExp(pattern);
 		rule.format = &moduleFormat;
-		highlightingRules.append(rule);
+		highlightingRules.push_back(rule);
 	}
 
 	// quoted strings
 	rule.pattern = QRegExp("\".*\"");
 	rule.format = &constantFormat;
-	highlightingRules.append(rule);
+	highlightingRules.push_back(rule);
 
 	// decimal numeric constants
 	rule.pattern = QRegExp("\\b\\d+(\\.\\d+)?\\b");
 	rule.format = &constantFormat;
-	highlightingRules.append(rule);
+	highlightingRules.push_back(rule);
 
 	// function calls
 	rule.pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
 	rule.format = &functionFormat;
-	highlightingRules.append(rule);
+	highlightingRules.push_back(rule);
 
 }
 

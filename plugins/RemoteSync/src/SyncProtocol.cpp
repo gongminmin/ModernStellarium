@@ -20,9 +20,10 @@
 #include "SyncProtocol.hpp"
 #include "SyncMessages.hpp"
 
+#include <vector>
+
 #include <QDateTime>
 #include <QHostAddress>
-#include <QVector>
 
 using namespace SyncProtocol;
 
@@ -101,7 +102,7 @@ QString SyncMessage::readString(QDataStream &stream)
 	return QString::fromUtf8(arr);
 }
 
-SyncRemotePeer::SyncRemotePeer(QAbstractSocket *socket, bool isServer, const QVector<SyncMessageHandler *> &handlerList)
+SyncRemotePeer::SyncRemotePeer(QAbstractSocket *socket, bool isServer, const std::vector<SyncMessageHandler *> &handlerList)
 	: sock(socket), stream(sock), expectDisconnect(false), isPeerAServer(isServer), authenticated(false), authResponseSent(false), waitingForBody(false),
 	  handlerList(handlerList)
 {

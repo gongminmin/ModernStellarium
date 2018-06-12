@@ -30,8 +30,8 @@ TrailGroup::TrailGroup(float te) : timeExtent(te), opacity(1.f)
 	j2000ToTrailNativeInverted=Mat4d::identity();
 }
 
-static QVector<Vec3d> vertexArray;
-static QVector<Vec4f> colorArray;
+static std::vector<Vec3d> vertexArray;
+static std::vector<Vec4f> colorArray;
 void TrailGroup::draw(StelCore* core, StelPainter* sPainter)
 {
 	sPainter->setBlending(true);

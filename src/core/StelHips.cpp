@@ -313,9 +313,9 @@ void HipsSurvey::drawTile(int order, int pix, int drawOrder, int splitOrder, boo
 	Vec2f uv[4] = {Vec2f(0, 0), Vec2f(0, 1), Vec2f(1, 0), Vec2f(1, 1)};
 	HipsTile *tile;
 	int orderMin = getPropertyInt("hips_order_min", 3);
-	QVector<Vec3d> vertsArray;
-	QVector<Vec2f> texArray;
-	QVector<uint16_t> indicesArray;
+	std::vector<Vec3d> vertsArray;
+	std::vector<Vec2f> texArray;
+	std::vector<uint16_t> indicesArray;
 	int nb;
 	Vec4f color = sPainter->getColor();
 	float alpha;
@@ -397,8 +397,8 @@ void HipsSurvey::drawTile(int order, int pix, int drawOrder, int splitOrder, boo
 	nb = fillArrays(order, pix, drawOrder, splitOrder, outside, sPainter,
 					vertsArray, texArray, indicesArray);
 	if (!callback) {
-		sPainter->setArrays(vertsArray.constData(), texArray.constData());
-		sPainter->drawFromArray(StelPainter::Triangles, nb, 0, true, indicesArray.constData());
+		sPainter->setArrays(vertsArray.data(), texArray.data());
+		sPainter->drawFromArray(StelPainter::Triangles, nb, 0, true, indicesArray.data());
 	} else {
 		callback(vertsArray, texArray, indicesArray);
 	}
@@ -419,7 +419,7 @@ skip_render:
 
 int HipsSurvey::fillArrays(int order, int pix, int drawOrder, int splitOrder,
 						   bool outside, StelPainter* sPainter,
-						   QVector<Vec3d>& verts, QVector<Vec2f>& tex, QVector<uint16_t>& indices)
+						   std::vector<Vec3d>& verts, std::vector<Vec2f>& tex, std::vector<uint16_t>& indices)
 {
 	Mat3d mat3;
 	Vec3d pos;
@@ -440,8 +440,8 @@ int HipsSurvey::fillArrays(int order, int pix, int drawOrder, int splitOrder,
 			texPos = Vec2f((double)i / gridSize, (double)j / gridSize);
 			pos = mat3 * Vec3d(1.0 - (double)j / gridSize, (double)i / gridSize, 1.0);
 			healpix_xy2vec(pos.v, pos.v);
-			verts << pos;
-			tex << texPos;
+			verts.push_back(pos);
+			tex.push_back(texPos);
 		}
 	}
 	for (int i = 0; i < gridSize; i++)
@@ -450,8 +450,8 @@ int HipsSurvey::fillArrays(int order, int pix, int drawOrder, int splitOrder,
 		{
 			for (int k = 0; k < 6; k++)
 			{
-				indices << (INDICES[outside ? 1 : 0][k][1] + i) * n +
-					        INDICES[outside ? 1 : 0][k][0] + j;
+				indices .push_back((INDICES[outside ? 1 : 0][k][1] + i) * n +
+					        INDICES[outside ? 1 : 0][k][0] + j);
 			}
 		}
 	}

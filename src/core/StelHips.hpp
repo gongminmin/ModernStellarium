@@ -56,8 +56,8 @@ class HipsSurvey : public QObject
 	Q_PROPERTY(QString planet MEMBER planet)
 
 public:
-	typedef std::function<void(const QVector<Vec3d>& verts, const QVector<Vec2f>& tex,
-							   const QVector<uint16_t>& indices)> DrawCallback;
+	typedef std::function<void(const std::vector<Vec3d>& verts, const std::vector<Vec2f>& tex,
+							   const std::vector<uint16_t>& indices)> DrawCallback;
 	//! Create a new HipsSurvey from its url.
 	//! @param url The location of the survey.
 	//! @param releaseDate If known the UTC JD release date of the survey.  Used for cache busting.
@@ -132,7 +132,7 @@ private:
 	// Fill the array for a given tile.
 	int fillArrays(int order, int pix, int drawOrder, int splitOrder,
 				   bool outside, StelPainter* sPainter,
-				   QVector<Vec3d>& verts, QVector<Vec2f>& tex, QVector<uint16_t>& indices);
+				   std::vector<Vec3d>& verts, std::vector<Vec2f>& tex, std::vector<uint16_t>& indices);
 
 	void updateProgressBar(int nb, int total);
 };

@@ -313,8 +313,8 @@ void Meteor::buildColorVectors(const QList<ColorPair> colors)
 		trainColor.append(trainColor2);
 	}
 
-	m_lineColorVector = lineColor.toVector();
-	m_trainColorVector = trainColor.toVector();
+	m_lineColorVector = lineColor.toVector().toStdVector();
+	m_trainColorVector = trainColor.toVector().toStdVector();
 }
 
 float Meteor::meteorZ(float zenithAngle, float altitude)
@@ -378,8 +378,8 @@ void Meteor::drawBolide(StelPainter& sPainter, const float& bolideSize)
 
 	// bolide
 	//
-	QVector<Vec3d> vertexArrayBolide;
-	QVector<Vec4f> colorArrayBolide;
+	std::vector<Vec3d> vertexArrayBolide;
+	std::vector<Vec4f> colorArrayBolide;
 	Vec4f bolideColor = Vec4f(1, 1, 1, m_aptMag);
 
 	Vec3d topLeft = m_position;
@@ -407,8 +407,8 @@ void Meteor::drawBolide(StelPainter& sPainter, const float& bolideSize)
 	m_bolideTexture->bind();
 	static const float texCoordData[] = {1.,0., 0.,0., 0.,1., 1.,1.};
 	sPainter.setTexCoordPointer(2, GL_FLOAT, texCoordData);
-	sPainter.setColorPointer(4, GL_FLOAT, colorArrayBolide.constData());
-	sPainter.setVertexPointer(3, GL_DOUBLE, vertexArrayBolide.constData());
+	sPainter.setColorPointer(4, GL_FLOAT, colorArrayBolide.data());
+	sPainter.setVertexPointer(3, GL_DOUBLE, vertexArrayBolide.data());
 	sPainter.drawFromArray(StelPainter::TriangleFan, vertexArrayBolide.size(), 0, true);
 
 	sPainter.setBlending(false);
@@ -417,7 +417,7 @@ void Meteor::drawBolide(StelPainter& sPainter, const float& bolideSize)
 
 void Meteor::drawTrain(StelPainter& sPainter, const float& thickness)
 {
-	if (m_segments != m_lineColorVector.size() || 2*m_segments != m_trainColorVector.size())
+	if (m_segments != static_cast<int>(m_lineColorVector.size()) || 2*m_segments != static_cast<int>(m_trainColorVector.size()))
 	{
 		qWarning() << "Meteor: color arrays have an inconsistent size!";
 		return;
@@ -425,10 +425,10 @@ void Meteor::drawTrain(StelPainter& sPainter, const float& thickness)
 
 	// train (triangular prism)
 	//
-	QVector<Vec3d> vertexArrayLine;
-	QVector<Vec3d> vertexArrayL;
-	QVector<Vec3d> vertexArrayR;
-	QVector<Vec3d> vertexArrayTop;
+	std::vector<Vec3d> vertexArrayLine;
+	std::vector<Vec3d> vertexArrayL;
+	std::vector<Vec3d> vertexArrayR;
+	std::vector<Vec3d> vertexArrayTop;
 
 	Vec3d posTrainB = m_posTrain;
 	posTrainB[0] += thickness*0.7;
@@ -472,19 +472,19 @@ void Meteor::drawTrain(StelPainter& sPainter, const float& thickness)
 	sPainter.enableClientStates(true, false, true);
 	if (thickness)
 	{
-		sPainter.setColorPointer(4, GL_FLOAT, m_trainColorVector.constData());
+		sPainter.setColorPointer(4, GL_FLOAT, m_trainColorVector.data());
 
-		sPainter.setVertexPointer(3, GL_DOUBLE, vertexArrayL.constData());
+		sPainter.setVertexPointer(3, GL_DOUBLE, vertexArrayL.data());
 		sPainter.drawFromArray(StelPainter::TriangleStrip, vertexArrayL.size(), 0, true);
 
-		sPainter.setVertexPointer(3, GL_DOUBLE, vertexArrayR.constData());
+		sPainter.setVertexPointer(3, GL_DOUBLE, vertexArrayR.data());
 		sPainter.drawFromArray(StelPainter::TriangleStrip, vertexArrayR.size(), 0, true);
 
-		sPainter.setVertexPointer(3, GL_DOUBLE, vertexArrayTop.constData());
+		sPainter.setVertexPointer(3, GL_DOUBLE, vertexArrayTop.data());
 		sPainter.drawFromArray(StelPainter::TriangleStrip, vertexArrayTop.size(), 0, true);
 	}
-	sPainter.setColorPointer(4, GL_FLOAT, m_lineColorVector.constData());
-	sPainter.setVertexPointer(3, GL_DOUBLE, vertexArrayLine.constData());
+	sPainter.setColorPointer(4, GL_FLOAT, m_lineColorVector.data());
+	sPainter.setVertexPointer(3, GL_DOUBLE, vertexArrayLine.data());
 	sPainter.drawFromArray(StelPainter::LineStrip, vertexArrayLine.size(), 0, true);
 
 	sPainter.setBlending(false);

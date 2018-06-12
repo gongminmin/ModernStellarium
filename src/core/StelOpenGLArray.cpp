@@ -159,7 +159,7 @@ bool StelOpenGLArray::load(const StelOBJ* obj, bool useTangents)
 		if(useTangents)
 		{
 			//we can simply upload the whole vertex data in a single call
-			m_vertexBuffer.allocate(vertices.constData(), sizeof(StelOBJ::Vertex) * vertices.size());
+			m_vertexBuffer.allocate(vertices.data(), static_cast<int>(sizeof(StelOBJ::Vertex) * vertices.size()));
 			m_memoryUsage+=sizeof(StelOBJ::Vertex) * vertices.size();
 
 			//setup vtx format
@@ -186,9 +186,9 @@ bool StelOpenGLArray::load(const StelOBJ* obj, bool useTangents)
 			//we use the first 8 floats of each vertex
 			const int vtxSize = sizeof(GLfloat) * 8;
 			//alloc data but dont upload
-			m_vertexBuffer.allocate(vertices.size() * vtxSize);
+			m_vertexBuffer.allocate(static_cast<int>(vertices.size() * vtxSize));
 			m_memoryUsage+=vertices.size() * vtxSize;
-			for(int i =0;i<vertices.size();++i)
+			for(size_t i =0;i<vertices.size();++i)
 			{
 				//copy the first 8 floats from each vertex
 				m_vertexBuffer.write(i * vtxSize, &vertices.at(i), vtxSize);
@@ -225,7 +225,7 @@ bool StelOpenGLArray::load(const StelOBJ* obj, bool useTangents)
 			m_indexBufferType = GL_UNSIGNED_SHORT;
 			m_indexBufferTypeSize = sizeof(GLushort);
 			const StelOBJ::ShortIndexList idxList = obj->getShortIndexList();
-			m_indexBuffer.allocate(idxList.constData(),static_cast<int>(m_indexBufferTypeSize * idxList.size()));
+			m_indexBuffer.allocate(idxList.data(),static_cast<int>(m_indexBufferTypeSize * idxList.size()));
 		}
 		else
 		{
@@ -241,9 +241,9 @@ bool StelOpenGLArray::load(const StelOBJ* obj, bool useTangents)
 			m_indexBufferTypeSize = sizeof(GLuint);
 
 			const StelOBJ::IndexList& idxList = obj->getIndexList();
-			m_indexBuffer.allocate(idxList.constData(),static_cast<int>(m_indexBufferTypeSize * idxList.size()));
+			m_indexBuffer.allocate(idxList.data(),static_cast<int>(m_indexBufferTypeSize * idxList.size()));
 		}
-		m_indexCount = obj->getIndexList().size();
+		m_indexCount = static_cast<int>(obj->getIndexList().size());
 		m_memoryUsage+= m_indexCount * m_indexBufferTypeSize;
 		m_indexBuffer.release();
 	}

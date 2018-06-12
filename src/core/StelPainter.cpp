@@ -26,10 +26,11 @@
 #include "StelUtils.hpp"
 #include "Dithering.hpp"
 
+#include <list>
+
 #include <QDebug>
 #include <QString>
 #include <QSettings>
-#include <QLinkedList>
 #include <QPainter>
 #include <QMutex>
 #include <QVarLengthArray>
@@ -347,7 +348,7 @@ void StelPainter::drawViewportShape(void)
 		glEnable(GL_BLEND);
 }
 
-void StelPainter::computeFanDisk(float radius, int innerFanSlices, int level, QVector<double>& vertexArr, QVector<float>& texCoordArr)
+void StelPainter::computeFanDisk(float radius, int innerFanSlices, int level, std::vector<double>& vertexArr, std::vector<float>& texCoordArr)
 {
 	Q_ASSERT(level<32);
 	float rad[64];
@@ -372,38 +373,38 @@ void StelPainter::computeFanDisk(float radius, int innerFanSlices, int level, QV
 		{
 			xa = rad[i]*cos_sin_theta_p[slices_step];
 			ya = rad[i]*cos_sin_theta_p[slices_step+1];
-			texCoordArr << 0.5f+xa/radius << 0.5f+ya/radius;
-			vertexArr << xa << ya << 0;
+			texCoordArr.insert(texCoordArr.end(), { 0.5f+xa/radius, 0.5f+ya/radius });
+			vertexArr.insert(vertexArr.end(), { xa, ya, 0 });
 
 			x = rad[i]*cos_sin_theta_p[2*slices_step];
 			y = rad[i]*cos_sin_theta_p[2*slices_step+1];
-			texCoordArr << 0.5f+x/radius << 0.5f+y/radius;
-			vertexArr << x << y << 0;
+			texCoordArr.insert(texCoordArr.end(), { 0.5f+x/radius, 0.5f+y/radius });
+			vertexArr.insert(vertexArr.end(), { x, y, 0 });
 
 			x = rad[i-1]*cos_sin_theta_p[2*slices_step];
 			y = rad[i-1]*cos_sin_theta_p[2*slices_step+1];
-			texCoordArr << 0.5f+x/radius << 0.5f+y/radius;
-			vertexArr << x << y << 0;
+			texCoordArr.insert(texCoordArr.end(), { 0.5f+x/radius, 0.5f+y/radius });
+			vertexArr.insert(vertexArr.end(), { x, y, 0 });
 
-			texCoordArr << 0.5f+xa/radius << 0.5f+ya/radius;
-			vertexArr << xa << ya << 0;
-			texCoordArr << 0.5f+x/radius << 0.5f+y/radius;
-			vertexArr << x << y << 0;
+			texCoordArr.insert(texCoordArr.end(), { 0.5f+xa/radius, 0.5f+ya/radius });
+			vertexArr.insert(vertexArr.end(), { xa, ya, 0 });
+			texCoordArr.insert(texCoordArr.end(), { 0.5f+x/radius, 0.5f+y/radius });
+			vertexArr.insert(vertexArr.end(), { x, y, 0 });
 
 			x = rad[i-1]*cos_sin_theta_p[0];
 			y = rad[i-1]*cos_sin_theta_p[1];
-			texCoordArr << 0.5f+x/radius << 0.5f+y/radius;
-			vertexArr << x << y << 0;
+			texCoordArr.insert(texCoordArr.end(), { 0.5f+x/radius, 0.5f+y/radius });
+			vertexArr.insert(vertexArr.end(), { x, y, 0 });
 
-			texCoordArr << 0.5f+xa/radius << 0.5f+ya/radius;
-			vertexArr << xa << ya << 0;
-			texCoordArr << 0.5f+x/radius << 0.5f+y/radius;
-			vertexArr << x << y << 0;
+			texCoordArr.insert(texCoordArr.end(), { 0.5f+xa/radius, 0.5f+ya/radius });
+			vertexArr.insert(vertexArr.end(), { xa, ya, 0 });
+			texCoordArr.insert(texCoordArr.end(), { 0.5f+x/radius, 0.5f+y/radius });
+			vertexArr.insert(vertexArr.end(), { x, y, 0 });
 
 			x = rad[i]*cos_sin_theta_p[0];
 			y = rad[i]*cos_sin_theta_p[1];
-			texCoordArr << 0.5f+x/radius << 0.5f+y/radius;
-			vertexArr << x << y << 0;
+			texCoordArr.insert(texCoordArr.end(), { 0.5f+x/radius, 0.5f+y/radius });
+			vertexArr.insert(vertexArr.end(), { x, y, 0 });
 		}
 	}
 	// draw the inner polygon
@@ -414,47 +415,47 @@ void StelPainter::computeFanDisk(float radius, int innerFanSlices, int level, QV
 	{
 		x = rad[0]*cos_sin_theta_p[0];
 		y = rad[0]*cos_sin_theta_p[1];
-		texCoordArr << 0.5f+x/radius << 0.5f+y/radius;
-		vertexArr << x << y << 0;
+		texCoordArr.insert(texCoordArr.end(), { 0.5f+x/radius, 0.5f+y/radius });
+		vertexArr.insert(vertexArr.end(), { x, y, 0 });
 		cos_sin_theta_p+=2*slices_step;
 		x = rad[0]*cos_sin_theta_p[0];
 		y = rad[0]*cos_sin_theta_p[1];
-		texCoordArr << 0.5f+x/radius << 0.5f+y/radius;
-		vertexArr << x << y << 0;
+		texCoordArr.insert(texCoordArr.end(), { 0.5f+x/radius, 0.5f+y/radius });
+		vertexArr.insert(vertexArr.end(), { x, y, 0 });
 		cos_sin_theta_p+=2*slices_step;
 		x = rad[0]*cos_sin_theta_p[0];
 		y = rad[0]*cos_sin_theta_p[1];
-		texCoordArr << 0.5f+x/radius << 0.5f+y/radius;
-		vertexArr << x << y << 0;
+		texCoordArr.insert(texCoordArr.end(), { 0.5f+x/radius, 0.5f+y/radius });
+		vertexArr.insert(vertexArr.end(), { x, y, 0 });
 	}
 	else
 	{
 		j=0;
 		while (j<slices)
 		{
-			texCoordArr << 0.5f << 0.5f;
-			vertexArr << 0 << 0 << 0;
+			texCoordArr.insert(texCoordArr.end(), { 0.5f, 0.5f });
+			vertexArr.insert(vertexArr.end(), { 0, 0, 0 });
 			x = rad[0]*cos_sin_theta_p[0];
 			y = rad[0]*cos_sin_theta_p[1];
-			texCoordArr << 0.5f+x/radius << 0.5f+y/radius;
-			vertexArr << x << y << 0;
+			texCoordArr.insert(texCoordArr.end(), { 0.5f+x/radius, 0.5f+y/radius });
+			vertexArr.insert(vertexArr.end(), { x, y, 0 });
 			j+=slices_step;
 			cos_sin_theta_p+=2*slices_step;
 			x = rad[0]*cos_sin_theta_p[0];
 			y = rad[0]*cos_sin_theta_p[1];
-			texCoordArr << 0.5f+x/radius << 0.5f+y/radius;
-			vertexArr << x << y << 0;
+			texCoordArr.insert(texCoordArr.end(), { 0.5f+x/radius, 0.5f+y/radius });
+			vertexArr.insert(vertexArr.end(), { x, y, 0 });
 		}
 	}
 
 
 }
 
-static void sSphereMapTexCoordFast(float rho_div_fov, const float costheta, const float sintheta, QVector<float>& out)
+static void sSphereMapTexCoordFast(float rho_div_fov, const float costheta, const float sintheta, std::vector<float>& out)
 {
 	if (rho_div_fov>0.5f)
 		rho_div_fov=0.5f;
-	out << 0.5f + rho_div_fov * costheta << 0.5f + rho_div_fov * sintheta;
+	out.insert(out.end(), { 0.5f + rho_div_fov * costheta, 0.5f + rho_div_fov * sintheta });
 }
 
 void StelPainter::sSphereMap(float radius, int slices, int stacks, float textureFov, int orientInside)
@@ -476,8 +477,8 @@ void StelPainter::sSphereMap(float radius, int slices, int stacks, float texture
 
 	const int imax = stacks;
 
-	static QVector<double> vertexArr;
-	static QVector<float> texCoordArr;
+	static std::vector<double> vertexArr;
+	static std::vector<float> texCoordArr;
 
 	// draw intermediate stacks as quad strips
 	if (!orientInside) // nsign==1
@@ -492,15 +493,15 @@ void StelPainter::sSphereMap(float radius, int slices, int stacks, float texture
 				y = cos_sin_theta_p[0] * cos_sin_rho_p[1];
 				z = cos_sin_rho_p[0];
 				sSphereMapTexCoordFast(rho, cos_sin_theta_p[0], cos_sin_theta_p[1], texCoordArr);
-				vertexArr << x*radius << y*radius << z*radius;
+				vertexArr.insert(vertexArr.end(), { x*radius, y*radius, z*radius });
 
 				x = -cos_sin_theta_p[1] * cos_sin_rho_p[3];
 				y = cos_sin_theta_p[0] * cos_sin_rho_p[3];
 				z = cos_sin_rho_p[2];
 				sSphereMapTexCoordFast(rho + drho, cos_sin_theta_p[0], cos_sin_theta_p[1], texCoordArr);
-				vertexArr << x*radius << y*radius << z*radius;
+				vertexArr.insert(vertexArr.end(), { x*radius, y*radius, z*radius });
 			}
-			setArrays((Vec3d*)vertexArr.constData(), (Vec2f*)texCoordArr.constData());
+			setArrays((Vec3d*)vertexArr.data(), (Vec2f*)texCoordArr.data());
 			drawFromArray(TriangleStrip, vertexArr.size()/3);
 		}
 	}
@@ -516,15 +517,15 @@ void StelPainter::sSphereMap(float radius, int slices, int stacks, float texture
 				y = cos_sin_theta_p[0] * cos_sin_rho_p[3];
 				z = cos_sin_rho_p[2];
 				sSphereMapTexCoordFast(rho + drho, cos_sin_theta_p[0], -cos_sin_theta_p[1], texCoordArr);
-				vertexArr << x*radius << y*radius << z*radius;
+				vertexArr.insert(vertexArr.end(), { x*radius, y*radius, z*radius });
 
 				x = -cos_sin_theta_p[1] * cos_sin_rho_p[1];
 				y = cos_sin_theta_p[0] * cos_sin_rho_p[1];
 				z = cos_sin_rho_p[0];
 				sSphereMapTexCoordFast(rho, cos_sin_theta_p[0], -cos_sin_theta_p[1], texCoordArr);
-				vertexArr << x*radius << y*radius << z*radius;
+				vertexArr.insert(vertexArr.end(), { x*radius, y*radius, z*radius });
 			}
-			setArrays((Vec3d*)vertexArr.constData(), (Vec2f*)texCoordArr.constData());
+			setArrays((Vec3d*)vertexArr.data(), (Vec2f*)texCoordArr.data());
 			drawFromArray(TriangleStrip, vertexArr.size()/3);
 		}
 	}
@@ -770,7 +771,7 @@ void StelPainter::drawText(float x, float y, const QString& str, float angleDeg,
 }
 
 // Recursive method cutting a small circle in small segments
-inline void fIter(const StelProjectorP& prj, const Vec3d& p1, const Vec3d& p2, Vec3d& win1, Vec3d& win2, QLinkedList<Vec3d>& vertexList, const QLinkedList<Vec3d>::iterator& iter, double radius, const Vec3d& center, int nbI=0, bool checkCrossDiscontinuity=true)
+inline void fIter(const StelProjectorP& prj, const Vec3d& p1, const Vec3d& p2, Vec3d& win1, Vec3d& win2, std::list<Vec3d>& vertexList, const std::list<Vec3d>::iterator& iter, double radius, const Vec3d& center, int nbI=0, bool checkCrossDiscontinuity=true)
 {
 	const bool crossDiscontinuity = checkCrossDiscontinuity && prj->intersectViewportDiscontinuity(p1+center, p2+center);
 	if (crossDiscontinuity && nbI>=10)
@@ -805,20 +806,20 @@ inline void fIter(const StelProjectorP& prj, const Vec3d& p1, const Vec3d& p2, V
 }
 
 // Used by the method below
-QVector<Vec2f> StelPainter::smallCircleVertexArray;
-QVector<Vec4f> StelPainter::smallCircleColorArray;
+std::vector<Vec2f> StelPainter::smallCircleVertexArray;
+std::vector<Vec4f> StelPainter::smallCircleColorArray;
 
 void StelPainter::drawSmallCircleVertexArray()
 {
-	if (smallCircleVertexArray.isEmpty())
+	if (smallCircleVertexArray.empty())
 		return;
 
 	Q_ASSERT(smallCircleVertexArray.size()>1);
 
-	enableClientStates(true, false, !smallCircleColorArray.isEmpty());
-	setVertexPointer(2, GL_FLOAT, smallCircleVertexArray.constData());
-	if (!smallCircleColorArray.isEmpty())
-		setColorPointer(4, GL_FLOAT, smallCircleColorArray.constData());
+	enableClientStates(true, false, !smallCircleColorArray.empty());
+	setVertexPointer(2, GL_FLOAT, smallCircleVertexArray.data());
+	if (!smallCircleColorArray.empty())
+		setColorPointer(4, GL_FLOAT, smallCircleColorArray.data());
 	drawFromArray(LineStrip, smallCircleVertexArray.size(), 0, false);
 	enableClientStates(false);
 	smallCircleVertexArray.resize(0);
@@ -849,11 +850,11 @@ void StelPainter::drawSmallCircleArc(const Vec3d& start, const Vec3d& stop, cons
 {
 	Q_ASSERT(smallCircleVertexArray.empty());
 
-	QLinkedList<Vec3d> tessArc;	// Contains the list of projected points from the tesselated arc
+	std::list<Vec3d> tessArc; // Contains the list of projected points from the tesselated arc
 	Vec3d win1, win2;
 	win1[2] = prj->project(start, win1) ? 1.0 : -1.;
 	win2[2] = prj->project(stop, win2) ? 1.0 : -1.;
-	tessArc.append(win1);
+	tessArc.push_back(win1);
 
 
 	if (rotCenter.lengthSquared()<1e-11)
@@ -871,8 +872,8 @@ void StelPainter::drawSmallCircleArc(const Vec3d& start, const Vec3d& stop, cons
 	}
 
 	// And draw.
-	QLinkedList<Vec3d>::ConstIterator i = tessArc.constBegin();
-	while (i+1 != tessArc.constEnd())
+	std::list<Vec3d>::const_iterator i = tessArc.cbegin();
+	while (std::next(i) != tessArc.cend())
 	{
 		const Vec3d& p1 = *i;
 		const Vec3d& p2 = *(++i);
@@ -880,10 +881,10 @@ void StelPainter::drawSmallCircleArc(const Vec3d& start, const Vec3d& stop, cons
 		const bool p2InViewport = prj->checkInViewport(p2);
 		if ((p1[2]>0 && p1InViewport) || (p2[2]>0 && p2InViewport))
 		{
-			smallCircleVertexArray.append(Vec2f(p1[0], p1[1]));
-			if (i+1==tessArc.constEnd())
+			smallCircleVertexArray.push_back(Vec2f(p1[0], p1[1]));
+			if (std::next(i) == tessArc.cend())
 			{
-				smallCircleVertexArray.append(Vec2f(p2[0], p2[1]));
+				smallCircleVertexArray.push_back(Vec2f(p2[0], p2[1]));
 				drawSmallCircleVertexArray();
 			}
 			if (viewportEdgeIntersectCallback && p1InViewport!=p2InViewport)
@@ -898,53 +899,53 @@ void StelPainter::drawSmallCircleArc(const Vec3d& start, const Vec3d& stop, cons
 		else
 		{
 			// Break the line, draw the stored vertex and flush the list
-			if (!smallCircleVertexArray.isEmpty())
-				smallCircleVertexArray.append(Vec2f(p1[0], p1[1]));
+			if (!smallCircleVertexArray.empty())
+				smallCircleVertexArray.push_back(Vec2f(p1[0], p1[1]));
 			drawSmallCircleVertexArray();
 		}
 	}
-	Q_ASSERT(smallCircleVertexArray.isEmpty());
+	Q_ASSERT(smallCircleVertexArray.empty());
 }
 
-void StelPainter::drawPath(const QVector<Vec3d> &points, const QVector<Vec4f> &colors)
+void StelPainter::drawPath(const std::vector<Vec3d> &points, const std::vector<Vec4f> &colors)
 {
 	// Because the path may intersect a viewport discontinuity, we cannot render
 	// it in one OpenGL drawing call.
-	Q_ASSERT(smallCircleVertexArray.isEmpty());
-	Q_ASSERT(smallCircleColorArray.isEmpty());
+	Q_ASSERT(smallCircleVertexArray.empty());
+	Q_ASSERT(smallCircleColorArray.empty());
 	Q_ASSERT(points.size() == colors.size());
 	Vec3d win;
-	for (int i = 0; i+1 != points.size(); i++)
+	for (size_t i = 0; i+1 != points.size(); i++)
 	{
 		const Vec3d p1 = points[i];
 		const Vec3d p2 = points[i + 1];
 		if (!prj->intersectViewportDiscontinuity(p1, p2))
 		{
 			prj->project(p1, win);
-			smallCircleVertexArray.append(Vec2f(win[0], win[1]));
-			smallCircleColorArray.append(colors[i]);
+			smallCircleVertexArray.push_back(Vec2f(win[0], win[1]));
+			smallCircleColorArray.push_back(colors[i]);
 			if (i+2==points.size())
 			{
 				prj->project(p2, win);
-				smallCircleVertexArray.append(Vec2f(win[0], win[1]));
-				smallCircleColorArray.append(colors[i + 1]);
+				smallCircleVertexArray.push_back(Vec2f(win[0], win[1]));
+				smallCircleColorArray.push_back(colors[i + 1]);
 				drawSmallCircleVertexArray();
 			}
 		}
 		else
 		{
 			// Break the line, draw the stored vertex and flush the list
-			if (!smallCircleVertexArray.isEmpty())
+			if (!smallCircleVertexArray.empty())
 			{
 				prj->project(p1, win);
-				smallCircleVertexArray.append(Vec2f(win[0], win[1]));
-				smallCircleColorArray.append(colors[i]);
+				smallCircleVertexArray.push_back(Vec2f(win[0], win[1]));
+				smallCircleColorArray.push_back(colors[i]);
 			}
 			drawSmallCircleVertexArray();
 		}
 	}
-	Q_ASSERT(smallCircleVertexArray.isEmpty());
-	Q_ASSERT(smallCircleColorArray.isEmpty());
+	Q_ASSERT(smallCircleVertexArray.empty());
+	Q_ASSERT(smallCircleColorArray.empty());
 }
 
 // Project the passed triangle on the screen ensuring that it will look smooth, even for non linear distortion
@@ -1442,17 +1443,17 @@ void StelPainter::drawGreatCircleArcs(const StelVertexArray& va, const Spherical
 	{
 		case StelVertexArray::Lines:
 			Q_ASSERT(va.vertex.size()%2==0);
-			for (int i=0;i<va.vertex.size();i+=2)
+			for (size_t i=0;i<va.vertex.size();i+=2)
 				drawGreatCircleArc(va.vertex.at(i), va.vertex.at(i+1), clippingCap);
 			return;
 		case StelVertexArray::LineStrip:
-			for (int i=0;i<va.vertex.size()-1;++i)
+			for (size_t i=0;i<va.vertex.size()-1;++i)
 				drawGreatCircleArc(va.vertex.at(i), va.vertex.at(i+1), clippingCap);
 			return;
 		case StelVertexArray::LineLoop:
-			for (int i=0;i<va.vertex.size()-1;++i)
+			for (size_t i=0;i<va.vertex.size()-1;++i)
 				drawGreatCircleArc(va.vertex.at(i), va.vertex.at(i+1), clippingCap);
-			drawGreatCircleArc(va.vertex.last(), va.vertex.first(), clippingCap);
+			drawGreatCircleArc(va.vertex.back(), va.vertex.front(), clippingCap);
 			return;
 		default:
 			Q_ASSERT(0); // Unsupported primitive yype
@@ -1535,13 +1536,13 @@ void StelPainter::drawStelVertexArray(const StelVertexArray& arr, bool checkDisc
 		return;
 	}
 
-	setVertexPointer(3, GL_DOUBLE, arr.vertex.constData());
+	setVertexPointer(3, GL_DOUBLE, arr.vertex.data());
 	if (arr.isTextured())
 	{
-		setTexCoordPointer(2, GL_FLOAT, arr.texCoords.constData());
+		setTexCoordPointer(2, GL_FLOAT, arr.texCoords.data());
 		if (arr.isColored())
 		{
-			setColorPointer(3, GL_FLOAT, arr.colors.constData());
+			setColorPointer(3, GL_FLOAT, arr.colors.data());
 			enableClientStates(true, true, true);
 		}
 		else
@@ -1551,14 +1552,14 @@ void StelPainter::drawStelVertexArray(const StelVertexArray& arr, bool checkDisc
 	{
 		if (arr.isColored())
 		{
-			setColorPointer(3, GL_FLOAT, arr.colors.constData());
+			setColorPointer(3, GL_FLOAT, arr.colors.data());
 			enableClientStates(true, false, true);
 		}
 		else
 			enableClientStates(true, false, false);
 	}
 	if (arr.isIndexed())
-		drawFromArray((StelPainter::DrawingMode)arr.primitiveType, arr.indices.size(), 0, true, arr.indices.constData());
+		drawFromArray((StelPainter::DrawingMode)arr.primitiveType, arr.indices.size(), 0, true, arr.indices.data());
 	else
 		drawFromArray((StelPainter::DrawingMode)arr.primitiveType, arr.vertex.size());
 
@@ -1567,7 +1568,7 @@ void StelPainter::drawStelVertexArray(const StelVertexArray& arr, bool checkDisc
 
 void StelPainter::drawSphericalTriangles(const StelVertexArray& va, bool textured, bool colored, const SphericalCap* clippingCap, bool doSubDivide, double maxSqDistortion)
 {
-	if (va.vertex.isEmpty())
+	if (va.vertex.empty())
 		return;
 
 	Q_ASSERT(va.vertex.size()>2);
@@ -1818,10 +1819,10 @@ void StelPainter::sSphere(const float radius, const float oneMinusOblateness, co
 	const GLfloat dt = nsign / stacks; // from inside texture is reversed
 
 	// draw intermediate as quad strips
-	static QVector<double> vertexArr;
-	static QVector<float> texCoordArr;
-	static QVector<float> colorArr;
-	static QVector<unsigned short> indiceArr;
+	static std::vector<double> vertexArr;
+	static std::vector<float> texCoordArr;
+	static std::vector<float> colorArr;
+	static std::vector<unsigned short> indiceArr;
 
 	texCoordArr.resize(0);
 	vertexArr.resize(0);
@@ -1836,27 +1837,27 @@ void StelPainter::sSphere(const float radius, const float oneMinusOblateness, co
 			x = -cos_sin_theta_p[1] * cos_sin_rho_p[1];
 			y = cos_sin_theta_p[0] * cos_sin_rho_p[1];
 			z = nsign * cos_sin_rho_p[0];
-			texCoordArr << s << t;
-			vertexArr << x * radius << y * radius << z * oneMinusOblateness * radius;
+			texCoordArr.insert(texCoordArr.end(), { s, t });
+			vertexArr.insert(vertexArr.end(), { x * radius, y * radius, z * oneMinusOblateness * radius });
 			x = -cos_sin_theta_p[1] * cos_sin_rho_p[3];
 			y = cos_sin_theta_p[0] * cos_sin_rho_p[3];
 			z = nsign * cos_sin_rho_p[2];
-			texCoordArr << s << t - dt;
-			vertexArr << x * radius << y * radius << z * oneMinusOblateness * radius;
+			texCoordArr.insert(texCoordArr.end(), { s, t - dt });
+			vertexArr.insert(vertexArr.end(), { x * radius, y * radius, z * oneMinusOblateness * radius });
 			s += ds;
 		}
 		unsigned int offset = i*(slices+1)*2;
 		for (j = 2;j<slices*2+2;j+=2)
 		{
-			indiceArr << offset+j-2 << offset+j-1 << offset+j;
-			indiceArr << offset+j << offset+j-1 << offset+j+1;
+			indiceArr.insert(indiceArr.end(), { static_cast<unsigned short>(offset+j-2), static_cast<unsigned short>(offset+j-1), static_cast<unsigned short>(offset+j) });
+			indiceArr.insert(indiceArr.end(), { static_cast<unsigned short>(offset+j), static_cast<unsigned short>(offset+j-1), static_cast<unsigned short>(offset+j+1) });
 		}
 		t -= dt;
 	}
 
 	// Draw the array now
-	setArrays((Vec3d*)vertexArr.constData(), (Vec2f*)texCoordArr.constData());
-	drawFromArray(Triangles, indiceArr.size(), 0, true, indiceArr.constData());
+	setArrays((Vec3d*)vertexArr.data(), (Vec2f*)texCoordArr.data());
+	drawFromArray(Triangles, indiceArr.size(), 0, true, indiceArr.data());
 }
 
 StelVertexArray StelPainter::computeSphereNoLight(float radius, float oneMinusOblateness, int slices, int stacks,
@@ -1909,20 +1910,20 @@ StelVertexArray StelPainter::computeSphereNoLight(float radius, float oneMinusOb
 			x = -cos_sin_theta_p[1] * cos_sin_rho_p[1];
 			y = cos_sin_theta_p[0] * cos_sin_rho_p[1];
 			z = nsign * cos_sin_rho_p[0];
-			result.texCoords << Vec2f(s,t);
-			result.vertex << Vec3d(x*radius, y*radius, z*oneMinusOblateness*radius);
+			result.texCoords.push_back(Vec2f(s,t));
+			result.vertex.push_back(Vec3d(x*radius, y*radius, z*oneMinusOblateness*radius));
 			x = -cos_sin_theta_p[1] * cos_sin_rho_p[3];
 			y = cos_sin_theta_p[0] * cos_sin_rho_p[3];
 			z = nsign * cos_sin_rho_p[2];
-			result.texCoords << Vec2f(s, t-dt);
-			result.vertex << Vec3d(x*radius, y*radius, z*oneMinusOblateness*radius);
+			result.texCoords.push_back(Vec2f(s, t-dt));
+			result.vertex.push_back(Vec3d(x*radius, y*radius, z*oneMinusOblateness*radius));
 			s += ds;
 		}
 		unsigned int offset = i*(slices+1)*2;
 		for (j = 2;j<slices*2+2;j+=2)
 		{
-			result.indices << offset+j-2 << offset+j-1 << offset+j;
-			result.indices << offset+j << offset+j-1 << offset+j+1;
+			result.indices.insert(result.indices.end(), { static_cast<unsigned short>(offset+j-2), static_cast<unsigned short>(offset+j-1), static_cast<unsigned short>(offset+j) });
+			result.indices.insert(result.indices.end(), { static_cast<unsigned short>(offset+j), static_cast<unsigned short>(offset+j-1), static_cast<unsigned short>(offset+j+1) });
 		}
 		t -= dt;
 	}
@@ -2152,7 +2153,7 @@ void StelPainter::enableClientStates(bool vertex, bool texture, bool color, bool
 	normalArray.enabled = normal;
 }
 
-void StelPainter::drawFromArray(DrawingMode mode, int count, int offset, bool doProj, const unsigned short* indices)
+void StelPainter::drawFromArray(DrawingMode mode, size_t count, int offset, bool doProj, const unsigned short* indices)
 {
 	ArrayDesc projectedVertexArray = vertexArray;
 	if (doProj)
@@ -2234,9 +2235,9 @@ void StelPainter::drawFromArray(DrawingMode mode, int count, int offset, bool do
 	}
 	
 	if (indices)
-		glDrawElements(mode, count, GL_UNSIGNED_SHORT, indices + offset);
+		glDrawElements(mode, static_cast<GLsizei>(count), GL_UNSIGNED_SHORT, indices + offset);
 	else
-		glDrawArrays(mode, offset, count);
+		glDrawArrays(mode, offset, static_cast<GLsizei>(count));
 
 	if (pr==texturesColorShaderProgram)
 	{
@@ -2263,7 +2264,7 @@ void StelPainter::drawFromArray(DrawingMode mode, int count, int offset, bool do
 }
 
 
-StelPainter::ArrayDesc StelPainter::projectArray(const StelPainter::ArrayDesc& array, int offset, int count, const unsigned short* indices)
+StelPainter::ArrayDesc StelPainter::projectArray(const StelPainter::ArrayDesc& array, int offset, size_t count, const unsigned short* indices)
 {
 	// XXX: we should use a more generic way to test whether or not to do the projection.
 	if (dynamic_cast<StelProjector2d*>(prj.get()))
@@ -2280,13 +2281,13 @@ StelPainter::ArrayDesc StelPainter::projectArray(const StelPainter::ArrayDesc& a
 	// 2) We are using an indice array.  In that case we have to find the max value by iterating through the indices.
 	if (!indices)
 	{
-		polygonVertexArray.resize(offset + count);
-		prj->project(count, vecArray + offset, polygonVertexArray.data() + offset);
+		polygonVertexArray.resize(offset + static_cast<int>(count));
+		prj->project(static_cast<int>(count), vecArray + offset, polygonVertexArray.data() + offset);
 	} else
 	{
 		// we need to find the max value of the indices !
 		unsigned short max = 0;
-		for (int i = offset; i < offset + count; ++i)
+		for (size_t i = offset; i < offset + count; ++i)
 		{
 			max = std::max(max, indices[i]);
 		}

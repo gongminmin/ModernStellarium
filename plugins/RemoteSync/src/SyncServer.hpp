@@ -74,13 +74,13 @@ private:
 	//use composition instead of inheritance, cleaner interfaace this way
 	//for now, we use TCP, but will test multicast UDP later if the basic setup is working
 	QTcpServer* qserver;
-	QVector<SyncMessageHandler*> handlerList;
-	QVector<SyncServerEventSender*> senderList;
+	std::vector<SyncMessageHandler*> handlerList;
+	std::vector<SyncServerEventSender*> senderList;
 
 	bool stopping;
 
 	// client list
-	typedef QVector<SyncRemotePeer*> tClientList;
+	typedef std::vector<SyncRemotePeer*> tClientList;
 	tClientList clients;
 
 	QByteArray broadcastBuffer;

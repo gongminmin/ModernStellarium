@@ -552,16 +552,16 @@ bool StarMgr::checkAndLoadCatalog(const QVariantMap& catDesc)
 	ZoneArray* z = ZoneArray::create(catalogFilePath, true);
 	if (z)
 	{
-		if (z->level<gridLevels.size())
+		if (z->level<static_cast<int>(gridLevels.size()))
 		{
 			qWarning() << QDir::toNativeSeparators(catalogFileName) << ", " << z->level << ": duplicate level";
 			delete z;
 			return true;
 		}
 		Q_ASSERT(z->level==maxGeodesicGridLevel+1);
-		Q_ASSERT(z->level==gridLevels.size());
+		Q_ASSERT(z->level==static_cast<int>(gridLevels.size()));
 		++maxGeodesicGridLevel;
-		gridLevels.append(z);
+		gridLevels.push_back(z);
 	}
 	return true;
 }
@@ -1112,8 +1112,8 @@ void StarMgr::draw(StelCore* core)
 		return;
 
 	int maxSearchLevel = getMaxSearchLevel();
-	QVector<SphericalCap> viewportCaps = prj->getViewportConvexPolygon()->getBoundingSphericalCaps();
-	viewportCaps.append(core->getVisibleSkyArea());
+	std::vector<SphericalCap> viewportCaps = prj->getViewportConvexPolygon()->getBoundingSphericalCaps();
+	viewportCaps.push_back(core->getVisibleSkyArea());
 	const GeodesicSearchResult* geodesic_search_result = core->getGeodesicGrid(maxSearchLevel)->search(viewportCaps,maxSearchLevel);
 
 	// Set temporary static variable for optimization

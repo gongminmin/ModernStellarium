@@ -20,9 +20,10 @@
 #ifndef _TESTDELTAT_HPP_
 #define _TESTDELTAT_HPP_
 
+#include <vector>
+
 #include <QObject>
 #include <QTest>
-#include <QVector>
 #include <QString>
 
 class TestDeltaT : public QObject

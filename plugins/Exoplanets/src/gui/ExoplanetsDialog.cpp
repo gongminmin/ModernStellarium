@@ -458,7 +458,7 @@ void ExoplanetsDialog::drawDiagram()
 	QString currentAxisYString = ui->comboAxisY->currentText();
 
 	QList<double> aX = ep->getExoplanetsData(currentAxisX), aY = ep->getExoplanetsData(currentAxisY);
-	QVector<double> x = aX.toVector(), y = aY.toVector();
+	std::vector<double> x = aX.toVector().toStdVector(), y = aY.toVector().toStdVector();
 
 	double minX, minY, maxX, maxY;
 	minX = maxX = aX.first();

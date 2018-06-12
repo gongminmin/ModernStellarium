@@ -97,10 +97,10 @@ SphericalRegionP SphericalRegion::getEnlarged(double margin) const
 	return SphericalRegionP(new SphericalCap(cap.n, std::cos(newRadius)));
 }
 
-QVector<SphericalCap> SphericalRegion::getBoundingSphericalCaps() const
+std::vector<SphericalCap> SphericalRegion::getBoundingSphericalCaps() const
 {
-	QVector<SphericalCap> res;
-	res << getBoundingCap();
+	std::vector<SphericalCap> res;
+	res.push_back(getBoundingCap());
 	return res;
 }
 
@@ -338,9 +338,9 @@ bool SphericalCap::intersectsTriangle(const Vec3d* v) const
 	return true;
 }
 
-bool SphericalCap::intersectsConvexContour(const Vec3d* vertice, int nbVertice) const
+bool SphericalCap::intersectsConvexContour(const Vec3d* vertice, size_t nbVertice) const
 {
-	for (int i=0;i<nbVertice;++i)
+	for (size_t i=0;i<nbVertice;++i)
 	{
 		if (contains(vertice[i]))
 			return true;
@@ -349,7 +349,7 @@ bool SphericalCap::intersectsConvexContour(const Vec3d* vertice, int nbVertice) 
 	if (d<=0)
 		return false;
 
-	for (int i=0;i<nbVertice-1;++i)
+	for (size_t i=0;i<nbVertice-1;++i)
 	{
 		if (!sideHalfSpaceIntersects(vertice[i], vertice[i+1], *this))
 			return false;
@@ -367,16 +367,16 @@ bool SphericalCap::intersectsConvexContour(const Vec3d* vertice, int nbVertice) 
 bool SphericalCap::intersects(const SphericalConvexPolygon& cvx) const
 {
 	// TODO This algo returns sometimes false positives!!
-	return intersectsConvexContour(cvx.getConvexContour().constData(), cvx.getConvexContour().size());
+	return intersectsConvexContour(cvx.getConvexContour().data(), cvx.getConvexContour().size());
 }
 
 bool SphericalCap::intersects(const SphericalPolygon& polyBase) const
 {
 	// Go through the full list of triangle
-	const QVector<Vec3d>& vArray = polyBase.getFillVertexArray().vertex;
-	for (int i=0;i<vArray.size()/3;++i)
+	const std::vector<Vec3d>& vArray = polyBase.getFillVertexArray().vertex;
+	for (size_t i=0;i<vArray.size()/3;++i)
 	{
-		if (intersectsConvexContour(vArray.constData()+i*3, 3))
+		if (intersectsConvexContour(vArray.data()+i*3, 3))
 			return true;
 	}
 	return false;
@@ -578,10 +578,10 @@ double SphericalCap::relativeDiameterOverlap(const SphericalCap& c1, const Spher
 	return overlapDist*qMin(r1/r2, r2/r1);
 }
 
-QVector<Vec3d> SphericalCap::getClosedOutlineContour() const
+std::vector<Vec3d> SphericalCap::getClosedOutlineContour() const
 {
 	static const int nbStep = 40;
-	QVector<Vec3d> contour;
+	std::vector<Vec3d> contour;
 	Vec3d p(n);
 	Vec3d axis = n^Vec3d(1,0,0);
 	if (axis.lengthSquared()<0.1)
@@ -590,7 +590,7 @@ QVector<Vec3d> SphericalCap::getClosedOutlineContour() const
 	const Mat4d& rot = Mat4d::rotation(n, -2.*M_PI/nbStep);
 	for (int i=0;i<nbStep;++i)
 	{
-		contour.append(p);
+		contour.push_back(p);
 		p.transfo4d(rot);
 	}
 	return contour;
@@ -646,8 +646,7 @@ bool SphericalPoint::intersects(const SphericalConvexPolygon& r) const
 
 OctahedronPolygon SphericalPoint::getOctahedronPolygon() const
 {
-	QVector<Vec3d> contour;
-	contour << n << n << n;
+	std::vector<Vec3d> contour = { n, n, n };
 	return OctahedronPolygon(contour);
 }
 
@@ -834,19 +833,19 @@ bool SphericalConvexPolygon::checkValid() const
 	return SphericalConvexPolygon::checkValidContour(contour);
 }
 
-bool SphericalConvexPolygon::checkValidContour(const QVector<Vec3d>& contour)
+bool SphericalConvexPolygon::checkValidContour(const std::vector<Vec3d>& contour)
 {
 	if (contour.size()<3)
 		return false;
 	bool res=true;
-	for (int i=0;i<contour.size()-1;++i)
+	for (size_t i=0;i<contour.size()-1;++i)
 	{
 		// Check that all points not on the current convex plane are included in it
-		for (int p=0;p<contour.size()-2;++p)
-			res &= sideHalfSpaceContains(contour.at(i+1), contour.at(i), contour[(p+i+2)%contour.size()]);
+		for (size_t p=0;p<contour.size()-2;++p)
+			res &= sideHalfSpaceContains(contour[i+1], contour[i], contour[(p+i+2)%contour.size()]);
 	}
-	for (int p=0;p<contour.size()-2;++p)
-		res &= sideHalfSpaceContains(contour.first(), contour.last(), contour[(p+contour.size()+1)%contour.size()]);
+	for (size_t p=0;p<contour.size()-2;++p)
+		res &= sideHalfSpaceContains(contour.front(), contour.back(), contour[(p+contour.size()+1)%contour.size()]);
 	return res;
 }
 
@@ -857,7 +856,7 @@ double SphericalConvexPolygon::getArea() const
 	Vec3d ar[3];
 	Vec3d v1, v2, v3;
 	ar[0]=contour.at(0);
-	for (int i=1;i<contour.size()-1;++i)
+	for (size_t i=1;i<contour.size()-1;++i)
 	{
 		// Use Girard's theorem for each subtriangles
 		ar[1]=contour.at(i);
@@ -882,12 +881,13 @@ Vec3d SphericalConvexPolygon::getPointInside() const
 }
 
 // Return the list of halfspace bounding the ConvexPolygon.
-QVector<SphericalCap> SphericalConvexPolygon::getBoundingSphericalCaps() const
+std::vector<SphericalCap> SphericalConvexPolygon::getBoundingSphericalCaps() const
 {
-	QVector<SphericalCap> res;
-	for (int i=0;i<contour.size()-1;++i)
-		res << SphericalCap(contour.at(i+1)^contour.at(i), 0);
-	res << SphericalCap(contour.first()^contour.last(), 0);
+	std::vector<SphericalCap> res;
+	res.reserve(contour.size());
+	for (size_t i=0;i<contour.size()-1;++i)
+		res.push_back(SphericalCap(contour[i+1]^contour[i], 0));
+	res.push_back(SphericalCap(contour.front() ^ contour.back(), 0));
 	return res;
 }
 
@@ -896,24 +896,24 @@ bool SphericalConvexPolygon::contains(const Vec3d& p) const
 {
 	if (!cachedBoundingCap.contains(p))
 		return false;
-	for (int i=0;i<contour.size()-1;++i)
+	for (size_t i=0;i<contour.size()-1;++i)
 	{
-		if (!sideHalfSpaceContains(contour.at(i+1), contour.at(i), p))
+		if (!sideHalfSpaceContains(contour[i+1], contour[i], p))
 			return false;
 	}
-	return sideHalfSpaceContains(contour.first(), contour.last(), p);
+	return sideHalfSpaceContains(contour.front(), contour.back(), p);
 }
 
 bool SphericalConvexPolygon::contains(const SphericalCap& c) const
 {
 	if (!cachedBoundingCap.contains(c))
 		return false;
-	for (int i=0;i<contour.size()-1;++i)
+	for (size_t i=0;i<contour.size()-1;++i)
 	{
-		if (!sideHalfSpaceContains(contour.at(i+1), contour.at(i), c))
+		if (!sideHalfSpaceContains(contour[i+1], contour[i], c))
 			return false;
 	}
-	return sideHalfSpaceContains(contour.first(), contour.last(), c);
+	return sideHalfSpaceContains(contour.front(), contour.back(), c);
 }
 
 bool SphericalConvexPolygon::containsConvexContour(const Vec3d* vertice, int nbVertex) const
@@ -930,7 +930,7 @@ bool SphericalConvexPolygon::contains(const SphericalConvexPolygon& cvx) const
 {
 	if (!cachedBoundingCap.contains(cvx.cachedBoundingCap))
 		return false;
-	return containsConvexContour(cvx.getConvexContour().constData(), cvx.getConvexContour().size());
+	return containsConvexContour(cvx.getConvexContour().data(), static_cast<int>(cvx.getConvexContour().size()));
 }
 
 bool SphericalConvexPolygon::contains(const SphericalPolygon& poly) const
@@ -938,21 +938,21 @@ bool SphericalConvexPolygon::contains(const SphericalPolygon& poly) const
 	if (!cachedBoundingCap.contains(poly.getBoundingCap()))
 		return false;
 	// For standard polygons, go through the full list of triangles
-	const QVector<Vec3d>& vArray = poly.getFillVertexArray().vertex;
-	for (int i=0;i<vArray.size()/3;++i)
+	const std::vector<Vec3d>& vArray = poly.getFillVertexArray().vertex;
+	for (size_t i=0;i<vArray.size()/3;++i)
 	{
-		if (!containsConvexContour(vArray.constData()+i*3, 3))
+		if (!containsConvexContour(vArray.data()+i*3, 3))
 			return false;
 	}
 	return true;
 }
 
-bool SphericalConvexPolygon::areAllPointsOutsideOneSide(const Vec3d* thisContour, int nbThisContour, const Vec3d* points, int nbPoints)
+bool SphericalConvexPolygon::areAllPointsOutsideOneSide(const Vec3d* thisContour, size_t nbThisContour, const Vec3d* points, size_t nbPoints)
 {
-	for (int i=0;i<nbThisContour-1;++i)
+	for (size_t i=0;i<nbThisContour-1;++i)
 	{
 		bool allOutside = true;
-		for (int j=0;j<nbPoints&& allOutside==true;++j)
+		for (size_t j=0;j<nbPoints&& allOutside==true;++j)
 		{
 			allOutside = allOutside && !sideHalfSpaceContains(thisContour[i+1], thisContour[i], points[j]);
 		}
@@ -962,7 +962,7 @@ bool SphericalConvexPolygon::areAllPointsOutsideOneSide(const Vec3d* thisContour
 
 		// Last iteration
 	bool allOutside = true;
-	for (int j=0;j<nbPoints&& allOutside==true;++j)
+	for (size_t j=0;j<nbPoints&& allOutside==true;++j)
 	{
 		allOutside = allOutside && !sideHalfSpaceContains(thisContour[0], thisContour[nbThisContour-1], points[j]);
 	}
@@ -985,10 +985,10 @@ bool SphericalConvexPolygon::intersects(const SphericalPolygon& poly) const
 	if (!cachedBoundingCap.intersects(poly.getBoundingCap()))
 		return false;
 	// For standard polygons, go through the full list of triangles
-	const QVector<Vec3d>& vArray = poly.getFillVertexArray().vertex;
-	for (int i=0;i<vArray.size()/3;++i)
+	const std::vector<Vec3d>& vArray = poly.getFillVertexArray().vertex;
+	for (size_t i=0;i<vArray.size()/3;++i)
 	{
-		if (!areAllPointsOutsideOneSide(contour.constData(), contour.size(), vArray.constData()+i*3, 3) && !areAllPointsOutsideOneSide(vArray.constData()+i*3, 3, contour.constData(), contour.size()))
+		if (!areAllPointsOutsideOneSide(contour.data(), contour.size(), vArray.data()+i*3, 3) && !areAllPointsOutsideOneSide(vArray.data()+i*3, 3, contour.data(), contour.size()))
 			return true;
 	}
 	return false;
@@ -1035,7 +1035,7 @@ QVariantList SphericalConvexPolygon::toQVariant() const
 
 SphericalRegionP SphericalConvexPolygon::deserialize(QDataStream& in)
 {
-	QVector<Vec3d> contour;
+	std::vector<Vec3d> contour;
 	in >> contour;
 	return SphericalRegionP(new SphericalConvexPolygon(contour));
 }
@@ -1157,15 +1157,14 @@ struct TriangleDumper
 			       const Vec3f* , const Vec3f* , const Vec3f* , // GZ NEW
 						   unsigned int , unsigned int , unsigned int )
 	{
-		QVector<Vec3d> triangle;
-		triangle << *v1 << *v2 << *v3;
-		triangleList.append(triangle);
+		std::vector<Vec3d> triangle = { *v1, *v2, *v3 };
+		triangleList.push_back(triangle);
 	}
 
-	QVector<QVector<Vec3d > > triangleList;
+	std::vector<std::vector<Vec3d>> triangleList;
 };
 
-QVector<QVector<Vec3d > > SphericalRegion::getSimplifiedContours() const
+std::vector<std::vector<Vec3d>> SphericalRegion::getSimplifiedContours() const
 {
 	TriangleDumper result = getFillVertexArray().foreachTriangle(TriangleDumper());
 	return result.triangleList;
@@ -1186,15 +1185,15 @@ SphericalRegionP capFromQVariantList(const QVariantList& l)
 	return SphericalRegionP(new SphericalCap(v,std::cos(d)));
 }
 
-QVector<Vec3d> pathFromQVariantList(const QVariantList& l)
+std::vector<Vec3d> pathFromQVariantList(const QVariantList& l)
 {
 	Q_ASSERT(l.at(0).toString()=="PATH");
 	// We now parse a path single contour, the format is:
 	// "PATH",[ra, dec],["greatCircleTo", [ra, dec]], ["smallCircle", [raAxis, decAxis], angle], [etc..]
-	QVector<Vec3d> vertices;
+	std::vector<Vec3d> vertices;
 	Vec3d v;
 	parseRaDec(l.at(1), v);
-	vertices.append(v);	// Starting point
+	vertices.push_back(v);	// Starting point
 	for (int k=2;k<l.size();++k)
 	{
 		const QVariantList& elemList = l.at(k).toList();
@@ -1203,7 +1202,7 @@ QVector<Vec3d> pathFromQVariantList(const QVariantList& l)
 		if (elemList.at(0)=="greatCircleTo")
 		{
 			parseRaDec(elemList.at(1), v);
-			vertices.append(v);
+			vertices.push_back(v);
 			continue;
 		}
 		if (elemList.at(0)=="smallCircle")
@@ -1216,12 +1215,12 @@ QVector<Vec3d> pathFromQVariantList(const QVariantList& l)
 				throw std::runtime_error(qPrintable(QString("invalid small circle rotation angle: \"%1\" (expect a double value in degree betwwen -2pi and 2pi)").arg(elemList.at(2).toString())));
 			int nbStep = 1+(int)(std::fabs(angle)/(2.*M_PI)*75);
 			Q_ASSERT(nbStep>0);
-			v = vertices.last();
+			v = vertices.back();
 			const Mat4d& rotMat = Mat4d::rotation(axis, angle/nbStep);
 			for (int step=0; step<nbStep;++step)
 			{
 				v.transfo4d(rotMat);
-				vertices.append(v);
+				vertices.push_back(v);
 			}
 			continue;
 		}
@@ -1231,16 +1230,16 @@ QVector<Vec3d> pathFromQVariantList(const QVariantList& l)
 	return vertices;
 }
 
-QVector<Vec3d> singleContourFromQVariantList(const QVariantList& l)
+std::vector<Vec3d> singleContourFromQVariantList(const QVariantList& l)
 {
 	if (l.size()<3)
 		throw std::runtime_error("a polygon contour must have at least 3 vertices");
-	QVector<Vec3d> vertices;
+	std::vector<Vec3d> vertices;
 	Vec3d v;
 	for (const auto& vRaDec : l)
 	{
 		parseRaDec(vRaDec, v);
-		vertices.append(v);
+		vertices.push_back(v);
 	}
 	Q_ASSERT(vertices.size()>2);
 	return vertices;
@@ -1255,12 +1254,12 @@ SphericalRegionP SphericalRegionP::loadFromQVariant(const QVariantList& l)
 		// The region is composed of either:
 		// - a list of regions, which are assumed to be combined using the positive winding rule.
 		// - or a single contour
-		QVector<QVector<Vec3d> > contours;
+		std::vector<std::vector<Vec3d>> contours;
 		try {
 			Vec3d v;
 			parseRaDec(l.at(0), v);
 			// No exception was thrown, we are parsing a single contour
-			contours.append(singleContourFromQVariantList(l));
+			contours.push_back(singleContourFromQVariantList(l));
 		}
 		catch (std::runtime_error&)
 		{
@@ -1273,13 +1272,16 @@ SphericalRegionP SphericalRegionP::loadFromQVariant(const QVariantList& l)
 				if (subL.at(0).type()==QVariant::List)
 				{
 					// Special optimization for basic contours (if no type is provided, assume a polygon)
-					contours.append(singleContourFromQVariantList(subL));
+					contours.push_back(singleContourFromQVariantList(subL));
 					continue;
 				}
 				Q_ASSERT(subL.at(0).type()==QVariant::String || subL.at(0).type()==QVariant::ByteArray);
 				const SphericalRegionP& reg = loadFromQVariant(subL);
 				if (!reg->isEmpty())
-					contours << reg->getSimplifiedContours();
+				{
+					auto simplifiedContours = reg->getSimplifiedContours();
+					contours.insert(contours.end(), simplifiedContours.begin(), simplifiedContours.end());
+				}
 			}
 		}
 		return SphericalRegionP(new SphericalPolygon(contours));
@@ -1347,8 +1349,8 @@ SphericalRegionP SphericalRegionP::loadFromQVariant(const QVariantMap& map)
 	else
 	{
 		// With texture coordinates
-		QVector<QVector<SphericalTexturedPolygon::TextureVertex> > contours;
-		QVector<SphericalTexturedPolygon::TextureVertex> vertices;
+		std::vector<std::vector<SphericalTexturedPolygon::TextureVertex>> contours;
+		std::vector<SphericalTexturedPolygon::TextureVertex> vertices;
 		for (int i=0;i<contoursList.size();++i)
 		{
 			// Load vertices
@@ -1359,13 +1361,13 @@ SphericalRegionP SphericalRegionP::loadFromQVariant(const QVariantMap& map)
 			for (const auto& vRaDec : polyRaDecToList)
 			{
 				parseRaDec(vRaDec, v.vertex);
-				vertices.append(v);
+				vertices.push_back(v);
 			}
 			Q_ASSERT(vertices.size()>2);
 
 			// Add the texture coordinates
 			const QVariantList& polyXYToList = texCoordList.at(i).toList();
-			if (polyXYToList.size()!=vertices.size())
+			if (static_cast<size_t>(polyXYToList.size())!=vertices.size())
 				throw std::runtime_error("texture coordinate and vertices number mismatch for contour");
 			for (int n=0;n<polyXYToList.size();++n)
 			{
@@ -1376,7 +1378,7 @@ SphericalRegionP SphericalRegionP::loadFromQVariant(const QVariantMap& map)
 				if (!ok)
 					throw std::runtime_error("invalid texture coordinate pair (expect 2 double values in degree)");
 			}
-			contours.append(vertices);
+			contours.push_back(vertices);
 			vertices.clear();
 		}
 		return SphericalRegionP(new SphericalTexturedPolygon(contours));

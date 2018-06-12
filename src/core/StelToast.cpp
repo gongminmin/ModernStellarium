@@ -42,7 +42,7 @@ ToastTile::ToastTile(ToastSurvey* survey, int level, int x, int y)
 		boundingCap.n=Vec3d(1,0,0);
 		boundingCap.d=-1.;
 	}
-	const QVector<Vec3d>& pts = getGrid()->getPolygon(level, x, y);
+	const std::vector<Vec3d>& pts = getGrid()->getPolygon(level, x, y);
 	Vec3d n = pts.at(0);
 	n+=pts.at(1);
 	n+=pts.at(2);
@@ -135,8 +135,8 @@ void ToastTile::prepareDraw(Vec3f color)
 		textureArray = getGrid()->getTextureArray(level, x, y, ml);
 		indexArray = getGrid()->getTrianglesIndex(level, x, y, ml);
 		colorArray.clear();
-		for (int i=0; i<vertexArray.size(); ++i)
-			colorArray.append(color);
+		for (size_t i=0; i<vertexArray.size(); ++i)
+			colorArray.push_back(color);
 	}
 	// Recreate the color array in any case. Assume we must compute extinction on every frame.
 	if (withExtinction)
@@ -146,7 +146,7 @@ void ToastTile::prepareDraw(Vec3f color)
 		const Extinction& extinction=drawer->getExtinction();
 		colorArray.clear();
 
-		for (int i=0; i<vertexArray.size(); ++i)
+		for (size_t i=0; i<vertexArray.size(); ++i)
 		{
 			Vec3d vertAltAz=core->j2000ToAltAz(vertexArray.at(i), StelCore::RefractionOn);
 			Q_ASSERT(fabs(vertAltAz.lengthSquared()-1.0) < 0.001);
@@ -157,13 +157,13 @@ void ToastTile::prepareDraw(Vec3f color)
 			// Also, for Toast, we do not observe Bortle as for the default MilkyWay.
 			float extinctionFactor=std::pow(0.7f , oneMag);
 			Vec3f thisColor=Vec3f(color[0]*extinctionFactor, color[1]*extinctionFactor, color[2]*extinctionFactor);
-			colorArray.append(thisColor);
+			colorArray.push_back(thisColor);
 		}
 
 	}
 	else
 	{
-		colorArray.fill(Vec3f(1.0f));
+		colorArray.assign(colorArray.size(), Vec3f(1.0f));
 	}
 
 
@@ -216,8 +216,8 @@ void ToastTile::drawTile(StelPainter* sPainter, Vec3f color)
 	Q_ASSERT(vertexArray.size() == textureArray.size());
 
 	sPainter->setCullFace(true);
-	sPainter->setArrays(vertexArray.constData(), textureArray.constData(), colorArray.constData());
-	sPainter->drawFromArray(StelPainter::Triangles, indexArray.size(), 0, true, indexArray.constData());
+	sPainter->setArrays(vertexArray.data(), textureArray.data(), colorArray.data());
+	sPainter->drawFromArray(StelPainter::Triangles, indexArray.size(), 0, true, indexArray.data());
 
 //	SphericalConvexPolygon poly(getGrid()->getPolygon(level, x, y));
 //	sPainter->enableTexture2d(false);

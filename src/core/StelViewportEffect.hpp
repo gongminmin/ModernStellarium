@@ -65,9 +65,9 @@ private:
 	int max_x,max_y;
 	double step_x,step_y;
 
-	QVector<Vec2f> displayVertexList;
-	QVector<Vec4f> displayColorList;
-	QVector<Vec2f> displayTexCoordList;
+	std::vector<Vec2f> displayVertexList;
+	std::vector<Vec4f> displayColorList;
+	std::vector<Vec2f> displayTexCoordList;
 };
 
 #endif // _STELVIEWPORTEFFECT_HPP_

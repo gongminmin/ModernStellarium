@@ -1406,7 +1406,7 @@ bool NebulaMgr::loadDSOCatalog(const QString &filename)
 			NebulaP e = NebulaP(new Nebula);
 			e->readDSO(ins);
 
-			dsoArray.append(e);
+			dsoArray.push_back(e);
 			nebGrid.insert(std::static_pointer_cast<StelRegionObject>(e));
 			if (e->DSO_nb!=0)
 				dsoIndex.insert(e->DSO_nb, e);

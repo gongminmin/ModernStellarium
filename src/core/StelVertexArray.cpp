@@ -30,9 +30,9 @@ StelVertexArray StelVertexArray::removeDiscontinuousTriangles(const StelProjecto
 		{
 			case Triangles:
 			{
-				QVector<unsigned short> indicesOrig = ret.indices;
+				std::vector<unsigned short> indicesOrig = ret.indices;
 				ret.indices.resize(0);
-				for (int i = 0; i < indicesOrig.size(); i += 3)
+				for (size_t i = 0; i < indicesOrig.size(); i += 3)
 				{
 					if (prj->intersectViewportDiscontinuity(vertex.at(indicesOrig.at(i)), vertex.at(indicesOrig.at(i+1))) ||
 							prj->intersectViewportDiscontinuity(vertex.at(indicesOrig.at(i+1)), vertex.at(indicesOrig.at(i+2))) ||
@@ -42,7 +42,7 @@ StelVertexArray StelVertexArray::removeDiscontinuousTriangles(const StelProjecto
 					}
 					else
 					{
-						ret.indices << indicesOrig.at(i) << indicesOrig.at(i+1) << indicesOrig.at(i+2);
+						ret.indices.insert(ret.indices.end(), { indicesOrig[i], indicesOrig[i + 1], indicesOrig[i + 2] });
 					}
 				}
 				break;
@@ -61,7 +61,7 @@ StelVertexArray StelVertexArray::removeDiscontinuousTriangles(const StelProjecto
 		{
 			case TriangleStrip:
 				ret.indices.reserve(vertex.size() * 3);
-				for (int i = 2; i < vertex.size(); ++i)
+				for (size_t i = 2; i < vertex.size(); ++i)
 				{
 					if (prj->intersectViewportDiscontinuity(vertex[i], vertex[i-1]) ||
 							prj->intersectViewportDiscontinuity(vertex[i-1], vertex[i-2]) ||
@@ -72,16 +72,16 @@ StelVertexArray StelVertexArray::removeDiscontinuousTriangles(const StelProjecto
 					else
 					{
 						if (i % 2 == 0)
-							ret.indices << i-2 << i-1 << i;
+							ret.indices.insert(ret.indices.end(), { static_cast<unsigned short>(i-2), static_cast<unsigned short>(i-1), static_cast<unsigned short>(i) });
 						else
-							ret.indices << i-2 << i << i-1;
+							ret.indices.insert(ret.indices.end(), { static_cast<unsigned short>(i-2), static_cast<unsigned short>(i), static_cast<unsigned short>(i-1) });
 					}
 				}
 				break;
 
 			case Triangles:
 				ret.indices.reserve(vertex.size());
-				for (int i = 0; i < vertex.size(); i += 3)
+				for (size_t i = 0; i < vertex.size(); i += 3)
 				{
 					if (prj->intersectViewportDiscontinuity(vertex.at(i), vertex.at(i+1)) ||
 							prj->intersectViewportDiscontinuity(vertex.at(i+1), vertex.at(i+2)) ||
@@ -91,7 +91,7 @@ StelVertexArray StelVertexArray::removeDiscontinuousTriangles(const StelProjecto
 					}
 					else
 					{
-						ret.indices << i << i+1 << i+2;
+						ret.indices.insert(ret.indices.end(), { static_cast<unsigned short>(i), static_cast<unsigned short>(i+1), static_cast<unsigned short>(i+2) });
 					}
 				}
 				break;
@@ -103,7 +103,7 @@ StelVertexArray StelVertexArray::removeDiscontinuousTriangles(const StelProjecto
 	// Just in case we don't have any triangles, we also remove all the vertices.
 	// This is because we can't specify an empty indexed VertexArray.
 	// FIXME: we should use an attribute for indexed array.
-	if (ret.indices.isEmpty())
+	if (ret.indices.empty())
 		ret.vertex.clear();
 	ret.primitiveType = Triangles;
 

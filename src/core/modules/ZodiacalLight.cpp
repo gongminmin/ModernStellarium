@@ -76,8 +76,7 @@ void ZodiacalLight::init()
 	setIntensity(conf->value("astro/zodiacal_light_intensity",1.f).toFloat());
 
 	vertexArray = new StelVertexArray(StelPainter::computeSphereNoLight(1.f,1.f,60,30,1, true)); // 6x6 degree quads
-	vertexArray->colors.resize(vertexArray->vertex.length());
-	vertexArray->colors.fill(color);
+	vertexArray->colors.assign(vertexArray->vertex.size(), color);
 
 	eclipticalVertices=vertexArray->vertex;
 	// This vector is used to keep original vertices, these will be modified in update().
@@ -135,10 +134,10 @@ void ZodiacalLight::update(double deltaTime)
 		}
 
 		Mat4d rotMat=Mat4d::zrotation(lambdaSun);
-		for (int i=0; i<eclipticalVertices.size(); ++i)
+		for (size_t i=0; i<eclipticalVertices.size(); ++i)
 		{
 			Vec3d tmp=eclipticalVertices.at(i);
-			vertexArray->vertex.replace(i, rotMat * tmp);
+			vertexArray->vertex[i] = rotMat * tmp;
 		}
 		lastJD=currentJD;
 	}
@@ -234,7 +233,7 @@ void ZodiacalLight::draw(StelCore* core)
 		const double epsDate=getPrecessionAngleVondrakCurrentEpsilonA();
 		vertexArray->colors.clear();
 
-		for (int i=0; i<vertexArray->vertex.size(); ++i)
+		for (size_t i=0; i<vertexArray->vertex.size(); ++i)
 		{
 			Vec3d eclPos=vertexArray->vertex.at(i);
 			Q_ASSERT(fabs(eclPos.lengthSquared()-1.0) < 0.001f);
@@ -250,11 +249,11 @@ void ZodiacalLight::draw(StelCore* core)
 			extinction.forward(vertAltAz, &oneMag);
 			float extinctionFactor=std::pow(0.4f , oneMag)/bortleIntensity; // drop of one magnitude: factor 2.5 or 40%, and further reduced by light pollution
 			Vec3f thisColor=Vec3f(c[0]*extinctionFactor, c[1]*extinctionFactor, c[2]*extinctionFactor);
-			vertexArray->colors.append(thisColor);
+			vertexArray->colors.push_back(thisColor);
 		}
 	}
 	else
-		vertexArray->colors.fill(Vec3f(c[0], c[1], c[2]));
+		vertexArray->colors.assign(vertexArray->colors.size(), Vec3f(c[0], c[1], c[2]));
 
 	StelPainter sPainter(prj);
 	sPainter.setCullFace(true);

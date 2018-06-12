@@ -43,9 +43,9 @@
 #include <QFileDialog>
 #include <QDir>
 
-QVector<Vec3d> AstroCalcDialog::EphemerisListCoords;
-QVector<QString> AstroCalcDialog::EphemerisListDates;
-QVector<float> AstroCalcDialog::EphemerisListMagnitudes;
+std::vector<Vec3d> AstroCalcDialog::EphemerisListCoords;
+std::vector<QString> AstroCalcDialog::EphemerisListDates;
+std::vector<float> AstroCalcDialog::EphemerisListMagnitudes;
 int AstroCalcDialog::DisplayedPositionIndex = -1;
 float AstroCalcDialog::brightLimit = 10.f;
 float AstroCalcDialog::minY = -90.f;
@@ -1385,12 +1385,12 @@ void AstroCalcDialog::generateEphemeris()
 				decStr = StelUtils::radToDmsStr(dec, true);
 			}
 
-			EphemerisListCoords.append(pos);
+			EphemerisListCoords.push_back(pos);
 			if (withTime)
-				EphemerisListDates.append(QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD), localeMgr->getPrintableTimeLocal(JD)));
+				EphemerisListDates.push_back(QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD), localeMgr->getPrintableTimeLocal(JD)));
 			else
-				EphemerisListDates.append(localeMgr->getPrintableDateLocal(JD));
-			EphemerisListMagnitudes.append(obj->getVMagnitudeWithExtinction(core));
+				EphemerisListDates.push_back(localeMgr->getPrintableDateLocal(JD));
+			EphemerisListMagnitudes.push_back(obj->getVMagnitudeWithExtinction(core));
 			StelUtils::rectToSphe(&ra, &dec, pos);
 
 			observerHelioPos = core->getObserverHeliocentricEclipticPos();
@@ -1775,7 +1775,7 @@ void AstroCalcDialog::drawAltVsTimeDiagram()
 	{
 		// X axis - time; Y axis - altitude
 		QList<double> aX, aY, sX, sY, sYn, sYa, sYc, mX, mY;
-		QVector<double> xs, ys, ysn, ysa, ysc, xm, ym;
+		std::vector<double> xs, ys, ysn, ysa, ysc, xm, ym;
 
 		StelObjectP selectedObject = selectedObjects[0];
 		bool onEarth = core->getCurrentPlanet()==solarSystem->getEarth();
@@ -1863,7 +1863,7 @@ void AstroCalcDialog::drawAltVsTimeDiagram()
 
 		core->setJD(currentJD);
 
-		QVector<double> x = aX.toVector(), y = aY.toVector();
+		std::vector<double> x = aX.toVector().toStdVector(), y = aY.toVector().toStdVector();
 		double minYa = aY.first();
 		double maxYa = aY.first();
 
@@ -1879,11 +1879,11 @@ void AstroCalcDialog::drawAltVsTimeDiagram()
 		// additional data: Sun + Twilight
 		if (plotAltVsTimeSun)
 		{
-			xs = sX.toVector();
-			ys = sY.toVector();
-			ysc = sYc.toVector();
-			ysn = sYn.toVector();
-			ysa = sYa.toVector();
+			xs = sX.toVector().toStdVector();
+			ys = sY.toVector().toStdVector();
+			ysc = sYc.toVector().toStdVector();
+			ysn = sYn.toVector().toStdVector();
+			ysa = sYa.toVector().toStdVector();
 			double minYs = sY.first();
 			double maxYs = sY.first();
 
@@ -1900,8 +1900,8 @@ void AstroCalcDialog::drawAltVsTimeDiagram()
 		// additional data: Moon
 		if (plotAltVsTimeMoon && onEarth)
 		{
-			xm = mX.toVector();
-			ym = mY.toVector();
+			xm = mX.toVector().toStdVector();
+			ym = mY.toVector().toStdVector();
 			double minYm = mY.first();
 			double maxYm = mY.first();
 
@@ -1972,7 +1972,7 @@ void AstroCalcDialog::drawCurrentTimeDiagram()
 	ax.append(now);
 	ay.append(minY);
 	ay.append(maxY);
-	QVector<double> x = ax.toVector(), y = ay.toVector();
+	std::vector<double> x = ax.toVector().toStdVector(), y = ay.toVector().toStdVector();
 	ui->altVsTimePlot->graph(1)->setData(x, y);
 	ui->altVsTimePlot->replot();
 }
@@ -1989,7 +1989,7 @@ void AstroCalcDialog::drawTransitTimeDiagram()
 	ax.append(transitX);
 	ay.append(minY);
 	ay.append(maxY);
-	QVector<double> x = ax.toVector(), y = ay.toVector();	
+	std::vector<double> x = ax.toVector().toStdVector(), y = ay.toVector().toStdVector();
 	ui->altVsTimePlot->graph(2)->setData(x, y);
 	ui->altVsTimePlot->replot();
 }
@@ -2164,7 +2164,7 @@ void AstroCalcDialog::drawXVsTimeGraphs()
 		}
 		core->setJD(currentJD);
 
-		QVector<double> x = aX.toVector(), ya = aY.toVector(), yb = bY.toVector();
+		std::vector<double> x = aX.toVector().toStdVector(), ya = aY.toVector().toStdVector(), yb = bY.toVector().toStdVector();
 
 		double minYa = aY.first();
 		double maxYa = aY.first();
@@ -2547,7 +2547,7 @@ void AstroCalcDialog::drawMonthlyElevationGraph()
 		}
 		core->setJD(currentJD);
 
-		QVector<double> x = aX.toVector(), y = aY.toVector();
+		std::vector<double> x = aX.toVector().toStdVector(), y = aY.toVector().toStdVector();
 
 		double minYa = aY.first();
 		double maxYa = aY.first();
@@ -2701,7 +2701,7 @@ void AstroCalcDialog::calculatePhenomena()
 
 	QList<NebulaP> dso;
 	dso.clear();
-	QVector<NebulaP> allDSO = dsoMgr->getAllDeepSkyObjects();
+	std::vector<NebulaP> allDSO = dsoMgr->getAllDeepSkyObjects();
 
 	QList<StelObjectP> star, doubleStar, variableStar;
 	star.clear();
@@ -3669,7 +3669,7 @@ void AstroCalcDialog::calculateWutObjects()
 		wutObjects.clear();
 
 		QList<PlanetP> allObjects = solarSystem->getAllPlanets();
-		QVector<NebulaP> allDSO = dsoMgr->getAllDeepSkyObjects();
+		std::vector<NebulaP> allDSO = dsoMgr->getAllDeepSkyObjects();
 		QList<StelObjectP> hipStars = starMgr->getHipparcosStars();
 		QList<StelACStarData> dblHipStars = starMgr->getHipparcosDoubleStars();
 		QList<StelACStarData> varHipStars = starMgr->getHipparcosVariableStars();
