@@ -99,20 +99,20 @@ void SolarSystem::setFontSize(float newFontSize)
 SolarSystem::~SolarSystem()
 {
 	// release selected:
-	selected.clear();
+	selected.reset();
 	for (auto* orb : orbits)
 	{
 		delete orb;
 		orb = Q_NULLPTR;
 	}
-	sun.clear();
-	moon.clear();
-	earth.clear();
-	Planet::hintCircleTex.clear();
-	Planet::texEarthShadow.clear();
+	sun.reset();
+	moon.reset();
+	earth.reset();
+	Planet::hintCircleTex.reset();
+	Planet::texEarthShadow.reset();
 
-	texCircle.clear();
-	texPointer.clear();
+	texCircle.reset();
+	texPointer.reset();
 
 	delete allTrails;
 	allTrails = Q_NULLPTR;
@@ -124,8 +124,8 @@ SolarSystem::~SolarSystem()
 	}
 
 	//delete comet textures created in loadPlanets
-	Comet::comaTexture.clear();
-	Comet::tailTexture.clear();
+	Comet::comaTexture.reset();
+	Comet::tailTexture.reset();
 
 	//deinit of SolarSystem is NOT called at app end automatically
 	deinit();
@@ -262,13 +262,13 @@ void SolarSystem::recreateTrails()
 	PlanetP p = getSelected();
 	if (p!=Q_NULLPTR && getFlagIsolatedTrails())
 	{
-		allTrails->addObject((QSharedPointer<StelObject>)p, &trailColor);
+		allTrails->addObject(std::static_pointer_cast<StelObject>(p), &trailColor);
 	}
 	else
 	{
 		for (const auto& p : getSun()->satellites)
 		{
-			allTrails->addObject((QSharedPointer<StelObject>)p, &trailColor);
+			allTrails->addObject(std::static_pointer_cast<StelObject>(p), &trailColor);
 		}
 	}
 }
@@ -615,7 +615,7 @@ bool SolarSystem::loadPlanets(const QString& filePath)
 					break;
 				}
 			}
-			if (parent.isNull())
+			if (!parent)
 			{
 				qWarning() << "ERROR : can't find parent solar system body for " << englishName;
 				//abort();
@@ -985,7 +985,7 @@ bool SolarSystem::loadPlanets(const QString& filePath)
 						    pd.value(secname+"/hidden", false).toBool(),
 						    type));
 
-			QSharedPointer<MinorPlanet> mp =  p.dynamicCast<MinorPlanet>();
+			std::shared_ptr<MinorPlanet> mp = std::dynamic_pointer_cast<MinorPlanet>(p);
 
 			//Number
 			int minorPlanetNumber = pd.value(secname+"/minor_planet_number", 0).toInt();
@@ -1046,7 +1046,7 @@ bool SolarSystem::loadPlanets(const QString& filePath)
 					      pd.value(secname+"/dust_brightnessfactor", 1.5f).toFloat()
 					      ));
 
-			QSharedPointer<Comet> mp =  p.dynamicCast<Comet>();
+			std::shared_ptr<Comet> mp = std::dynamic_pointer_cast<Comet>(p);
 
 			//g,k magnitude system
 			double magnitude = pd.value(secname+"/absolute_magnitude", -99).toDouble();
@@ -1107,7 +1107,7 @@ bool SolarSystem::loadPlanets(const QString& filePath)
 		}
 
 
-		if (!parent.isNull())
+		if (parent)
 		{
 			parent->satellites.append(p);
 			p->parent = parent;
@@ -1381,7 +1381,7 @@ StelObjectP SolarSystem::searchByNameI18n(const QString& planetNameI18) const
 	for (const auto& p : systemPlanets)
 	{
 		if (p->getNameI18n().toUpper() == planetNameI18.toUpper())
-			return qSharedPointerCast<StelObject>(p);
+			return std::static_pointer_cast<StelObject>(p);
 	}
 	return StelObjectP();
 }
@@ -1392,7 +1392,7 @@ StelObjectP SolarSystem::searchByName(const QString& name) const
 	for (const auto& p : systemPlanets)
 	{
 		if (p->getEnglishName().toUpper() == name.toUpper() || p->getCommonEnglishName().toUpper() == name.toUpper())
-			return qSharedPointerCast<StelObject>(p);
+			return std::static_pointer_cast<StelObject>(p);
 	}
 	return StelObjectP();
 }
@@ -1400,7 +1400,7 @@ StelObjectP SolarSystem::searchByName(const QString& name) const
 float SolarSystem::getPlanetVMagnitude(QString planetName, bool withExtinction) const
 {
 	PlanetP p = searchByEnglishName(planetName);
-	if (p.isNull()) // Possible was asked the common name of minor planet?
+	if (!p) // Possible was asked the common name of minor planet?
 		p = searchMinorPlanetByEnglishName(planetName);
 	float r = 0.f;
 	if (withExtinction)
@@ -1413,7 +1413,7 @@ float SolarSystem::getPlanetVMagnitude(QString planetName, bool withExtinction) 
 QString SolarSystem::getPlanetType(QString planetName) const
 {
 	PlanetP p = searchByEnglishName(planetName);
-	if (p.isNull()) // Possible was asked the common name of minor planet?
+	if (!p) // Possible was asked the common name of minor planet?
 		p = searchMinorPlanetByEnglishName(planetName);
 	return p->getPlanetTypeString();
 }
@@ -1421,7 +1421,7 @@ QString SolarSystem::getPlanetType(QString planetName) const
 double SolarSystem::getDistanceToPlanet(QString planetName) const
 {
 	PlanetP p = searchByEnglishName(planetName);
-	if (p.isNull()) // Possible was asked the common name of minor planet?
+	if (!p) // Possible was asked the common name of minor planet?
 		p = searchMinorPlanetByEnglishName(planetName);
 	double r = 0.f;
 	r = p->getDistance();
@@ -1431,7 +1431,7 @@ double SolarSystem::getDistanceToPlanet(QString planetName) const
 double SolarSystem::getElongationForPlanet(QString planetName) const
 {
 	PlanetP p = searchByEnglishName(planetName);
-	if (p.isNull()) // Possible was asked the common name of minor planet?
+	if (!p) // Possible was asked the common name of minor planet?
 		p = searchMinorPlanetByEnglishName(planetName);
 	double r = 0.f;
 	r = p->getElongation(StelApp::getInstance().getCore()->getObserverHeliocentricEclipticPos());
@@ -1441,7 +1441,7 @@ double SolarSystem::getElongationForPlanet(QString planetName) const
 double SolarSystem::getPhaseAngleForPlanet(QString planetName) const
 {
 	PlanetP p = searchByEnglishName(planetName);
-	if (p.isNull()) // Possible was asked the common name of minor planet?
+	if (!p) // Possible was asked the common name of minor planet?
 		p = searchMinorPlanetByEnglishName(planetName);
 	double r = 0.f;
 	r = p->getPhaseAngle(StelApp::getInstance().getCore()->getObserverHeliocentricEclipticPos());
@@ -1451,7 +1451,7 @@ double SolarSystem::getPhaseAngleForPlanet(QString planetName) const
 float SolarSystem::getPhaseForPlanet(QString planetName) const
 {
 	PlanetP p = searchByEnglishName(planetName);
-	if (p.isNull()) // Possible was asked the common name of minor planet?
+	if (!p) // Possible was asked the common name of minor planet?
 		p = searchMinorPlanetByEnglishName(planetName);
 	float r = 0.f;
 	r = p->getPhase(StelApp::getInstance().getCore()->getObserverHeliocentricEclipticPos());
@@ -1498,7 +1498,7 @@ StelObjectP SolarSystem::search(Vec3d pos, const StelCore* core) const
 
 	if (cos_angle_closest>0.999)
 	{
-		return qSharedPointerCast<StelObject>(closest);
+		return std::static_pointer_cast<StelObject>(closest);
 	}
 	else return StelObjectP();
 }
@@ -1526,7 +1526,7 @@ QList<StelObjectP> SolarSystem::searchAround(const Vec3d& vv, double limitFov, c
 
 		if (equPos*v>=std::min(cosLimFov, cosAngularSize) && p->getEnglishName()!=weAreHere)
 		{
-			result.append(qSharedPointerCast<StelObject>(p));
+			result.append(std::static_pointer_cast<StelObject>(p));
 		}
 	}
 	return result;
@@ -1684,7 +1684,7 @@ void SolarSystem::setSelected(PlanetP obj)
 	if (obj && obj->getType() == "Planet")
 		selected = obj;
 	else
-		selected.clear();;
+		selected.reset();
 	// Undraw other objects hints, orbit, trails etc..
 	setFlagHints(getFlagHints());
 	setFlagOrbits(getFlagOrbits());
@@ -1776,7 +1776,7 @@ void SolarSystem::selectedObjectChange(StelModule::StelModuleSelectAction)
 	const QList<StelObjectP> newSelected = GETSTELMODULE(StelObjectMgr)->getSelectedObject("Planet");
 	if (!newSelected.empty())
 	{
-		setSelected(qSharedPointerCast<Planet>(newSelected[0]));
+		setSelected(std::static_pointer_cast<Planet>(newSelected[0]));
 		if (getFlagIsolatedTrails())
 			recreateTrails();
 	}
@@ -2272,7 +2272,7 @@ void SolarSystem::reloadPlanets()
 		objMgr->unSelect();
 	}
 	// Unload all Solar System objects
-	selected.clear();//Release the selected one
+	selected.reset();//Release the selected one
 
 	// GZ TODO in case this methods gets converted to only reload minor bodies: Only delete Orbits which are not referenced by some Planet.
 	for (auto* orb : orbits)
@@ -2281,10 +2281,10 @@ void SolarSystem::reloadPlanets()
 	}
 	orbits.clear();
 
-	sun.clear();
-	moon.clear();
-	earth.clear();
-	Planet::texEarthShadow.clear(); //Loaded in loadPlanets()
+	sun.reset();
+	moon.reset();
+	earth.reset();
+	Planet::texEarthShadow.reset(); //Loaded in loadPlanets()
 
 	delete allTrails;
 	allTrails = Q_NULLPTR;
@@ -2298,8 +2298,8 @@ void SolarSystem::reloadPlanets()
 	// Memory leak? What's the proper way of cleaning shared pointers?
 
 	// Also delete Comet textures (loaded in loadPlanets()
-	Comet::tailTexture.clear();
-	Comet::comaTexture.clear();
+	Comet::tailTexture.reset();
+	Comet::comaTexture.reset();
 
 	// Re-load the ssystem_major.ini and ssystem_minor.ini file
 	loadPlanets();	
@@ -2515,7 +2515,7 @@ bool SolarSystem::removeMinorPlanet(QString name)
 		orbits.removeOne(orbPtr);
 	systemPlanets.removeOne(candidate);
 	systemMinorBodies.removeOne(candidate);
-	candidate.clear();
+	candidate.reset();
 	return true;
 }
 

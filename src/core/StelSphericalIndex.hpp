@@ -238,7 +238,7 @@ private:
 				// If we have children and one of them contains the element, store it in a sub-level
 				for (auto& child : node.children)
 				{
-					if (((SphericalRegion*)&(child.triangle))->contains(el.obj->getRegion().data()))
+					if (((SphericalRegion*)&(child.triangle))->contains(el.obj->getRegion().get()))
 					{
 						insert(child, el, level + 1);
 						return;
@@ -253,7 +253,7 @@ private:
 			{
 				for (const auto& el : node.elements)
 				{
-					if (region->intersects(el.obj->getRegion().data()))
+					if (region->intersects(el.obj->getRegion().get()))
 						func(&(*el.obj));
 				}
 				for (const auto& child : node.children)
@@ -303,7 +303,7 @@ private:
 			{
 				for (const auto& el : node.elements)
 				{
-					if (region->contains(el.obj->getRegion().data()))
+					if (region->contains(el.obj->getRegion().get()))
 						func(&(*el.obj));
 				}
 				for (const auto& child : node.children)

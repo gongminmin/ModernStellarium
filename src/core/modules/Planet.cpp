@@ -869,27 +869,27 @@ QVector<const Planet*> Planet::getCandidatesForShadow() const
 {
 	QVector<const Planet*> res;
 	const SolarSystem *ssystem=GETSTELMODULE(SolarSystem);
-	const Planet* sun = ssystem->getSun().data();
-	if (this==sun || (parent.data()==sun && satellites.empty()))
+	const Planet* sun = ssystem->getSun().get();
+	if (this==sun || (parent.get()==sun && satellites.empty()))
 		return res;
 	
 	for (const auto& planet : satellites)
 	{
-		if (willCastShadow(this, planet.data()))
-			res.append(planet.data());
+		if (willCastShadow(this, planet.get()))
+			res.append(planet.get());
 	}
-	if (willCastShadow(this, parent.data()))
-		res.append(parent.data());
+	if (willCastShadow(this, parent.get()))
+		res.append(parent.get());
 	// Test satellites mutual occultations.
-	if (parent.data() != sun)
+	if (parent.get() != sun)
 	{
 		for (const auto& planet : parent->satellites)
 		{
 			//skip self-shadowing
-			if(planet.data() == this )
+			if(planet.get() == this )
 				continue;
-			if (willCastShadow(this, planet.data()))
-				res.append(planet.data());
+			if (willCastShadow(this, planet.get()))
+				res.append(planet.get());
 		}
 	}
 	
@@ -1193,13 +1193,13 @@ Vec3d Planet::getHeliocentricPos(Vec3d p) const
 	// Note: using shared copies is too slow here.  So we use direct access
 	// instead.
 	Vec3d pos = p;
-	const Planet* pp = parent.data();
+	const Planet* pp = parent.get();
 	if (pp)
 	{
-		while (pp->parent.data())
+		while (pp->parent.get())
 		{
 			pos += pp->eclipticPos;
-			pp = pp->parent.data();
+			pp = pp->parent.get();
 		}
 	}
 	return pos;
@@ -1224,13 +1224,13 @@ Vec3d Planet::getHeliocentricEclipticVelocity() const
 	// Note: using shared copies is too slow here.  So we use direct access
 	// instead.
 	Vec3d vel = eclipticVelocity;
-	const Planet* pp = parent.data();
+	const Planet* pp = parent.get();
 	if (pp)
 	{
-		while (pp->parent.data())
+		while (pp->parent.get())
 		{
 			vel += pp->eclipticVelocity;
-			pp = pp->parent.data();
+			pp = pp->parent.get();
 		}
 	}
 	return vel;
@@ -2241,7 +2241,7 @@ void Planet::draw3dModel(StelCore* core, StelProjector::ModelViewTranformP trans
 		light.diffuse = Vec4f(1.f,magFactorGreen*1.f,magFactorBlue*1.f);
 		light.ambient = Vec4f(0.02f,magFactorGreen*0.02f,magFactorBlue*0.02f);
 
-		if (this==ssm->getMoon())
+		if (this==ssm->getMoon().get())
 		{
 			// ambient for the moon can provide the Ashen light!
 			// during daylight, this still should not make moon visible. We grab sky brightness and dim the moon.
@@ -2270,7 +2270,7 @@ void Planet::draw3dModel(StelCore* core, StelProjector::ModelViewTranformP trans
 		}
 
 		// possibly tint sun's color from extinction. This should deliberately cause stronger reddening than for the other objects.
-		if (this==ssm->getSun())
+		if (this==ssm->getSun().get())
 		{
 			// when we zoom in, reduce the overbrightness. (LP:#1421173)
 			const float fov=core->getProjection(transfo)->getFov();
@@ -2305,7 +2305,7 @@ void Planet::draw3dModel(StelCore* core, StelProjector::ModelViewTranformP trans
 	}
 
 	bool allowDrawHalo = true;
-	if ((this!=ssm->getSun()) && ((this !=ssm->getMoon() && core->getCurrentLocation().planetName=="Earth" )))
+	if ((this!=ssm->getSun().get()) && ((this !=ssm->getMoon().get() && core->getCurrentLocation().planetName=="Earth" )))
 	{
 		// Let's hide halo when inner planet between Sun and observer (or moon between planet and observer).
 		// Do not hide Earth's moon's halo below ~-45degrees when observing from earth.
@@ -2318,7 +2318,7 @@ void Planet::draw3dModel(StelCore* core, StelProjector::ModelViewTranformP trans
 	}
 
 	// Draw the halo if enabled in the ssystem_*.ini files (+ special case for backward compatible for the Sun)
-	if ((hasHalo() || this==ssm->getSun()) && allowDrawHalo)
+	if ((hasHalo() || this==ssm->getSun().get()) && allowDrawHalo)
 	{
 		// Prepare openGL lighting parameters according to luminance
 		float surfArcMin2 = getSpheroidAngularSize(core)*60;
@@ -2330,7 +2330,7 @@ void Planet::draw3dModel(StelCore* core, StelProjector::ModelViewTranformP trans
 		// Find new extincted color for halo. The method is again rather ad-hoc, but does not look too bad.
 		// For the sun, we have again to use the stronger extinction to avoid color mismatch.
 		Vec3f haloColorToDraw;
-		if (this==ssm->getSun())
+		if (this==ssm->getSun().get())
 			haloColorToDraw.set(haloColor[0], pow(0.75f, extinctedMag) * haloColor[1], pow(0.42f, 0.9f*extinctedMag) * haloColor[2]);
 		else
 			haloColorToDraw.set(haloColor[0], magFactorGreen * haloColor[1], magFactorBlue * haloColor[2]);
@@ -2566,7 +2566,7 @@ void Planet::drawSphere(StelPainter* painter, float screenSz, bool drawOnlyRing)
 	
 	const SolarSystem* ssm = GETSTELMODULE(SolarSystem);
 
-	if (this==ssm->getSun())
+	if (this==ssm->getSun().get())
 	{
 		texMap->bind();
 		//painter->setColor(2, 2, 0.2); // This is now in draw3dModel() to apply extinction
@@ -2586,7 +2586,7 @@ void Planet::drawSphere(StelPainter* painter, float screenSz, bool drawOnlyRing)
 		shader = ringPlanetShaderProgram;
 		shaderVars = &ringPlanetShaderVars;
 	}
-	if (this==ssm->getMoon())
+	if (this==ssm->getMoon().get())
 	{
 		shader = moonShaderProgram;
 		shaderVars = &moonShaderVars;
@@ -2607,7 +2607,7 @@ void Planet::drawSphere(StelPainter* painter, float screenSz, bool drawOnlyRing)
 		{
 			shader = ringPlanetShaderProgram;
 		}
-		if (this==ssm->getMoon())
+		if (this==ssm->getMoon().get())
 		{
 			shader = moonShaderProgram;
 		}
@@ -2627,7 +2627,7 @@ void Planet::drawSphere(StelPainter* painter, float screenSz, bool drawOnlyRing)
 		rings->tex->bind(2);
 	}
 
-	if (this==ssm->getMoon())
+	if (this==ssm->getMoon().get())
 	{
 		GL(normalMap->bind(2));
 		GL(moonShaderProgram->setUniformValue(moonShaderVars.normalMap, 2));

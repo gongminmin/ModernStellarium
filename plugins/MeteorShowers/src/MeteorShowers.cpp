@@ -171,7 +171,7 @@ QList<StelObjectP> MeteorShowers::searchAround(const Vec3d& av, double limitFov,
 			equPos.normalize();
 			if (equPos[0]*v[0] + equPos[1]*v[1] + equPos[2]*v[2] >= cosLimFov)
 			{
-				result.append(qSharedPointerCast<StelObject>(ms));
+				result.append(std::static_pointer_cast<StelObject>(ms));
 			}
 		}
 	}
@@ -194,7 +194,7 @@ StelObjectP MeteorShowers::searchByName(const QString& englishName) const
 			bool emptyDesig = ms->getDesignation().isEmpty();
 			if (sameEngName || (desigIsEngName && !emptyDesig))
 			{
-				return qSharedPointerCast<StelObject>(ms);
+				return std::static_pointer_cast<StelObject>(ms);
 			}
 		}
 	}
@@ -206,7 +206,7 @@ StelObjectP MeteorShowers::searchByID(const QString &id) const
 	for (const auto& ms : m_meteorShowers)
 	{
 		if (ms->getID() == id)
-			return qSharedPointerCast<StelObject>(ms);
+			return std::static_pointer_cast<StelObject>(ms);
 	}
 	return Q_NULLPTR;
 }
@@ -224,7 +224,7 @@ StelObjectP MeteorShowers::searchByNameI18n(const QString& nameI18n) const
 		{
 			if (ms->getNameI18n().toUpper() == nameI18n.toUpper())
 			{
-				return qSharedPointerCast<StelObject>(ms);
+				return std::static_pointer_cast<StelObject>(ms);
 			}
 		}
 	}

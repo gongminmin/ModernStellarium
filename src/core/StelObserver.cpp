@@ -152,7 +152,7 @@ void ArtificialPlanet::computeAverage(double f1)
 
 	// 3 Euler angles
 	Vec3d a1(getRot(this));
-	const Vec3d a2(getRot(dest.data()));
+	const Vec3d a2(getRot(dest.get()));
 	if (a1[0]-a2[0] >  M_PI)
 		a1[0] -= 2.0*M_PI;
 	else
@@ -187,7 +187,7 @@ StelObserver::~StelObserver()
 {
 }
 
-const QSharedPointer<Planet> StelObserver::getHomePlanet(void) const
+const std::shared_ptr<Planet> StelObserver::getHomePlanet(void) const
 {
 	Q_ASSERT(planet);
 	return planet;
@@ -288,7 +288,7 @@ SpaceShipObserver::SpaceShipObserver(const StelLocation& startLoc, const StelLoc
 	if (moveStartLocation.planetName!=moveTargetLocation.planetName)
 	{
 		PlanetP startPlanet = ssystem->searchByEnglishName(moveStartLocation.planetName);
-		if (startPlanet.isNull() || targetPlanet.isNull())
+		if (!startPlanet || !targetPlanet)
 		{
 			qWarning() << "Can't move from planet " + moveStartLocation.planetName + " to planet " + moveTargetLocation.planetName + " because it is unknown";
 			timeToGo = -1.;	// Will abort properly the move
@@ -300,17 +300,17 @@ SpaceShipObserver::SpaceShipObserver(const StelLocation& startLoc, const StelLoc
 			return;
 		}
 
-		ArtificialPlanet* artPlanet = new ArtificialPlanet(startPlanet);
+		std::shared_ptr<ArtificialPlanet> artPlanet = std::make_shared<ArtificialPlanet>(startPlanet);
 		artPlanet->setDest(targetPlanet);
-		artificialPlanet = QSharedPointer<Planet>(artPlanet);
+		artificialPlanet = std::static_pointer_cast<Planet>(artPlanet);
 	}
 	planet = targetPlanet;
 }
 
 SpaceShipObserver::~SpaceShipObserver()
 {
-	artificialPlanet.clear();
-	planet.clear();
+	artificialPlanet.reset();
+	planet.reset();
 }
 
 bool SpaceShipObserver::update(double deltaTime)
@@ -345,7 +345,7 @@ bool SpaceShipObserver::update(double deltaTime)
 		if (artificialPlanet)
 		{
 			// Update SpaceShip position
-			static_cast<ArtificialPlanet*>(artificialPlanet.data())->computeAverage(timeToGo/(timeToGo + deltaTime));			
+			static_cast<ArtificialPlanet*>(artificialPlanet.get())->computeAverage(timeToGo/(timeToGo + deltaTime));			
 			currentLocation.planetName = "SpaceShip";
 			const StelTranslator& trans = StelApp::getInstance().getLocaleMgr().getSkyTranslator();
 			currentLocation.name = trans.qtranslate(moveStartLocation.planetName) + " -> " + trans.qtranslate(moveTargetLocation.planetName);
@@ -365,7 +365,7 @@ bool SpaceShipObserver::update(double deltaTime)
 	return true;
 }
 
-const QSharedPointer<Planet> SpaceShipObserver::getHomePlanet() const
+const std::shared_ptr<Planet> SpaceShipObserver::getHomePlanet() const
 {
 	return (isObserverLifeOver() || artificialPlanet==Q_NULLPTR)  ? planet : artificialPlanet;
 }

@@ -25,8 +25,9 @@
 #include "VecMath.hpp"
 #include "StelOBJ.hpp"
 
+#include <memory>
+
 #include <QMap>
-#include <QSharedPointer>
 
 Q_DECLARE_LOGGING_CATEGORY(sceneInfo)
 
@@ -82,7 +83,7 @@ struct SceneInfo
 	float shadowSplitWeight;
 
 	//! Optional more accurate location information, which will override the landscape's position.
-	QSharedPointer<StelLocation> location;
+	std::shared_ptr<StelLocation> location;
 	//! Optional initial look-at vector (azimuth, elevation and FOV in degrees)
 	Vec3f lookAt_fov; // (az_deg, alt_deg, fov_deg)
 
@@ -120,7 +121,7 @@ struct SceneInfo
 	bool groundGenerateNormals;
 
 	//! Returns true if the location object is valid
-	bool hasLocation() const { return !location.isNull(); }
+	bool hasLocation() const { return !!location; }
 	//! Returns true if the lookat_fov is valid
 	bool hasLookAtFOV() const { return lookAt_fov[2] >= 0; }
 

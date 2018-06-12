@@ -32,7 +32,7 @@ class INDIControlWidget : public QWidget
     Q_OBJECT
 
 public:
-	explicit INDIControlWidget(QSharedPointer<TelescopeClient> telescope, QWidget *parent = 0);
+	explicit INDIControlWidget(std::shared_ptr<TelescopeClient> telescope, QWidget *parent = 0);
     ~INDIControlWidget();
 
 private slots:
@@ -49,7 +49,7 @@ private:
 	double speed() const;
 
     Ui::INDIControlWidget *ui;
-	QSharedPointer<TelescopeClient> mTelescope;
+	std::shared_ptr<TelescopeClient> mTelescope;
 };
 
 #endif // INDICONTROLWIDGET_HPP

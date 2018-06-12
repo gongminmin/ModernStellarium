@@ -20,19 +20,9 @@
 #ifndef _STELOBJECTTYPE_HPP_
 #define _STELOBJECTTYPE_HPP_
 
-#include <QSharedPointer>
+#include <memory>
 
-//! Special version of QSharedPointer which by default doesn't delete the referenced pointer when
-//! the reference count reaches 0.
-template <class T> class QSharedPointerNoDelete : public QSharedPointer<T>
-{
-public:
-	QSharedPointerNoDelete() {;}
-	QSharedPointerNoDelete(T *ptr) : QSharedPointer<T>(ptr, QSharedPointerNoDelete::noDelete) {;}
-	QSharedPointerNoDelete(T *ptr, bool own) : QSharedPointer<T>(ptr) {Q_UNUSED(own); Q_ASSERT(own==true);}
-	QSharedPointerNoDelete(const QSharedPointer<T>& ptr) : QSharedPointer<T>(ptr) {;}
-	static void noDelete(T *ptr) {Q_UNUSED(ptr);}
-};
+#include <QtCore/qmetatype.h>
 
 //! @file StelObjectType.hpp
 //! Define the StelObjectP type.
@@ -41,7 +31,7 @@ class StelObject;
 
 //! @typedef StelObjectP
 //! Intrusive pointer used to manage StelObject with smart pointers
-typedef QSharedPointerNoDelete<StelObject> StelObjectP;
+typedef std::shared_ptr<StelObject> StelObjectP;
 
 Q_DECLARE_METATYPE(StelObjectP)
 

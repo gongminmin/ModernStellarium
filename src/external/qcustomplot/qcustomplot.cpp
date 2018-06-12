@@ -12587,13 +12587,13 @@ void QCPAxisRect::wheelEvent(QWheelEvent *event)
       if (mRangeZoom.testFlag(Qt::Horizontal))
       {
         factor = qPow(mRangeZoomFactorHorz, wheelSteps);
-        if (mRangeZoomHorzAxis.data())
+        if (mRangeZoomHorzAxis)
           mRangeZoomHorzAxis->scaleRange(factor, mRangeZoomHorzAxis->pixelToCoord(event->pos().x()));
       }
       if (mRangeZoom.testFlag(Qt::Vertical))
       {
         factor = qPow(mRangeZoomFactorVert, wheelSteps);
-        if (mRangeZoomVertAxis.data())
+        if (mRangeZoomVertAxis)
           mRangeZoomVertAxis->scaleRange(factor, mRangeZoomVertAxis->pixelToCoord(event->pos().y()));
       }
       mParentPlot->replot();

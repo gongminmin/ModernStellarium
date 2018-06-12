@@ -36,6 +36,8 @@
 #include "PulsarsDialog.hpp"
 #include "StelProgressController.hpp"
 
+#include <memory>
+
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QKeyEvent>
@@ -46,7 +48,6 @@
 #include <QVariantMap>
 #include <QVariant>
 #include <QList>
-#include <QSharedPointer>
 #include <QStringList>
 #include <QDir>
 #include <QSettings>
@@ -120,8 +121,8 @@ Pulsars::~Pulsars()
 void Pulsars::deinit()
 {
 	psr.clear();
-	Pulsar::markerTexture.clear();
-	texPointer.clear();
+	Pulsar::markerTexture.reset();
+	texPointer.reset();
 }
 
 /*
@@ -277,7 +278,7 @@ QList<StelObjectP> Pulsars::searchAround(const Vec3d& av, double limitFov, const
 			equPos.normalize();
 			if (equPos[0]*v[0] + equPos[1]*v[1] + equPos[2]*v[2]>=cosLimFov)
 			{
-				result.append(qSharedPointerCast<StelObject>(pulsar));
+				result.append(std::static_pointer_cast<StelObject>(pulsar));
 			}
 		}
 	}
@@ -293,7 +294,7 @@ StelObjectP Pulsars::searchByName(const QString& englishName) const
 	for (const auto& pulsar : psr)
 	{
 		if (pulsar->getEnglishName().toUpper() == englishName.toUpper() || pulsar->getDesignation().toUpper() == englishName.toUpper())
-			return qSharedPointerCast<StelObject>(pulsar);
+			return std::static_pointer_cast<StelObject>(pulsar);
 	}
 
 	return Q_NULLPTR;
@@ -307,7 +308,7 @@ StelObjectP Pulsars::searchByNameI18n(const QString& nameI18n) const
 	for (const auto& pulsar : psr)
 	{
 		if (pulsar->getNameI18n().toUpper() == nameI18n.toUpper() || pulsar->getDesignation().toUpper() == nameI18n.toUpper())
-			return qSharedPointerCast<StelObject>(pulsar);
+			return std::static_pointer_cast<StelObject>(pulsar);
 	}
 
 	return Q_NULLPTR;

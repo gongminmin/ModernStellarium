@@ -19,7 +19,7 @@
 #include "INDIControlWidget.hpp"
 #include "ui_INDIControlWidget.h"
 
-INDIControlWidget::INDIControlWidget(QSharedPointer<TelescopeClient> telescope, QWidget *parent) :
+INDIControlWidget::INDIControlWidget(std::shared_ptr<TelescopeClient> telescope, QWidget *parent) :
     QWidget(parent),
 	ui(new Ui::INDIControlWidget),
 	mTelescope(telescope)

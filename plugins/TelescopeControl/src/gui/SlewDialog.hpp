@@ -96,7 +96,7 @@ private slots:
 	void onCurrentTelescopeChanged();
 
 private:
-	QSharedPointer<TelescopeClient> currentTelescope() const;
+	std::shared_ptr<TelescopeClient> currentTelescope() const;
 	void updateTelescopeList();
 	void updateTelescopeControls();
 	void updateStoredPointsList();

@@ -42,7 +42,7 @@ SporadicMeteorMgr::~SporadicMeteorMgr()
 {
 	qDeleteAll(activeMeteors);
 	activeMeteors.clear();
-	m_bolideTexture.clear();
+	m_bolideTexture.reset();
 }
 
 void SporadicMeteorMgr::init()

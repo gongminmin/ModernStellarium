@@ -389,7 +389,7 @@ void S3DScene::finalizeTexture(StelTextureSP &tex)
 		if(!tex->bind())
 		{
 			qCWarning(s3dscene)<<"Error loading texture"<<tex->getFullPath()<<tex->getErrorMessage();
-			tex.clear();
+			tex.reset();
 		}
 		else
 		{

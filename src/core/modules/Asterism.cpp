@@ -195,7 +195,7 @@ const Asterism* Asterism::isStarIn(const StelObject* s) const
 {
 	for(unsigned int i=0;i<numberOfSegments*2;++i)
 	{
-		if (asterism[i]==s)
+		if (asterism[i].get()==s)
 			return this;
 	}
 	return Q_NULLPTR;

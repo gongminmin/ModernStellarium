@@ -439,7 +439,7 @@ void LandscapeOldStyle::load(const QSettings& landscapeIni, const QString& lands
 				memorySize+=sideTexs[nbSideTexs+i]->getGlSize();
 		}
 		else
-			sideTexs[nbSideTexs+i].clear();
+			sideTexs[nbSideTexs+i].reset();
 	}
 	if ( (!horizonPolygon) && calibrated )
 	{
@@ -649,7 +649,7 @@ void LandscapeOldStyle::draw(StelCore* core)
 		painter.setProjector(prj);
 		painter.setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		painter.setColor(horizonPolygonLineColor[0], horizonPolygonLineColor[1], horizonPolygonLineColor[2], landFader.getInterstate());
-		painter.drawSphericalRegion(horizonPolygon.data(), StelPainter::SphericalPolygonDrawModeBoundary);
+		painter.drawSphericalRegion(horizonPolygon.get(), StelPainter::SphericalPolygonDrawModeBoundary);
 	}
 	//else qDebug() << "no polygon defined";
 
@@ -723,7 +723,7 @@ void LandscapeOldStyle::drawGround(StelCore* core, StelPainter& sPainter) const
 	sPainter.setProjector(core->getProjection(transfo));
 	sPainter.setColor(landscapeBrightness, landscapeBrightness, landscapeBrightness, landFader.getInterstate());
 
-	if(groundTex.isNull())
+	if(!groundTex)
 	{
 		qWarning()<<"LandscapeOldStyle groundTex is invalid!";
 	}
@@ -840,7 +840,7 @@ void LandscapePolygonal::load(const QSettings& landscapeIni, const QString& land
 		validLandscape = false;
 		return;
 	}
-	if (horizonPolygon.isNull())
+	if (!horizonPolygon)
 	{
 		qWarning() << "Landscape " << landscapeId << " does not declare a valid polygonal_horizon_list.  No landscape in use.\n";
 		validLandscape = false;
@@ -866,13 +866,13 @@ void LandscapePolygonal::draw(StelCore* core)
 	sPainter.setCullFace(true);
 
 	sPainter.setColor(landscapeBrightness*groundColor[0], landscapeBrightness*groundColor[1], landscapeBrightness*groundColor[2], landFader.getInterstate());
-	sPainter.drawSphericalRegion(horizonPolygon.data(), StelPainter::SphericalPolygonDrawModeFill);
+	sPainter.drawSphericalRegion(horizonPolygon.get(), StelPainter::SphericalPolygonDrawModeFill);
 
 	if (horizonPolygonLineColor[0] >= 0)
 	{
 		sPainter.setLineSmooth(true);
 		sPainter.setColor(horizonPolygonLineColor[0], horizonPolygonLineColor[1], horizonPolygonLineColor[2], landFader.getInterstate());
-		sPainter.drawSphericalRegion(horizonPolygon.data(), StelPainter::SphericalPolygonDrawModeBoundary);
+		sPainter.drawSphericalRegion(horizonPolygon.get(), StelPainter::SphericalPolygonDrawModeBoundary);
 		sPainter.setLineSmooth(false);
 	}
 	sPainter.setCullFace(false);
@@ -1192,7 +1192,7 @@ void LandscapeSpherical::draw(StelCore* core)
 		sPainter.setProjector(prj);
 		sPainter.setBlending(true);
 		sPainter.setColor(horizonPolygonLineColor[0], horizonPolygonLineColor[1], horizonPolygonLineColor[2], landFader.getInterstate());
-		sPainter.drawSphericalRegion(horizonPolygon.data(), StelPainter::SphericalPolygonDrawModeBoundary);
+		sPainter.drawSphericalRegion(horizonPolygon.get(), StelPainter::SphericalPolygonDrawModeBoundary);
 	}
 	//else qDebug() << "no polygon defined";
 	sPainter.setCullFace(false);

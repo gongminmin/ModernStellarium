@@ -233,12 +233,12 @@ private:
 	//! Draw the asterism name labels.
 	void drawNames(StelPainter& sPainter) const;
 
-	Asterism* isStarIn(const StelObject *s) const;
-	Asterism* findFromAbbreviation(const QString& abbreviation) const;
+	std::shared_ptr<Asterism> isStarIn(const StelObject* s) const;
+	std::shared_ptr<Asterism> findFromAbbreviation(const QString& abbreviation) const;
 
 	//Constellation* isStarIn(const StelObject *s) const;
 	//Constellation* findFromAbbreviation(const QString& abbreviation) const;
-	std::vector<Asterism*> asterisms;
+	std::vector<std::shared_ptr<Asterism>> asterisms;
 	QFont asterFont;
 	StarMgr* hipStarMgr;
 

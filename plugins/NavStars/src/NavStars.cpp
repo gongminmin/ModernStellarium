@@ -34,8 +34,9 @@
 #include "NavStars.hpp"
 #include "NavStarsWindow.hpp"
 
+#include <memory>
+
 #include <QList>
-#include <QSharedPointer>
 #include <QMetaEnum>
 
 StelModule* NavStarsStelPluginInterface::getStelModule() const
@@ -134,7 +135,7 @@ void NavStars::init()
 
 void NavStars::deinit()
 {
-	markerTexture.clear();
+	markerTexture.reset();
 	stars.clear();
 	starNumbers.clear();
 }
@@ -174,14 +175,14 @@ void NavStars::draw(StelCore* core)
 	Vec3d pos;
 	for (int i = 0; i < starNumbers.size(); ++i)
 	{
-		if (stars[i].isNull())
+		if (!stars[i])
 			continue;
 		
 		// Get the current position of the navigational star...
 		if (prj->projectCheck(stars[i]->getJ2000EquatorialPos(core), pos))
 		{
 			// ... and draw a marker around it
-			if (!markerTexture.isNull())
+			if (markerTexture)
 			{
 				painter.setBlending(true);
 				painter.setColor(markerColor[0], markerColor[1], markerColor[2], markerFader.getInterstate());

@@ -31,7 +31,7 @@
 class StelPainter;
 class QSettings;
 
-typedef QSharedPointer<NomenclatureItem> NomenclatureItemP;
+typedef std::shared_ptr<NomenclatureItem> NomenclatureItemP;
 
 class NomenclatureMgr : public StelObjectModule
 {
@@ -79,7 +79,7 @@ public:
 	//! @param name The case in-sensistive standard program name
 	virtual StelObjectP searchByName(const QString& name) const;
 
-	virtual StelObjectP searchByID(const QString &id) const { return qSharedPointerCast<StelObject>(searchByEnglishName(id)); }
+	virtual StelObjectP searchByID(const QString &id) const { return std::static_pointer_cast<StelObject>(searchByEnglishName(id)); }
 
 	//! Find and return the list of at most maxNbItem objects auto-completing the passed object name.
 	//! @param objPrefix the case insensitive first letters of the searched object
@@ -139,7 +139,7 @@ private:
 	// Font used for displaying our text
 	QFont font;
 	QSettings* conf;
-	StelTextureSP texPointer;	
+	StelTextureSP texPointer;
 	QMultiHash<PlanetP, NomenclatureItemP> nomenclatureItems;
 };
 

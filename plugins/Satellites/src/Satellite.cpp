@@ -1091,14 +1091,14 @@ void Satellite::computeOrbitPoints()
 
 bool operator <(const SatelliteP& left, const SatelliteP& right)
 {
-	if (left.isNull())
+	if (!left)
 	{
-		if (right.isNull())
+		if (!right)
 			return false;
 		else
 			return true;
 	}
-	if (right.isNull())
+	if (!right)
 		return false; // No sense to check the left one now
 	
 	return ((*left) < (*right));

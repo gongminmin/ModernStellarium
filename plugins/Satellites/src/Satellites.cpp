@@ -100,8 +100,8 @@ Satellites::Satellites()
 
 void Satellites::deinit()
 {
-	Satellite::hintTexture.clear();
-	texPointer.clear();
+	Satellite::hintTexture.reset();
+	texPointer.reset();
 }
 
 Satellites::~Satellites()
@@ -284,7 +284,7 @@ QList<StelObjectP> Satellites::searchAround(const Vec3d& av, double limitFov, co
 			equPos.normalize();
 			if (equPos[0]*v[0] + equPos[1]*v[1] + equPos[2]*v[2]>=cosLimFov)
 			{
-				result.append(qSharedPointerCast<StelObject>(sat));
+				result.append(std::static_pointer_cast<StelObject>(sat));
 			}
 		}
 	}
@@ -315,7 +315,7 @@ StelObjectP Satellites::searchByNameI18n(const QString& nameI18n) const
 		if (sat->initialized && sat->displayed)
 		{
 			if (sat->getNameI18n().toUpper() == objw)
-				return qSharedPointerCast<StelObject>(sat);
+				return std::static_pointer_cast<StelObject>(sat);
 		}
 	}
 
@@ -346,7 +346,7 @@ StelObjectP Satellites::searchByName(const QString& englishName) const
 		if (sat->initialized && sat->displayed)
 		{
 			if (sat->getEnglishName().toUpper() == objw)
-				return qSharedPointerCast<StelObject>(sat);
+				return std::static_pointer_cast<StelObject>(sat);
 		}
 	}
 
@@ -359,7 +359,7 @@ StelObjectP Satellites::searchByID(const QString &id) const
 	{
 		if (sat->initialized && sat->getID() == id)
 		{
-			return qSharedPointerCast<StelObject>(sat);
+			return std::static_pointer_cast<StelObject>(sat);
 		}
 	}
 
@@ -390,7 +390,7 @@ StelObjectP Satellites::searchByNoradNumber(const QString &noradNumber) const
 			if (sat->initialized && sat->displayed)
 			{
 				if (sat->getCatalogNumberString() == numberString)
-					return qSharedPointerCast<StelObject>(sat);
+					return std::static_pointer_cast<StelObject>(sat);
 			}
 		}
 	}
@@ -1035,7 +1035,7 @@ void Satellites::remove(const QStringList& idList)
 		if (idList.contains(sat->id))
 		{
 			QList<StelObjectP> selected = objMgr->getSelectedObject("Satellite");
-			if (selected.contains(sat.staticCast<StelObject>()))
+			if (selected.contains(std::static_pointer_cast<StelObject>(sat)))
 				objMgr->unSelect();
 			
 			qDebug() << "Satellite removed:" << sat->id << sat->name;

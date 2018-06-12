@@ -135,11 +135,11 @@ Observability::Observability()
 
 	//Get pointer to the Earth:
 	PlanetP Earth = GETSTELMODULE(SolarSystem)->getEarth();
-	myEarth = Earth.data();
+	myEarth = Earth.get();
 
 	// Get pointer to the Moon/Sun:
 	PlanetP Moon = GETSTELMODULE(SolarSystem)->getMoon();
-	myMoon = Moon.data();
+	myMoon = Moon.get();
 
 	// I think this can be done in a more simple way...--BM
 	for (int i=0;i<366;i++) {
@@ -413,7 +413,7 @@ void Observability::draw(StelCore* core)
 			souChanged = true;
 			selName = name;
 
-			Planet* planet = dynamic_cast<Planet*>(selectedObject.data());
+			Planet* planet = dynamic_cast<Planet*>(selectedObject.get());
 			isStar = (planet == Q_NULLPTR);
 
 			if (!isStar && !isMoon && !isSun)  // Object in the Solar System, but is not Sun nor Moon.
@@ -440,7 +440,7 @@ void Observability::draw(StelCore* core)
 				}
 				
 			// Now get a pointer to the planet's instance:
-				myPlanet = ssObject.data();
+				myPlanet = ssObject.get();
 			}
 		}
 	}

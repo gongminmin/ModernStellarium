@@ -112,15 +112,15 @@ void ToastTile::prepareDraw(Vec3f color)
 	StelSkyDrawer *drawer=StelApp::getInstance().getCore()->getSkyDrawer();
 	const bool withExtinction=(drawer->getFlagHasAtmosphere() && drawer->getExtinction().getExtinctionCoefficient()>=0.01f);
 
-	if (texture.isNull())
+	if (!texture)
 	{
 		//qDebug() << "load texture" << imagePath;
 		StelTextureMgr& texMgr=StelApp::getInstance().getTextureManager();
 		texture = texMgr.createTextureThread(imagePath, StelTexture::StelTextureParams(true));
 	}
-	if (texture.isNull() || (!texture->isLoading() && !texture->canBind() && !texture->getErrorMessage().isEmpty()))
+	if (!texture || (!texture->isLoading() && !texture->canBind() && !texture->getErrorMessage().isEmpty()))
 	{
-		if (!texture.isNull())
+		if (texture)
 			qDebug() << "can't get texture" << imagePath << texture->getErrorMessage();
 		empty = true;
 		return;
@@ -194,7 +194,7 @@ void ToastTile::drawTile(StelPainter* sPainter, Vec3f color)
 	prepareDraw(color);
 
 	// Still not ready
-	if (texture.isNull() || !texture->bind())
+	if (!texture || !texture->bind())
 		return;
 
 	if(!readyDraw)

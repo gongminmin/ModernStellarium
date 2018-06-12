@@ -24,11 +24,13 @@
 #include "StelFader.hpp"
 #include "StelTextureTypes.hpp"
 #include "Pulsar.hpp"
+
+#include <memory>
+
 #include <QFont>
 #include <QVariantMap>
 #include <QDateTime>
 #include <QList>
-#include <QSharedPointer>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -64,7 +66,7 @@ file (section [Pulsars]).
 */
 
 //! @ingroup pulsars
-typedef QSharedPointer<Pulsar> PulsarP;
+typedef std::shared_ptr<Pulsar> PulsarP;
 
 //! @class Pulsars
 //! Main class of the %Pulsars plugin.
@@ -120,7 +122,7 @@ public:
 
 	virtual StelObjectP searchByID(const QString &id) const
 	{
-		return qSharedPointerCast<StelObject>(getByID(id));
+		return std::static_pointer_cast<StelObject>(getByID(id));
 	}
 
 	//! Find and return the list of at most maxNbItem objects auto-completing the passed object name.

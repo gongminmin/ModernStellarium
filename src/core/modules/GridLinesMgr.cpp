@@ -143,7 +143,7 @@ public:
 	//! Re-translates the label.
 	void updateLabel();
 private:
-	QSharedPointer<Planet> earth, sun;
+	std::shared_ptr<Planet> earth, sun;
 	SKY_LINE_TYPE line_type;
 	Vec3f color;
 	StelCore::FrameType frameType;
@@ -869,7 +869,7 @@ SkyPoint::SkyPoint(SKY_POINT_TYPE _point_type) : point_type(_point_type), color(
 
 SkyPoint::~SkyPoint()
 {
-	texCross.clear();
+	texCross.reset();
 }
 
 void SkyPoint::setFontSize(double newFontSize)

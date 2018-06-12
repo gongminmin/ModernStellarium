@@ -942,7 +942,7 @@ void SatellitesDialog::trackSatellite(const QModelIndex& index)
 	Q_ASSERT(SatellitesMgr);
 	QString id = index.data(Qt::UserRole).toString();
 	SatelliteP sat = SatellitesMgr->getById(id);
-	if (sat.isNull())
+	if (!sat)
 		return;
 
 	if (!sat->orbitValid)
@@ -959,7 +959,7 @@ void SatellitesDialog::trackSatellite(const QModelIndex& index)
 		setHintsAction->setChecked(true);
 	}
 
-	StelObjectP obj = qSharedPointerDynamicCast<StelObject>(sat);
+	StelObjectP obj = std::dynamic_pointer_cast<StelObject>(sat);
 	StelObjectMgr& objectMgr = StelApp::getInstance().getStelObjectMgr();
 	if (objectMgr.setSelectedObject(obj))
 	{

@@ -1531,7 +1531,7 @@ void StelPainter::drawStelVertexArray(const StelVertexArray& arr, bool checkDisc
 	if (checkDiscontinuity && prj->hasDiscontinuity())
 	{
 		// The projection has discontinuities, so we need to make sure that no triangle is crossing them.
-		drawStelVertexArray(arr.removeDiscontinuousTriangles(this->getProjector().data()), false);
+		drawStelVertexArray(arr.removeDiscontinuousTriangles(this->getProjector().get()), false);
 		return;
 	}
 
@@ -2266,7 +2266,7 @@ void StelPainter::drawFromArray(DrawingMode mode, int count, int offset, bool do
 StelPainter::ArrayDesc StelPainter::projectArray(const StelPainter::ArrayDesc& array, int offset, int count, const unsigned short* indices)
 {
 	// XXX: we should use a more generic way to test whether or not to do the projection.
-	if (dynamic_cast<StelProjector2d*>(prj.data()))
+	if (dynamic_cast<StelProjector2d*>(prj.get()))
 	{
 		return array;
 	}

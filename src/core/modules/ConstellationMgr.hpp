@@ -367,13 +367,13 @@ private:
 	Constellation* isStarIn(const StelObject *s) const;
 	Constellation* isObjectIn(const StelObject *s) const;
 	Constellation* findFromAbbreviation(const QString& abbreviation) const;
-	std::vector<Constellation*> constellations;
+	std::vector<std::shared_ptr<Constellation>> constellations;
 	QFont asterFont;
 	StarMgr* hipStarMgr;
 
 	bool isolateSelected; // true to pick individual constellations.
 	bool constellationPickEnabled;
-	std::vector<std::vector<Vec3d> *> allBoundarySegments;
+	std::vector<std::unique_ptr<std::vector<Vec3d>>> allBoundarySegments;
 
 	QString lastLoadedSkyCulture;	// Store the last loaded sky culture directory name
 

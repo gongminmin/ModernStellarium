@@ -560,8 +560,8 @@ void ViewDialog::updateHips()
 			currentItem = item;
 			currentHips = hips;
 		}
-		disconnect(hips.data(), 0, this, 0);
-		connect(hips.data(), SIGNAL(statusChanged()), this, SLOT(updateHips()));
+		disconnect(hips.get(), 0, this, 0);
+		connect(hips.get(), SIGNAL(statusChanged()), this, SLOT(updateHips()));
 	}
 	l->setCurrentItem(currentItem);
 	l->blockSignals(false);

@@ -190,7 +190,7 @@ bool SceneInfo::loadByID(const QString &id,SceneInfo& info)
 		if (ini.contains("grid_meridian"))
 		{
 			double gridCentralMeridian=StelUtils::getDecAngle(ini.value("grid_meridian").toString())*180./M_PI;
-			if (!info.location.isNull())
+			if (info.location)
 			{
 				// Formula from: http://en.wikipedia.org/wiki/Transverse_Mercator_projection, Convergence
 				//rot_z=std::atan(std::tan((lng-gridCentralMeridian)*M_PI/180.)*std::sin(lat*M_PI/180.));

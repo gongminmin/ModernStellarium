@@ -24,11 +24,11 @@
 #include "StelFader.hpp"
 #include "StelTextureTypes.hpp"
 #include "Exoplanet.hpp"
+#include <memory>
 #include <QFont>
 #include <QVariantMap>
 #include <QDateTime>
 #include <QList>
-#include <QSharedPointer>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -61,7 +61,7 @@ file (section [Exoplanets]).
 */
 
 //! @ingroup exoplanets
-typedef QSharedPointer<Exoplanet> ExoplanetP;
+typedef std::shared_ptr<Exoplanet> ExoplanetP;
 
 //! @class Exoplanets
 //! Main class of the %Exoplanets plugin.

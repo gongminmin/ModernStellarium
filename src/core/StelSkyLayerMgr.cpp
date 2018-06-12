@@ -116,8 +116,8 @@ QString StelSkyLayerMgr::insertSkyLayer(StelSkyLayerP tile, const QString& keyHi
 		key+=suffix;
 	}
 	allSkyLayers.insert(key,bEl);
-	connect(bEl->layer.data(), SIGNAL(loadingStateChanged(bool)), this, SLOT(loadingStateChanged(bool)));
-	connect(bEl->layer.data(), SIGNAL(percentLoadedChanged(int)), this, SLOT(percentLoadedChanged(int)));
+	connect(bEl->layer.get(), SIGNAL(loadingStateChanged(bool)), this, SLOT(loadingStateChanged(bool)));
+	connect(bEl->layer.get(), SIGNAL(percentLoadedChanged(int)), this, SLOT(percentLoadedChanged(int)));
 	return key;
 }
 
@@ -134,8 +134,8 @@ void StelSkyLayerMgr::removeSkyLayer(const QString& key)
 	if (allSkyLayers.contains(key))
 	{
 		SkyLayerElem* bEl = allSkyLayers[key];
-		disconnect(bEl->layer.data(), SIGNAL(loadingStateChanged(bool)), this, SLOT(loadingStateChanged(bool)));
-		disconnect(bEl->layer.data(), SIGNAL(percentLoadedChanged(int)), this, SLOT(percentLoadedChanged(int)));
+		disconnect(bEl->layer.get(), SIGNAL(loadingStateChanged(bool)), this, SLOT(loadingStateChanged(bool)));
+		disconnect(bEl->layer.get(), SIGNAL(percentLoadedChanged(int)), this, SLOT(percentLoadedChanged(int)));
 		delete bEl;
 		allSkyLayers.remove(key);
 	}
@@ -148,7 +148,7 @@ void StelSkyLayerMgr::removeSkyLayer(const QString& key)
 // Remove a sky image tile from the list of background images
 void StelSkyLayerMgr::removeSkyLayer(StelSkyLayerP l)
 {
-	const QString k = keyForLayer(l.data());
+	const QString k = keyForLayer(l.get());
 	if (!k.isEmpty())
 		removeSkyLayer(k);
 }
@@ -213,7 +213,7 @@ StelSkyLayerMgr::SkyLayerElem* StelSkyLayerMgr::skyLayerElemForLayer(const StelS
 {
 	for (auto* e : allSkyLayers)
 	{
-		if (e->layer==t)
+		if (e->layer.get()==t)
 		{
 			return e;
 		}

@@ -201,7 +201,7 @@ void SlewDialog::removeTelescope(int slot)
 	updateTelescopeControls();
 }
 
-QSharedPointer<TelescopeClient> SlewDialog::currentTelescope() const
+std::shared_ptr<TelescopeClient> SlewDialog::currentTelescope() const
 {
 	int slot = connectedSlotsByName.value(ui->comboBoxTelescope->currentText());
 	return telescopeManager->telescopeClient(slot);

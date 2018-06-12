@@ -909,7 +909,7 @@ void StelMovementMgr::updateVisionVector(double deltaTime)
 
 	if (flagAutoMove)
 	{
-		if (!move.targetObject.isNull())
+		if (move.targetObject)
 		{
 			// if zooming in, object may be moving so be sure to zoom to latest position
 			// In case we have offset center, we want object still visible in center.
@@ -1210,7 +1210,7 @@ void StelMovementMgr::moveToJ2000(const Vec3d& aim, const Vec3d& aimUp, float mo
 	move.startUp.normalize();
 	move.speed=1.f/(moveDuration*1000);
 	move.coef=0.;
-	move.targetObject.clear();
+	move.targetObject.reset();
 	//move.mountMode=mountMode; // Maybe better to have MountEquinoxEquatorial here? ==> YES, fixed orientation problem.
 	move.mountMode=MountEquinoxEquatorial;
 	flagAutoMove = true;
@@ -1259,7 +1259,7 @@ void StelMovementMgr::moveToAltAzi(const Vec3d& aim, const Vec3d &aimUp, float m
 	move.startUp.set(0., 0., 1.);
 	move.speed=1.f/(moveDuration*1000);
 	move.coef=0.;
-	move.targetObject.clear();
+	move.targetObject.reset();
 	move.mountMode=MountAltAzimuthal; // This signals: start and aim are given in AltAz coordinates.
 	flagAutoMove = true;
 	//	// debug output if required

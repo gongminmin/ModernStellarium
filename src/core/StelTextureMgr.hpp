@@ -21,9 +21,11 @@
 #define _STELTEXTUREMGR_HPP_
 
 #include "StelTexture.hpp"
+
+#include <memory>
+
 #include <QObject>
 #include <QMap>
-#include <QWeakPointer>
 #include <QMutex>
 
 class QNetworkReply;
@@ -77,8 +79,8 @@ private:
 	QThreadPool* loaderThreadPool;
 
 	StelTextureSP lookupCache(const QString& file);
-	typedef QMap<QString,QWeakPointer<StelTexture> > TexCache;
-	typedef QMap<GLuint,QWeakPointer<StelTexture> > IdMap;
+	typedef QMap<QString, std::weak_ptr<StelTexture>> TexCache;
+	typedef QMap<GLuint, std::weak_ptr<StelTexture>> IdMap;
 	QMutex mutex;
 	TexCache textureCache;
 	IdMap idMap;

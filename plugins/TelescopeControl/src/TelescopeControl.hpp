@@ -58,7 +58,7 @@ class SlewDialog;
 
 using namespace TelescopeControlGlobals;
 
-typedef QSharedPointer<TelescopeClient> TelescopeClientP;
+typedef std::shared_ptr<TelescopeClient> TelescopeClientP;
 
 /*! @defgroup telescopeControl Telescope Control plug-in
 @{
@@ -114,7 +114,7 @@ public:
 	virtual QString getStelObjectType() const;
 	virtual bool configureGui(bool show = true);
 
-	QSharedPointer<TelescopeClient> telescopeClient(int index) const;
+	std::shared_ptr<TelescopeClient> telescopeClient(int index) const;
 	
 	//! Remove all currently registered telescopes
 	void deleteAllTelescopes();

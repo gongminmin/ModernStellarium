@@ -23,11 +23,13 @@
 #include "StelObject.hpp"
 #include "StelTextureTypes.hpp"
 #include "Quasar.hpp"
+
+#include <memory>
+
 #include <QFont>
 #include <QVariantMap>
 #include <QDateTime>
 #include <QList>
-#include <QSharedPointer>
 
 class StelPainter;
 
@@ -60,7 +62,7 @@ file (section [Quasars]).
 */
 
 //! @ingroup quasars
-typedef QSharedPointer<Quasar> QuasarP;
+typedef std::shared_ptr<Quasar> QuasarP;
 
 //! @class Quasars
 //! Main class of the %Quasars plugin.
@@ -116,7 +118,7 @@ public:
 
 	virtual StelObjectP searchByID(const QString &id) const
 	{
-		return qSharedPointerCast<StelObject>(getByID(id));
+		return std::static_pointer_cast<StelObject>(getByID(id));
 	}
 
 	//! Find and return the list of at most maxNbItem objects auto-completing the passed object name.

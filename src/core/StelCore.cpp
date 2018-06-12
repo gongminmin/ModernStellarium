@@ -1152,7 +1152,7 @@ void StelCore::moveObserverToSelected()
 	Q_ASSERT(objmgr);
 	if (objmgr->getWasSelected())
 	{
-		Planet* pl = dynamic_cast<Planet*>(objmgr->getSelectedObject()[0].data());
+		Planet* pl = dynamic_cast<Planet*>(objmgr->getSelectedObject()[0].get());
 		if (pl)
 		{
 			// We need to move to the selected planet. Try to generate a location from the current one
@@ -1173,7 +1173,7 @@ void StelCore::moveObserverToSelected()
 		}
 		else
 		{
-			NomenclatureItem* ni = dynamic_cast<NomenclatureItem*>(objmgr->getSelectedObject()[0].data());
+			NomenclatureItem* ni = dynamic_cast<NomenclatureItem*>(objmgr->getSelectedObject()[0].get());
 			if (ni)
 			{
 				// We need to move to the nomenclature item's host planet.
@@ -1201,7 +1201,7 @@ const StelLocation& StelCore::getCurrentLocation() const
 	return position->getCurrentLocation();
 }
 
-const QSharedPointer<Planet> StelCore::getCurrentPlanet() const
+const std::shared_ptr<Planet> StelCore::getCurrentPlanet() const
 {
 	return position->getHomePlanet();
 }
@@ -1795,7 +1795,7 @@ void StelCore::updateTime(double deltaTime)
 		// Unselect if the new home planet is the previously selected object
 		StelObjectMgr* objmgr = GETSTELMODULE(StelObjectMgr);
 		Q_ASSERT(objmgr);
-		if (objmgr->getWasSelected() && objmgr->getSelectedObject()[0].data()==position->getHomePlanet())
+		if (objmgr->getWasSelected() && (objmgr->getSelectedObject()[0].get() == position->getHomePlanet().get()))
 		{
 			objmgr->unSelect();
 		}

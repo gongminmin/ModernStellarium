@@ -1805,7 +1805,7 @@ void Oculars::paintOcularMask(const StelCore *core)
 	Vec2i centerScreen(prj->getViewportPosX()+prj->getViewportWidth()/2, prj->getViewportPosY()+prj->getViewportHeight()/2);
 
 	// Paint the reticale, if needed
-	if (!reticleTexture.isNull())
+	if (reticleTexture)
 	{
 		painter.setColor(0.77f, 0.14f, 0.16f, 1.f);
 

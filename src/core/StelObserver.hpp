@@ -24,9 +24,10 @@
 #include "StelLocation.hpp"
 #include "VecMath.hpp"
 
+#include <memory>
+
 #include <QObject>
 #include <QString>
-#include <QSharedPointer>
 
 
 class ArtificialPlanet;
@@ -62,7 +63,7 @@ public:
 	Mat4d getRotAltAzToEquatorial(double JD, double JDE) const;
 	Mat4d getRotEquatorialToVsop87(void) const;
 
-	virtual const QSharedPointer<Planet> getHomePlanet(void) const;
+	virtual const std::shared_ptr<Planet> getHomePlanet(void) const;
 
 	//! Get the informations on the current location
 	virtual const StelLocation& getCurrentLocation() const {return currentLocation;}
@@ -79,7 +80,7 @@ public:
 
 protected:
 	StelLocation currentLocation;
-	QSharedPointer<Planet> planet;
+	std::shared_ptr<Planet> planet;
 };
 
 //! @class SpaceShipObserver
@@ -93,7 +94,7 @@ public:
 
 	//! Update StelObserver info if needed. Default implementation does nothing.
 	virtual bool update(double deltaTime);
-	virtual const QSharedPointer<Planet> getHomePlanet() const;
+	virtual const std::shared_ptr<Planet> getHomePlanet() const;
 	virtual bool isObserverLifeOver() const {return timeToGo <= 0.;}
 	virtual bool isTraveling() const {return !isObserverLifeOver();}
 	virtual StelObserver* getNextObserver() const {return new StelObserver(moveTargetLocation);}
@@ -108,7 +109,7 @@ public:
 private:
 	StelLocation moveStartLocation;
 	StelLocation moveTargetLocation;
-	QSharedPointer<Planet> artificialPlanet;
+	std::shared_ptr<Planet> artificialPlanet;
 	double timeToGo;
 	double transitSeconds;
 };

@@ -20,10 +20,11 @@
 #ifndef _SATELLITE_HPP_
 #define _SATELLITE_HPP_ 1
 
+#include <memory>
+
 #include <QDateTime>
 #include <QFont>
 #include <QList>
-#include <QSharedPointer>
 #include <QString>
 #include <QStringList>
 #include <QVariant>
@@ -308,7 +309,7 @@ private:
 	QList<gSatWrapper::Visibility> visibilityPoints; //orbit visibility points
 };
 
-typedef QSharedPointer<Satellite> SatelliteP;
+typedef std::shared_ptr<Satellite> SatelliteP;
 bool operator<(const SatelliteP& left, const SatelliteP& right);
 
 #endif // _SATELLITE_HPP_ 

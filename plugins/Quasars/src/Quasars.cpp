@@ -37,6 +37,8 @@
 #include "QuasarsDialog.hpp"
 #include "StelProgressController.hpp"
 
+#include <memory>
+
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QKeyEvent>
@@ -47,7 +49,6 @@
 #include <QVariantMap>
 #include <QVariant>
 #include <QList>
-#include <QSharedPointer>
 #include <QStringList>
 #include <QDir>
 #include <QSettings>
@@ -123,8 +124,8 @@ Quasars::~Quasars()
 void Quasars::deinit()
 {
 	QSO.clear();
-	Quasar::markerTexture.clear();
-	texPointer.clear();
+	Quasar::markerTexture.reset();
+	texPointer.reset();
 }
 
 /*
@@ -280,7 +281,7 @@ QList<StelObjectP> Quasars::searchAround(const Vec3d& av, double limitFov, const
 			equPos.normalize();
 			if (equPos[0]*v[0] + equPos[1]*v[1] + equPos[2]*v[2]>=cosLimFov)
 			{
-				result.append(qSharedPointerCast<StelObject>(quasar));
+				result.append(std::static_pointer_cast<StelObject>(quasar));
 			}
 		}
 	}
@@ -296,7 +297,7 @@ StelObjectP Quasars::searchByName(const QString& englishName) const
 	for (const auto& quasar : QSO)
 	{
 		if (quasar->getEnglishName().toUpper() == englishName.toUpper())
-			return qSharedPointerCast<StelObject>(quasar);
+			return std::static_pointer_cast<StelObject>(quasar);
 	}
 
 	return Q_NULLPTR;
@@ -310,7 +311,7 @@ StelObjectP Quasars::searchByNameI18n(const QString& nameI18n) const
 	for (const auto& quasar : QSO)
 	{
 		if (quasar->getNameI18n().toUpper() == nameI18n.toUpper())
-			return qSharedPointerCast<StelObject>(quasar);
+			return std::static_pointer_cast<StelObject>(quasar);
 	}
 
 	return Q_NULLPTR;

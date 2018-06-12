@@ -21,9 +21,10 @@
 
 #include "StelCore.hpp"
 
+#include <memory>
+
 #include <QObject>
 #include <QString>
-#include <QSharedPointer>
 
 class StelCore;
 class StelPainter;
@@ -78,6 +79,6 @@ private:
 
 //! @typedef StelSkyLayerP
 //! Shared pointer on a StelSkyLayer instance (implement reference counting)
-typedef QSharedPointer<StelSkyLayer> StelSkyLayerP;
+typedef std::shared_ptr<StelSkyLayer> StelSkyLayerP;
 
 #endif // STELSKYLAYER_HPP
