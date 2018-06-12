@@ -132,7 +132,7 @@ void CustomObjectMgr::init()
 void CustomObjectMgr::deinit()
 {
 	customObjects.clear();	
-	texPointer.clear();
+	texPointer.reset();
 }
 
 void CustomObjectMgr::addCustomObject(QString designation, Vec3d coordinates, bool isVisible)
@@ -264,7 +264,7 @@ QList<StelObjectP> CustomObjectMgr::searchAround(const Vec3d& av, double limitFo
 			equPos.normalize();
 			if (equPos[0]*v[0] + equPos[1]*v[1] + equPos[2]*v[2]>=cosLimFov)
 			{
-				result.append(qSharedPointerCast<StelObject>(cObj));
+				result.append(std::static_pointer_cast<StelObject>(cObj));
 			}
 		}
 	}
@@ -277,7 +277,7 @@ StelObjectP CustomObjectMgr::searchByName(const QString& englishName) const
 	for (const auto& cObj : customObjects)
 	{
 		if (cObj->getEnglishName().toUpper() == englishName.toUpper())
-			return qSharedPointerCast<StelObject>(cObj);
+			return std::static_pointer_cast<StelObject>(cObj);
 	}
 
 	return Q_NULLPTR;
@@ -288,7 +288,7 @@ StelObjectP CustomObjectMgr::searchByNameI18n(const QString& nameI18n) const
 	for (const auto& cObj : customObjects)
 	{
 		if (cObj->getNameI18n().toUpper() == nameI18n.toUpper())
-			return qSharedPointerCast<StelObject>(cObj);
+			return std::static_pointer_cast<StelObject>(cObj);
 	}
 
 	return Q_NULLPTR;
@@ -325,7 +325,7 @@ void CustomObjectMgr::selectedObjectChange(StelModule::StelModuleSelectAction)
 	const QList<StelObjectP> newSelected = GETSTELMODULE(StelObjectMgr)->getSelectedObject("CustomObject");
 	if (!newSelected.empty())
 	{
-		setSelected(qSharedPointerCast<CustomObject>(newSelected[0]));
+		setSelected(std::static_pointer_cast<CustomObject>(newSelected[0]));
 	}
 	else
 		setSelected("");
@@ -342,7 +342,7 @@ void CustomObjectMgr::setSelected(CustomObjectP obj)
 	if (obj && obj->getType() == "CustomObject")
 		selected = obj;
 	else
-		selected.clear();
+		selected.reset();
 }
 
 CustomObjectP CustomObjectMgr::searchByEnglishName(QString customObjectEnglishName) const

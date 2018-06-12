@@ -65,7 +65,7 @@ StelTextureSP StelTextureMgr::createTexture(const QString& afilename, const Stel
 
 	//try to find out if the tex is already loaded
 	StelTextureSP cache = lookupCache(canPath);
-	if(!cache.isNull()) return cache;
+	if(cache) return cache;
 
 	StelTextureSP tex = StelTextureSP(new StelTexture(this));
 	tex->fullPath = canPath;
@@ -111,7 +111,7 @@ StelTextureSP StelTextureMgr::createTextureThread(const QString& url, const Stel
 
 	//try to find out if the tex is already loaded
 	StelTextureSP cache = lookupCache(canPath);
-	if(!cache.isNull()) return cache;
+	if(cache) return cache;
 
 	StelTextureSP tex = StelTextureSP(new StelTexture(this));
 	tex->loadParams = params;
@@ -143,7 +143,7 @@ StelTextureSP StelTextureMgr::wrapperForGLTexture(GLuint texId)
 	if(it!=idMap.end())
 	{
 		//find out if it is valid
-		StelTextureSP ref = it->toStrongRef();
+		StelTextureSP ref = it->lock();
 		if(ref)
 		{
 			return ref; //valid texture!
@@ -178,7 +178,7 @@ StelTextureSP StelTextureMgr::lookupCache(const QString &file)
 	if(it!=textureCache.end())
 	{
 		//find out if it is valid
-		StelTextureSP ref = it->toStrongRef();
+		StelTextureSP ref = it->lock();
 		if(ref)
 		{
 			return ref; //valid texture!

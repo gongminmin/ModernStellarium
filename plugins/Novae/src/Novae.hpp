@@ -24,11 +24,13 @@
 #include "StelFader.hpp"
 #include "Nova.hpp"
 #include "StelTextureTypes.hpp"
+
+#include <memory>
+
 #include <QFont>
 #include <QVariantMap>
 #include <QDateTime>
 #include <QList>
-#include <QSharedPointer>
 #include <QHash>
 
 class QNetworkAccessManager;
@@ -58,7 +60,7 @@ file (section [Novae]).
 */
 
 //! @ingroup brightNovae
-typedef QSharedPointer<Nova> NovaP;
+typedef std::shared_ptr<Nova> NovaP;
 
 //! @class Novae
 //! Main class of the %Bright Novae plugin.
@@ -108,7 +110,7 @@ public:
 
 	virtual StelObjectP searchByID(const QString &id) const
 	{
-		return qSharedPointerCast<StelObject>(getByID(id));
+		return std::static_pointer_cast<StelObject>(getByID(id));
 	}
 
 	//! Find and return the list of at most maxNbItem objects auto-completing the passed object name.

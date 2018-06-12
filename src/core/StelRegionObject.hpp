@@ -21,7 +21,7 @@
 
 #include "StelSphereGeometry.hpp"
 
-#include <QSharedPointer>
+#include <memory>
 
 //! Simple abstract class defining basic methods implemented by all objects that need
 //! to be stored in a StelSphericalIndex.
@@ -41,6 +41,6 @@ public:
 
 //! @typedef StelRegionObjectP
 //! Shared pointer on a StelRegionObject with smart pointers
-typedef QSharedPointer<StelRegionObject> StelRegionObjectP;
+typedef std::shared_ptr<StelRegionObject> StelRegionObjectP;
 
 #endif // _STELGRIDOBJECT_HPP_

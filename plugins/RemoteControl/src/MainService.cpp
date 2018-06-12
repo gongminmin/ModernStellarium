@@ -529,7 +529,7 @@ StelObjectP MainService::getSelectedObject()
 QString MainService::getInfoString()
 {
 	StelObjectP selectedObject = getSelectedObject();
-	if(selectedObject.isNull())
+	if(!selectedObject)
 		return QString();
 	return selectedObject->getInfoString(core,StelObject::AllInfo | StelObject::NoFont);
 }

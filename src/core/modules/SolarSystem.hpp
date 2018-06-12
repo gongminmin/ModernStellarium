@@ -40,7 +40,13 @@ class StelCore;
 class StelProjector;
 class QSettings;
 
-typedef QSharedPointer<Planet> PlanetP;
+typedef std::shared_ptr<Planet> PlanetP;
+
+// TODO: Remove this after replacing QMultiHash<PlanetP, NomenclatureItemP> in NomenclatureMgr
+inline Q_DECL_CONST_FUNCTION uint qHash(PlanetP key, uint seed = 0) Q_DECL_NOTHROW
+{
+	return qHash(key.get(), seed);
+}
 
 //! @class SolarSystem
 //! This StelObjectModule derivative is used to model SolarSystem bodies.

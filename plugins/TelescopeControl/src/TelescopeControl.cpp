@@ -334,7 +334,7 @@ QList<StelObjectP> TelescopeControl::searchAround(const Vec3d& vv, double limitF
 	{
 		if (telescope->getJ2000EquatorialPos(core).dot(v) >= cosLimFov)
 		{
-			result.append(qSharedPointerCast<StelObject>(telescope));
+			result.append(std::static_pointer_cast<StelObject>(telescope));
 		}
 	}
 	return result;
@@ -345,7 +345,7 @@ StelObjectP TelescopeControl::searchByNameI18n(const QString &nameI18n) const
 	for (const auto& telescope : telescopeClients)
 	{
 		if (telescope->getNameI18n() == nameI18n)
-			return qSharedPointerCast<StelObject>(telescope);
+			return std::static_pointer_cast<StelObject>(telescope);
 	}
 	return 0;
 }
@@ -355,7 +355,7 @@ StelObjectP TelescopeControl::searchByName(const QString &name) const
 	for (const auto& telescope : telescopeClients)
 	{
 		if (telescope->getEnglishName() == name)
-			return qSharedPointerCast<StelObject>(telescope);
+			return std::static_pointer_cast<StelObject>(telescope);
 	}
 	return 0;
 }
@@ -439,10 +439,10 @@ void TelescopeControl::telescopeGoto(int slotNumber, const Vec3d &j2000Pos, Stel
 		telescopeClients.value(slotNumber)->telescopeGoto(j2000Pos, selectObject);
 }
 
-QSharedPointer<TelescopeClient> TelescopeControl::telescopeClient(int index) const
+std::shared_ptr<TelescopeClient> TelescopeControl::telescopeClient(int index) const
 {
 	if(!telescopeClients.contains(index))
-		return QSharedPointer<TelescopeClient>();
+		return std::shared_ptr<TelescopeClient>();
 
 	return telescopeClients.value(index);
 }

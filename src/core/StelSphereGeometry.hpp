@@ -27,10 +27,10 @@
 #include <QVector>
 #include <QVariant>
 #include <QDebug>
-#include <QSharedPointer>
 #include <QVarLengthArray>
 #include <QDataStream>
 
+#include <memory>
 #include <stdio.h>
 
 class SphericalRegion;
@@ -46,15 +46,15 @@ class EmptySphericalRegion;
 
 //! @class SphericalRegionP
 //! A shared pointer on a SphericalRegion.
-class SphericalRegionP : public QSharedPointer<SphericalRegion>
+class SphericalRegionP : public std::shared_ptr<SphericalRegion>
 {
 public:
-	// Override the constructors of QSharedPointer
+	// Override the constructors of std::shared_ptr
 	SphericalRegionP() {;}
-	SphericalRegionP(SphericalRegion* ptr) : QSharedPointer<SphericalRegion>(ptr) {;}
-	template <class Deleter> SphericalRegionP(SphericalRegion* ptr, Deleter deleter) : QSharedPointer<SphericalRegion>(ptr, deleter) {;}
-	SphericalRegionP(const SphericalRegionP& other) : QSharedPointer<SphericalRegion>(other) {;}
-	SphericalRegionP(const QWeakPointer<SphericalRegion>& other) : QSharedPointer<SphericalRegion>(other) {;}
+	SphericalRegionP(SphericalRegion* ptr) : std::shared_ptr<SphericalRegion>(ptr) {;}
+	template <class Deleter> SphericalRegionP(SphericalRegion* ptr, Deleter deleter) : std::shared_ptr<SphericalRegion>(ptr, deleter) {;}
+	SphericalRegionP(const SphericalRegionP& other) : std::shared_ptr<SphericalRegion>(other) {;}
+	SphericalRegionP(const std::weak_ptr<SphericalRegion>& other) : std::shared_ptr<SphericalRegion>(other) {;}
 
 	//! Create a SphericalRegion from the given input JSON stream.
 	//! The type of the region is automatically recognized from the input format.
@@ -201,7 +201,7 @@ public:
 	//! Returns whether a SphericalRegion is contained into this region.
 	//! A default potentially very slow implementation is provided for each cases.
 	bool contains(const SphericalRegion* r) const;
-	bool contains(const SphericalRegionP r) const {return contains(r.data());}
+	bool contains(const SphericalRegionP r) const {return contains(r.get());}
 	virtual bool contains(const Vec3d& p) const {return getOctahedronPolygon().contains(p);}
 	virtual bool contains(const SphericalPolygon& r) const;
 	virtual bool contains(const SphericalConvexPolygon& r) const;
@@ -213,7 +213,7 @@ public:
 	//! Returns whether a SphericalRegion intersects with this region.
 	//! A default potentially very slow implementation is provided for each cases.
 	bool intersects(const SphericalRegion* r) const;
-	bool intersects(const SphericalRegionP r) const {return intersects(r.data());}
+	bool intersects(const SphericalRegionP r) const {return intersects(r.get());}
 	bool intersects(const Vec3d& p) const {return contains(p);}
 	virtual bool intersects(const SphericalPolygon& r) const;
 	virtual bool intersects(const SphericalConvexPolygon& r) const;
@@ -225,7 +225,7 @@ public:
 	//! Return a new SphericalRegion consisting of the intersection of this and the given region.
 	//! A default potentially very slow implementation is provided for each cases.
 	SphericalRegionP getIntersection(const SphericalRegion* r) const;
-	SphericalRegionP getIntersection(const SphericalRegionP r) const {return getIntersection(r.data());}
+	SphericalRegionP getIntersection(const SphericalRegionP r) const {return getIntersection(r.get());}
 	virtual SphericalRegionP getIntersection(const SphericalPolygon& r) const;
 	virtual SphericalRegionP getIntersection(const SphericalConvexPolygon& r) const;
 	virtual SphericalRegionP getIntersection(const SphericalCap& r) const;
@@ -236,7 +236,7 @@ public:
 	//! Return a new SphericalRegion consisting of the union of this and the given region.
 	//! A default potentially very slow implementation is provided for each cases.
 	SphericalRegionP getUnion(const SphericalRegion* r) const;
-	SphericalRegionP getUnion(const SphericalRegionP r) const {return getUnion(r.data());}
+	SphericalRegionP getUnion(const SphericalRegionP r) const {return getUnion(r.get());}
 	virtual SphericalRegionP getUnion(const SphericalPolygon& r) const;
 	virtual SphericalRegionP getUnion(const SphericalConvexPolygon& r) const;
 	virtual SphericalRegionP getUnion(const SphericalCap& r) const;
@@ -247,7 +247,7 @@ public:
 	//! Return a new SphericalRegion consisting of the subtraction of the given region from this.
 	//! A default potentially very slow implementation is provided for each cases.
 	SphericalRegionP getSubtraction(const SphericalRegion* r) const;
-	SphericalRegionP getSubtraction(const SphericalRegionP r) const {return getSubtraction(r.data());}
+	SphericalRegionP getSubtraction(const SphericalRegionP r) const {return getSubtraction(r.get());}
 	virtual SphericalRegionP getSubtraction(const SphericalPolygon& r) const;
 	virtual SphericalRegionP getSubtraction(const SphericalConvexPolygon& r) const;
 	virtual SphericalRegionP getSubtraction(const SphericalCap& r) const;

@@ -23,7 +23,7 @@
 #include "MeteorShower.hpp"
 #include "MeteorShowersMgr.hpp"
 
-typedef QSharedPointer<MeteorShower> MeteorShowerP;
+typedef std::shared_ptr<MeteorShower> MeteorShowerP;
 
 //! @class MeteorShowers
 //! This class manages a collection of MeteorShower objects.

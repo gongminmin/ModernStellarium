@@ -2082,7 +2082,7 @@ void AstroCalcDialog::prepareAxesAndGraph()
 void AstroCalcDialog::drawXVsTimeGraphs()
 {
 	PlanetP ssObj = solarSystem->searchByEnglishName(ui->graphsCelestialBodyComboBox->currentData().toString());
-	if (!ssObj.isNull())
+	if (ssObj)
 	{
 		// X axis - time; Y axis - altitude
 		QList<double> aX, aY, bY;
@@ -2286,7 +2286,7 @@ void AstroCalcDialog::prepareXVsTimeAxesAndGraph()
 	QString asMU = QString("'");
 
 	PlanetP ssObj = solarSystem->searchByEnglishName(ui->graphsCelestialBodyComboBox->currentData().toString());
-	if (!ssObj.isNull())
+	if (ssObj)
 	{
 		if (ssObj->getJ2000EquatorialPos(core).length() < 0.1)
 		{

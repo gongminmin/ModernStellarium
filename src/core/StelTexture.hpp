@@ -38,7 +38,7 @@ template <class T> class QFuture;
 //! @class StelTexture
 //! Base texture class. For creating an instance, use StelTextureMgr::createTexture() and StelTextureMgr::createTextureThread()
 //! @sa StelTextureSP
-class StelTexture: public QObject, public QEnableSharedFromThis<StelTexture>
+class StelTexture: public QObject, public std::enable_shared_from_this<StelTexture>
 {
 	Q_OBJECT
 

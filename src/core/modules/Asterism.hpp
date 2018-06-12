@@ -44,9 +44,12 @@ class Asterism : public StelObject
 	friend class AsterismMgr;
 private:
 	static const QString ASTERISM_TYPE;
+
+public:
 	Asterism();
 	~Asterism();
 
+private:
 	// StelObject method to override
 	//! Get a string with data about the Asterism.
 	//! Constellations support the following InfoStringGroup flags:

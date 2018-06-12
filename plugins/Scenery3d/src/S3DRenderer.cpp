@@ -432,7 +432,7 @@ bool S3DRenderer::drawMaterialGroup(const StelOBJ::MaterialGroup &matGroup, bool
 		else
 		{
 			//set diffuse tex if possible for alpha testing
-			if( ! pMaterial->tex_Kd.isNull())
+			if(pMaterial->tex_Kd)
 			{
 				pMaterial->tex_Kd->bind(0);
 				SET_UNIFORM(curShader,ShaderMgr::UNIFORM_TEX_DIFFUSE,0);

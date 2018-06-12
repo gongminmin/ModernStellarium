@@ -40,7 +40,7 @@ class SphericalCap;
 class HipsSurvey;
 class StelProgressController;
 
-typedef QSharedPointer<HipsSurvey> HipsSurveyP;
+typedef std::shared_ptr<HipsSurvey> HipsSurveyP;
 Q_DECLARE_METATYPE(HipsSurveyP)
 
 class HipsSurvey : public QObject

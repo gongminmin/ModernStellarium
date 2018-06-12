@@ -20,7 +20,7 @@
 #ifndef _STELPROJECTORTYPE_HPP_
 #define _STELPROJECTORTYPE_HPP_
 
-#include <QSharedPointer>
+#include <memory>
 
 //! @file StelProjectorType.hpp
 //! Define the StelProjectorP type.
@@ -29,6 +29,6 @@ class StelProjector;
 
 //! @typedef StelProjectorP
 //! Shared pointer on a StelProjector instance (implement reference counting)
-typedef QSharedPointer<StelProjector> StelProjectorP;
+typedef std::shared_ptr<StelProjector> StelProjectorP;
 
 #endif // _STELPROJECTORTYPE_HPP_

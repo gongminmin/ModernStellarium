@@ -109,7 +109,7 @@ void HipsMgr::loadSources()
 			QList<HipsSurveyP> newSurveys = HipsSurvey::parseHipslist(data);
 			for (HipsSurveyP survey: newSurveys)
 			{
-				connect(survey.data(), SIGNAL(propertiesChanged()), this, SIGNAL(surveysChanged()));
+				connect(survey.get(), SIGNAL(propertiesChanged()), this, SIGNAL(surveysChanged()));
 				emit gotNewSurvey(survey);
 			}
 			surveys += newSurveys;

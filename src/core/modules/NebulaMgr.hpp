@@ -38,7 +38,7 @@ class StelToneReproducer;
 class QSettings;
 class StelPainter;
 
-typedef QSharedPointer<Nebula> NebulaP;
+typedef std::shared_ptr<Nebula> NebulaP;
 
 //! @class NebulaMgr
 //! Manage a collection of nebulae. This class is used

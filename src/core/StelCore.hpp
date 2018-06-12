@@ -293,7 +293,7 @@ public:
 	QString getCurrentTimeZone() const;
 	void setCurrentTimeZone(const QString& tz);
 
-	const QSharedPointer<class Planet> getCurrentPlanet() const;
+	const std::shared_ptr<class Planet> getCurrentPlanet() const;
 
 	//! Unfortunately we also need this.
 	//! Returns the current observer.

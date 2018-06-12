@@ -56,7 +56,7 @@ class QOpenGLTexture;
 class QOpenGLFramebufferObject;
 #endif
 
-typedef QSharedPointer<class HipsSurvey> HipsSurveyP;
+typedef std::shared_ptr<HipsSurvey> HipsSurveyP;
 
 // Class used to store rotational elements, i.e. axis orientation for the planetary body.
 class RotationElements
@@ -315,7 +315,7 @@ public:
 	void setSphereScale(float s) { if(s!=sphereScale) { sphereScale = s; if(objModel) objModel->needsRescale=true; } }
 	float getSphereScale() const { return sphereScale; }
 
-	const QSharedPointer<Planet> getParent(void) const {return parent;}
+	const std::shared_ptr<Planet> getParent(void) const {return parent;}
 
 	static void setLabelColor(const Vec3f& lc) {labelColor = lc;}
 	static const Vec3f& getLabelColor(void) {return labelColor;}
@@ -552,8 +552,8 @@ protected:
 	void* orbitPtr;               // this is always used with an Orbit object.
 
 	OsculatingFunctType *const osculatingFunc;
-	QSharedPointer<Planet> parent;           // Planet parent i.e. sun for earth
-	QList<QSharedPointer<Planet> > satellites;      // satellites of the Planet
+	std::shared_ptr<Planet> parent;           // Planet parent i.e. sun for earth
+	QList<std::shared_ptr<Planet>> satellites;      // satellites of the Planet
 	LinearFader hintFader;
 	LinearFader labelsFader;         // Store the current state of the label for this planet
 	bool flagLabels;                 // Define whether labels should be displayed

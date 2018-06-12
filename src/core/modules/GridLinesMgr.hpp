@@ -872,7 +872,7 @@ private slots:
 	void connectEarthFromSolarSystem();
 
 private:
-	QSharedPointer<Planet> earth;           // shortcut Earth pointer. Must be reconnected whenever solar system has been reloaded.
+	std::shared_ptr<Planet> earth;           // shortcut Earth pointer. Must be reconnected whenever solar system has been reloaded.
 	bool gridlinesDisplayed;		// master switch to switch off all grids/lines. (useful for oculars plugin)
 	SkyGrid * equGrid;			// Equatorial grid
 	SkyGrid * equJ2000Grid;			// Equatorial J2000 grid

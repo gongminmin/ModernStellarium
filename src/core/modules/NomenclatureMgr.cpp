@@ -354,16 +354,16 @@ void NomenclatureMgr::loadNomenclature()
 				if (planetName.isEmpty() || planet!=planetName)
 				{
 					p = ssystem->searchByEnglishName(planet);
-					if (p.isNull()) // is it a minor planet?
+					if (!p) // is it a minor planet?
 						p = ssystem->searchMinorPlanetByEnglishName(planet);
 					planetName = planet;					
 				}
 
 
-				if (!p.isNull())
+				if (p)
 				{
 					NomenclatureItemP nom = NomenclatureItemP(new NomenclatureItem(p, featureId, name, context, ntype, latitude, longitude, size));
-					if (!nom.isNull())
+					if (nom)
 						nomenclatureItems.insert(p, nom);
 
 					readOk++;
@@ -380,7 +380,7 @@ void NomenclatureMgr::loadNomenclature()
 void NomenclatureMgr::deinit()
 {
 	nomenclatureItems.clear();
-	texPointer.clear();
+	texPointer.reset();
 }
 
 void NomenclatureMgr::draw(StelCore* core)
@@ -457,7 +457,7 @@ QList<StelObjectP> NomenclatureMgr::searchAround(const Vec3d& av, double limitFo
 		equPos.normalize();
 		if (equPos[0]*v[0] + equPos[1]*v[1] + equPos[2]*v[2]>=cosLimFov)
 		{
-			result.append(qSharedPointerCast<StelObject>(nItem));
+			result.append(std::static_pointer_cast<StelObject>(nItem));
 		}
 	}
 
@@ -473,7 +473,7 @@ StelObjectP NomenclatureMgr::searchByName(const QString& englishName) const
 		{
 			if (nItem->getNomenclatureType()!=NomenclatureItem::niSatelliteFeature && nItem->getEnglishName().toUpper() == englishName.toUpper())
 			{
-				return qSharedPointerCast<StelObject>(nItem);
+				return std::static_pointer_cast<StelObject>(nItem);
 			}
 		}
 	}
@@ -489,7 +489,7 @@ StelObjectP NomenclatureMgr::searchByNameI18n(const QString& nameI18n) const
 		{
 			if (nItem->getNomenclatureType()!=NomenclatureItem::niSatelliteFeature && nItem->getNameI18n().toUpper() == nameI18n.toUpper())
 			{
-				return qSharedPointerCast<StelObject>(nItem);
+				return std::static_pointer_cast<StelObject>(nItem);
 			}
 		}
 	}

@@ -328,7 +328,7 @@ bool StelSkyImageTile::drawTile(StelCore* core, StelPainter& sPainter)
 			extinctedColor[2]*=fabs(extinctionFactor);
 		}
 		sPainter.setColor(extinctedColor[0], extinctedColor[1], extinctedColor[2], extinctedColor[3]);
-		sPainter.drawSphericalRegion(poly.data(), StelPainter::SphericalPolygonDrawModeTextureFill);
+		sPainter.drawSphericalRegion(poly.get(), StelPainter::SphericalPolygonDrawModeTextureFill);
 		
 	}
 

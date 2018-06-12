@@ -46,7 +46,7 @@ CustomObject::CustomObject(const QString& codesignation, const Vec3d& coordinate
 
 CustomObject::~CustomObject()
 {
-	markerTexture.clear();
+	markerTexture.reset();
 }
 
 float CustomObject::getSelectPriority(const StelCore* core) const

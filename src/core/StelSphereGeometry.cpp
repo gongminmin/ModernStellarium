@@ -1296,7 +1296,7 @@ SphericalRegionP SphericalRegionP::loadFromQVariant(const QVariantList& l)
 		for (int n=2;n<l.size();++n)
 		{
 			SphericalRegionP reg2 = loadFromQVariant(l.at(n).toList());
-			reg1 = reg1->getIntersection(reg2.data());
+			reg1 = reg1->getIntersection(reg2.get());
 		}
 		return reg1;
 	}
@@ -1305,8 +1305,8 @@ SphericalRegionP SphericalRegionP::loadFromQVariant(const QVariantList& l)
 		Q_ASSERT(l.size()==3);
 		SphericalRegionP reg1 = loadFromQVariant(l.at(1).toList());
 		SphericalRegionP reg2 = loadFromQVariant(l.at(2).toList());
-		SphericalRegionP regIntersection = reg1->getIntersection(reg2.data());
-		reg1 = reg1->getSubtraction(regIntersection.data());
+		SphericalRegionP regIntersection = reg1->getIntersection(reg2.get());
+		reg1 = reg1->getSubtraction(regIntersection.get());
 		return reg1;
 	}
 	else if (code=="PATH")

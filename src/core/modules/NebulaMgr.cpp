@@ -718,7 +718,7 @@ void NebulaMgr::draw(StelCore* core)
 	float maxMagLabels = skyDrawer->getLimitMagnitude()-2.f+(labelsAmount*1.2f)-2.f;
 	sPainter.setFont(nebulaFont);
 	DrawNebulaFuncObject func(maxMagHints, maxMagLabels, &sPainter, core, hintsFader.getInterstate()<=0.f);
-	nebGrid.processIntersectingPointInRegions(p.data(), func);
+	nebGrid.processIntersectingPointInRegions(p.get(), func);
 
 	if (GETSTELMODULE(StelObjectMgr)->getFlagSelectedObjectPointer())
 		drawPointer(core, sPainter);
@@ -894,7 +894,7 @@ QList<StelObjectP> NebulaMgr::searchAround(const Vec3d& av, double limitFov, con
 		equPos.normalize();
 		if (equPos*v>=cosLimFov)
 		{
-			result.push_back(qSharedPointerCast<StelObject>(n));
+			result.push_back(std::static_pointer_cast<StelObject>(n));
 		}
 	}
 	return result;
@@ -1458,7 +1458,7 @@ bool NebulaMgr::loadDSOCatalog(const QString &filename)
 			e->readDSO(ins);
 
 			dsoArray.append(e);
-			nebGrid.insert(qSharedPointerCast<StelRegionObject>(e));
+			nebGrid.insert(std::static_pointer_cast<StelRegionObject>(e));
 			if (e->DSO_nb!=0)
 				dsoIndex.insert(e->DSO_nb, e);
 		}
@@ -1586,7 +1586,7 @@ bool NebulaMgr::loadDSONames(const QString &filename)
 				break;
 		}
 
-		if (!e.isNull())
+		if (e)
 		{
 			if (transRx.exactMatch(name))
 			{
@@ -1676,7 +1676,7 @@ bool NebulaMgr::loadDSOOutlines(const QString &filename)
 			outline.append(point);
 			outline.append(fpoint);
 
-			if (!e.isNull())
+			if (e)
 			{
 				points = new std::vector<Vec3d>;
 				for (i = 0; i < outline.size(); i++)
@@ -1792,7 +1792,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("NGC%1").arg(n->NGC_nb) == objw || QString("NGC %1").arg(n->NGC_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1801,7 +1801,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 	{
 		QString objwcap = n->nameI18.toUpper();
 		if (objwcap==objw)
-			return qSharedPointerCast<StelObject>(n);
+			return std::static_pointer_cast<StelObject>(n);
 	}
 
 	// Search by aliases of common names
@@ -1810,7 +1810,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (auto objwcapa : n->nameI18Aliases)
 		{
 			if (objwcapa.toUpper()==objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1820,7 +1820,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("IC%1").arg(n->IC_nb) == objw || QString("IC %1").arg(n->IC_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1831,7 +1831,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("M%1").arg(n->M_nb) == objw || QString("M %1").arg(n->M_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1841,7 +1841,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("C%1").arg(n->C_nb) == objw || QString("C %1").arg(n->C_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1851,7 +1851,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("B%1").arg(n->B_nb) == objw || QString("B %1").arg(n->B_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1861,7 +1861,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("SH2-%1").arg(n->Sh2_nb) == objw || QString("SH 2-%1").arg(n->Sh2_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1871,7 +1871,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("VDB%1").arg(n->VdB_nb) == objw || QString("VDB %1").arg(n->VdB_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1881,7 +1881,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("RCW%1").arg(n->RCW_nb) == objw || QString("RCW %1").arg(n->RCW_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1891,7 +1891,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("LDN%1").arg(n->LDN_nb) == objw || QString("LDN %1").arg(n->LDN_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1901,7 +1901,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("LBN%1").arg(n->LBN_nb) == objw || QString("LBN %1").arg(n->LBN_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1911,7 +1911,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("CR%1").arg(n->Cr_nb) == objw || QString("CR %1").arg(n->Cr_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1921,7 +1921,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("MEL%1").arg(n->Mel_nb) == objw || QString("MEL %1").arg(n->Mel_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1931,7 +1931,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("PGC%1").arg(n->PGC_nb) == objw || QString("PGC %1").arg(n->PGC_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1941,7 +1941,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("UGC%1").arg(n->UGC_nb) == objw || QString("UGC %1").arg(n->UGC_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1951,7 +1951,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("ARP%1").arg(n->Arp_nb) == objw || QString("ARP %1").arg(n->Arp_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1961,7 +1961,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("VV%1").arg(n->VV_nb) == objw || QString("VV %1").arg(n->VV_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1971,7 +1971,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("CED%1").arg(n->Ced_nb.trimmed().toUpper()) == objw.trimmed() || QString("CED %1").arg(n->Ced_nb.trimmed().toUpper()) == objw.trimmed())
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1981,7 +1981,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("PK%1").arg(n->PK_nb.trimmed().toUpper()) == objw.trimmed() || QString("PK %1").arg(n->PK_nb.trimmed().toUpper()) == objw.trimmed())
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -1991,7 +1991,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("PNG%1").arg(n->PNG_nb.trimmed().toUpper()) == objw.trimmed() || QString("PN G%1").arg(n->PNG_nb.trimmed().toUpper()) == objw.trimmed())
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2001,7 +2001,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("SNRG%1").arg(n->SNRG_nb.trimmed().toUpper()) == objw.trimmed() || QString("SNR G%1").arg(n->SNRG_nb.trimmed().toUpper()) == objw.trimmed())
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2014,7 +2014,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 			|| QString("ACO %1").arg(n->ACO_nb.trimmed().toUpper()) == objw.trimmed()
 			|| QString("ABELL%1").arg(n->ACO_nb.trimmed().toUpper()) == objw.trimmed()
 			|| QString("ABELL %1").arg(n->ACO_nb.trimmed().toUpper()) == objw.trimmed())
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2024,7 +2024,7 @@ StelObjectP NebulaMgr::searchByNameI18n(const QString& nameI18n) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("HCG%1").arg(n->HCG_nb.trimmed().toUpper()) == objw.trimmed() || QString("HCG %1").arg(n->HCG_nb.trimmed().toUpper()) == objw.trimmed())
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2045,7 +2045,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("NGC%1").arg(n->NGC_nb) == objw || QString("NGC %1").arg(n->NGC_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2054,7 +2054,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 	{
 		QString objwcap = n->englishName.toUpper();
 		if (objwcap==objw)
-			return qSharedPointerCast<StelObject>(n);
+			return std::static_pointer_cast<StelObject>(n);
 	}
 
 	if (getFlagAdditionalNames())
@@ -2065,7 +2065,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 			for (auto objwcapa : n->englishAliases)
 			{
 				if (objwcapa.toUpper()==objw)
-					return qSharedPointerCast<StelObject>(n);
+					return std::static_pointer_cast<StelObject>(n);
 			}
 		}
 	}
@@ -2076,7 +2076,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("IC%1").arg(n->IC_nb) == objw || QString("IC %1").arg(n->IC_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2086,7 +2086,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("M%1").arg(n->M_nb) == objw || QString("M %1").arg(n->M_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2096,7 +2096,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("C%1").arg(n->C_nb) == objw || QString("C %1").arg(n->C_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2106,7 +2106,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("B%1").arg(n->B_nb) == objw || QString("B %1").arg(n->B_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2116,7 +2116,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("SH2-%1").arg(n->Sh2_nb) == objw || QString("SH 2-%1").arg(n->Sh2_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2126,7 +2126,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("VDB%1").arg(n->VdB_nb) == objw || QString("VDB %1").arg(n->VdB_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2136,7 +2136,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("RCW%1").arg(n->RCW_nb) == objw || QString("RCW %1").arg(n->RCW_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2146,7 +2146,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("LDN%1").arg(n->LDN_nb) == objw || QString("LDN %1").arg(n->LDN_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2156,7 +2156,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("LBN%1").arg(n->LBN_nb) == objw || QString("LBN %1").arg(n->LBN_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2166,7 +2166,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("CR%1").arg(n->Cr_nb) == objw || QString("CR %1").arg(n->Cr_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2176,7 +2176,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("MEL%1").arg(n->Mel_nb) == objw || QString("MEL %1").arg(n->Mel_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2186,7 +2186,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("PGC%1").arg(n->PGC_nb) == objw || QString("PGC %1").arg(n->PGC_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2196,7 +2196,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("UGC%1").arg(n->UGC_nb) == objw || QString("UGC %1").arg(n->UGC_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2206,7 +2206,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("ARP%1").arg(n->Arp_nb) == objw || QString("ARP %1").arg(n->Arp_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2216,7 +2216,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("VV%1").arg(n->VV_nb) == objw || QString("VV %1").arg(n->VV_nb) == objw)
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2226,7 +2226,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("CED%1").arg(n->Ced_nb.trimmed().toUpper()) == objw.trimmed() || QString("CED %1").arg(n->Ced_nb.trimmed().toUpper()) == objw.trimmed())
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2236,7 +2236,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("PK%1").arg(n->PK_nb.trimmed().toUpper()) == objw.trimmed() || QString("PK %1").arg(n->PK_nb.trimmed().toUpper()) == objw.trimmed())
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2246,7 +2246,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("PNG%1").arg(n->PNG_nb.trimmed().toUpper()) == objw.trimmed() || QString("PN G%1").arg(n->PNG_nb.trimmed().toUpper()) == objw.trimmed())
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2256,7 +2256,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("SNRG%1").arg(n->SNRG_nb.trimmed().toUpper()) == objw.trimmed() || QString("SNR G%1").arg(n->SNRG_nb.trimmed().toUpper()) == objw.trimmed())
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2269,7 +2269,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 			|| QString("ACO %1").arg(n->ACO_nb.trimmed().toUpper()) == objw.trimmed()
 			|| QString("ABELL%1").arg(n->ACO_nb.trimmed().toUpper()) == objw.trimmed()
 			|| QString("ABELL %1").arg(n->ACO_nb.trimmed().toUpper()) == objw.trimmed())
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -2279,7 +2279,7 @@ StelObjectP NebulaMgr::searchByName(const QString& name) const
 		for (const auto& n : dsoArray)
 		{
 			if (QString("HCG%1").arg(n->HCG_nb.trimmed().toUpper()) == objw.trimmed() || QString("HCG %1").arg(n->HCG_nb.trimmed().toUpper()) == objw.trimmed())
-				return qSharedPointerCast<StelObject>(n);
+				return std::static_pointer_cast<StelObject>(n);
 		}
 	}
 
@@ -3198,7 +3198,7 @@ QList<NebulaP> NebulaMgr::getDeepSkyObjectsByType(const QString &objType)
 			for (unsigned int i = 0; i < sizeof(DWARF_GALAXIES) / sizeof(DWARF_GALAXIES[0]); i++)
 			{
 				ds = searchPGC(DWARF_GALAXIES[i]);
-				if (!ds.isNull())
+				if (ds)
 					dso.append(ds);
 			}
 			break;
@@ -3209,7 +3209,7 @@ QList<NebulaP> NebulaMgr::getDeepSkyObjectsByType(const QString &objType)
 			for (unsigned int i = 0; i < sizeof(H400_LIST) / sizeof(H400_LIST[0]); i++)
 			{
 				ds = searchNGC(H400_LIST[i]);
-				if (!ds.isNull())
+				if (ds)
 					dso.append(ds);
 			}
 			break;

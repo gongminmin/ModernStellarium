@@ -41,7 +41,7 @@ void TrailGroup::draw(StelCore* core, StelPainter* sPainter)
 	sPainter->setProjector(core->getProjection(transfo));
 	for (const auto& trail : allTrails)
 	{
-		Planet* hpl = dynamic_cast<Planet*>(trail.stelObject.data());
+		Planet* hpl = dynamic_cast<Planet*>(trail.stelObject.get());
 		if (hpl!=Q_NULLPTR)
 		{
 			// Avoid drawing the trails if the object is the home planet

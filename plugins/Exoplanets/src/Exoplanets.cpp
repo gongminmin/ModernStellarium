@@ -39,6 +39,8 @@
 #include "StelActionMgr.hpp"
 #include "StelProgressController.hpp"
 
+#include <memory>
+
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QKeyEvent>
@@ -49,7 +51,6 @@
 #include <QVariantMap>
 #include <QVariant>
 #include <QList>
-#include <QSharedPointer>
 #include <QStringList>
 #include <QPixmap>
 #include <QDir>
@@ -118,8 +119,8 @@ Exoplanets::~Exoplanets()
 void Exoplanets::deinit()
 {
 	ep.clear();
-	Exoplanet::markerTexture.clear();
-	texPointer.clear();
+	Exoplanet::markerTexture.reset();
+	texPointer.reset();
 }
 
 void Exoplanets::update(double) //deltaTime
@@ -271,7 +272,7 @@ QList<StelObjectP> Exoplanets::searchAround(const Vec3d& av, double limitFov, co
 			equPos.normalize();
 			if (equPos[0]*v[0] + equPos[1]*v[1] + equPos[2]*v[2]>=cosLimFov)
 			{
-				result.append(qSharedPointerCast<StelObject>(eps));
+				result.append(std::static_pointer_cast<StelObject>(eps));
 			}
 		}
 	}
@@ -287,7 +288,7 @@ StelObjectP Exoplanets::searchByName(const QString& englishName) const
 	for (const auto& eps : ep)
 	{
 		if (eps->getEnglishName().toUpper() == englishName.toUpper() || eps->getDesignation().toUpper() == englishName.toUpper())
-			return qSharedPointerCast<StelObject>(eps);
+			return std::static_pointer_cast<StelObject>(eps);
 
 		QStringList ppn = eps->getExoplanetsEnglishNames();
 		if (!ppn.isEmpty())
@@ -295,7 +296,7 @@ StelObjectP Exoplanets::searchByName(const QString& englishName) const
 			for (const auto& str : ppn)
 			{
 				if (str.toUpper() == englishName.toUpper())
-					return qSharedPointerCast<StelObject>(eps);
+					return std::static_pointer_cast<StelObject>(eps);
 			}
 		}
 
@@ -305,7 +306,7 @@ StelObjectP Exoplanets::searchByName(const QString& englishName) const
 			for (const auto& str : ppn)
 			{
 				if (str.toUpper() == englishName.toUpper())
-					return qSharedPointerCast<StelObject>(eps);
+					return std::static_pointer_cast<StelObject>(eps);
 			}
 		}
 
@@ -319,7 +320,7 @@ StelObjectP Exoplanets::searchByID(const QString &id) const
 	for (const auto& eps : ep)
 	{
 		if(eps->getID() == id)
-			return qSharedPointerCast<StelObject>(eps);
+			return std::static_pointer_cast<StelObject>(eps);
 	}
 	return Q_NULLPTR;
 }
@@ -332,7 +333,7 @@ StelObjectP Exoplanets::searchByNameI18n(const QString& nameI18n) const
 	for (const auto& eps : ep)
 	{
 		if (eps->getNameI18n().toUpper() == nameI18n.toUpper() || eps->getDesignation().toUpper() == nameI18n.toUpper())
-			return qSharedPointerCast<StelObject>(eps);
+			return std::static_pointer_cast<StelObject>(eps);
 
 		QStringList ppn = eps->getExoplanetsNamesI18n();
 		if (!ppn.isEmpty())
@@ -340,7 +341,7 @@ StelObjectP Exoplanets::searchByNameI18n(const QString& nameI18n) const
 			for (const auto& str : ppn)
 			{
 				if (str.toUpper() == nameI18n.toUpper())
-					return qSharedPointerCast<StelObject>(eps);
+					return std::static_pointer_cast<StelObject>(eps);
 			}
 		}
 	}
@@ -554,7 +555,7 @@ void Exoplanets::setEPMap(const QVariantMap& map)
 
 		// Let's check existence the star (by designation) in our catalog...
 		star = smgr->searchByName(epsKey.trimmed());
-		if (!star.isNull())
+		if (star)
 		{
 			// ...if exists, let's use our coordinates of star instead exoplanets.eu website data
 			StelUtils::rectToSphe(&ra, &dec, star->getJ2000EquatorialPos(core));

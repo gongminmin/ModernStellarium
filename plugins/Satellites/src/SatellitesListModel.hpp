@@ -19,9 +19,10 @@
 #ifndef SATELLITESLISTMODEL_HPP
 #define SATELLITESLISTMODEL_HPP
 
+#include <memory>
+
 #include <QAbstractTableModel>
 #include <QList>
-#include <QSharedPointer>
 
 #include "Satellite.hpp"
 

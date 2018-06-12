@@ -112,9 +112,9 @@ void MeteorShowersMgr::init()
 
 void MeteorShowersMgr::deinit()
 {
-	m_bolideTexture.clear();
-	m_radiantTexture.clear();
-	m_pointerTexture.clear();
+	m_bolideTexture.reset();
+	m_radiantTexture.reset();
+	m_pointerTexture.reset();
 	delete m_meteorShowers;
 	m_meteorShowers = Q_NULLPTR;
 	delete m_configDialog;

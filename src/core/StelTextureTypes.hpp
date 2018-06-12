@@ -20,7 +20,7 @@
 #ifndef _STELTEXTURETYPES_HPP_
 #define _STELTEXTURETYPES_HPP_
 
-#include <QSharedPointer>
+#include <memory>
 
 //! @file StelTextureTypes.hpp
 //! Define the StelTextureSP type.
@@ -29,6 +29,6 @@ class StelTexture;
 
 //! @typedef StelTextureSP
 //! Use shared pointer to simplify memory managment.
-typedef QSharedPointer<StelTexture> StelTextureSP;
+typedef std::shared_ptr<StelTexture> StelTextureSP;
 
 #endif // _STELTEXTURETYPES_HPP_

@@ -423,7 +423,7 @@ bool StelTexture::glLoad(const GLData& data)
 
 	//register ID with textureMgr and increment size
 	textureMgr->glMemoryUsage += glSize;
-	textureMgr->idMap.insert(id,sharedFromThis());
+	textureMgr->idMap.insert(id,shared_from_this());
 
 
 	// Report success of texture loading

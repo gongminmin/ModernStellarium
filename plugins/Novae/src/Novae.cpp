@@ -36,6 +36,8 @@
 #include "NovaeDialog.hpp"
 #include "StelProgressController.hpp"
 
+#include <memory>
+
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QKeyEvent>
@@ -45,7 +47,6 @@
 #include <QTimer>
 #include <QList>
 #include <QSettings>
-#include <QSharedPointer>
 #include <QStringList>
 #include <QVariant>
 #include <QVariantMap>
@@ -239,7 +240,7 @@ QList<StelObjectP> Novae::searchAround(const Vec3d& av, double limitFov, const S
 			equPos.normalize();
 			if (equPos[0]*v[0] + equPos[1]*v[1] + equPos[2]*v[2]>=cosLimFov)
 			{
-				result.append(qSharedPointerCast<StelObject>(n));
+				result.append(std::static_pointer_cast<StelObject>(n));
 			}
 		}
 	}
@@ -252,7 +253,7 @@ StelObjectP Novae::searchByName(const QString& englishName) const
 	for (const auto& n : nova)
 	{
 		if (n->getEnglishName().toUpper() == englishName.toUpper() || n->getDesignation().toUpper() == englishName.toUpper())
-			return qSharedPointerCast<StelObject>(n);
+			return std::static_pointer_cast<StelObject>(n);
 	}
 
 	return Q_NULLPTR;
@@ -263,7 +264,7 @@ StelObjectP Novae::searchByNameI18n(const QString& nameI18n) const
 	for (const auto& n : nova)
 	{
 		if (n->getNameI18n().toUpper() == nameI18n.toUpper() || n->getDesignation().toUpper() == nameI18n.toUpper())
-			return qSharedPointerCast<StelObject>(n);
+			return std::static_pointer_cast<StelObject>(n);
 	}
 
 	return Q_NULLPTR;

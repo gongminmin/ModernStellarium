@@ -165,7 +165,7 @@ void TelescopeClientINDI::move(double angle, double speed)
 }
 
 
-QWidget *TelescopeClientINDI::createControlWidget(QSharedPointer<TelescopeClient> telescope, QWidget *parent) const
+QWidget *TelescopeClientINDI::createControlWidget(std::shared_ptr<TelescopeClient> telescope, QWidget *parent) const
 {
 	return new INDIControlWidget(telescope, parent);
 }

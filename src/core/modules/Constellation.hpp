@@ -52,9 +52,12 @@ class Constellation : public StelObject
 	friend class ConstellationMgr;
 private:
 	static const QString CONSTELLATION_TYPE;
+
+public:
 	Constellation();
 	~Constellation();
 
+private:
 	// StelObject method to override
 	//! Get a string with data about the Constellation.
 	//! Constellations support the following InfoStringGroup flags:

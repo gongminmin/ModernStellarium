@@ -24,11 +24,13 @@
 #include "StelFader.hpp"
 #include "StelTextureTypes.hpp"
 #include "Supernova.hpp"
+
+#include <memory>
+
 #include <QFont>
 #include <QVariantMap>
 #include <QDateTime>
 #include <QList>
-#include <QSharedPointer>
 #include <QHash>
 
 class QNetworkAccessManager;
@@ -59,7 +61,7 @@ file.
 */
 
 //! @ingroup historicalSupernovae
-typedef QSharedPointer<Supernova> SupernovaP;
+typedef std::shared_ptr<Supernova> SupernovaP;
 
 //! @class Supernovae
 //! Main class of the %Historical Supernovae plugin.
@@ -110,7 +112,7 @@ public:
 
 	virtual StelObjectP searchByID(const QString &id) const
 	{
-		return qSharedPointerCast<StelObject>(getByID(id));
+		return std::static_pointer_cast<StelObject>(getByID(id));
 	}
 
 	virtual QStringList listAllObjects(bool inEnglish) const;
