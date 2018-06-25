@@ -2,6 +2,9 @@ version: '{branch}-{build}'
 configuration: Release
 clone_depth: 5
 clone_folder: c:\stellarium
+branches:
+  except:
+  - master
 environment:
   matrix:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017

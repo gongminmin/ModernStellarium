@@ -6,7 +6,6 @@ language: cpp
 
 matrix:
   include:
-
     - os: linux
       dist: trusty
       sudo: required
@@ -20,7 +19,7 @@ matrix:
             - true
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-        - TRANSLATE=true
+        - TRANSLATE=false
 
     - os: linux
       dist: trusty
@@ -36,7 +35,6 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
         - TRANSLATE=false
-
 
     - os: osx
       osx_image: xcode9.4
