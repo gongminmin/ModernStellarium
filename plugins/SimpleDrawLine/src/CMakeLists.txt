@@ -38,3 +38,6 @@ ELSE()
 ENDIF()
 
 SET_TARGET_PROPERTIES(SimpleDrawLine-static PROPERTIES FOLDER "plugins/SimpleDrawLine")
+
+SET_TARGET_PROPERTIES(SimpleDrawLine-static PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "SimpleDrawLine.hpp")
+cotire(SimpleDrawLine-static)

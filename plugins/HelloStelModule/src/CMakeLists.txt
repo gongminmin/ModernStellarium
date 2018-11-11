@@ -15,3 +15,6 @@ SET_TARGET_PROPERTIES(HelloStelModule-static PROPERTIES COMPILE_FLAGS "-DQT_STAT
 ADD_DEPENDENCIES(AllStaticPlugins HelloStelModule-static)
 
 SET_TARGET_PROPERTIES(HelloStelModule-static PROPERTIES FOLDER "plugins/HelloStelModule")
+
+SET_TARGET_PROPERTIES(HelloStelModule-static PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "HelloStelModule.hpp")
+cotire(HelloStelModule-static)

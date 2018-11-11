@@ -40,3 +40,6 @@ SET_TARGET_PROPERTIES(MeteorShowers-static PROPERTIES COMPILE_FLAGS "-DQT_STATIC
 ADD_DEPENDENCIES(AllStaticPlugins MeteorShowers-static)
 
 SET_TARGET_PROPERTIES(MeteorShowers-static PROPERTIES FOLDER "plugins/MeteorShowers")
+
+SET_TARGET_PROPERTIES(MeteorShowers-static PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "MeteorShowers.hpp")
+cotire(MeteorShowers-static)

@@ -33,3 +33,5 @@ ADD_DEPENDENCIES(AllStaticPlugins PointerCoordinates-static)
 
 SET_TARGET_PROPERTIES(PointerCoordinates-static PROPERTIES FOLDER "plugins/PointerCoordinates")
 
+SET_TARGET_PROPERTIES(PointerCoordinates-static PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "PointerCoordinates.hpp")
+cotire(PointerCoordinates-static)

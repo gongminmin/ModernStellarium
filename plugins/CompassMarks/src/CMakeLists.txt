@@ -17,3 +17,6 @@ SET_TARGET_PROPERTIES(CompassMarks-static PROPERTIES COMPILE_FLAGS "-DQT_STATICP
 ADD_DEPENDENCIES(AllStaticPlugins CompassMarks-static)
 
 SET_TARGET_PROPERTIES(CompassMarks-static PROPERTIES FOLDER "plugins/CompassMarks")
+
+SET_TARGET_PROPERTIES(CompassMarks-static PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "CompassMarks.hpp")
+cotire(CompassMarks-static)

@@ -33,3 +33,5 @@ ADD_DEPENDENCIES(AllStaticPlugins Supernovae-static)
 
 SET_TARGET_PROPERTIES(Supernovae-static PROPERTIES FOLDER "plugins/Supernovae")
 
+SET_TARGET_PROPERTIES(Supernovae-static PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "Supernovae.hpp")
+cotire(Supernovae-static)

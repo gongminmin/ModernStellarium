@@ -77,3 +77,6 @@ SET_TARGET_PROPERTIES(RemoteControl-static PROPERTIES COMPILE_FLAGS "-DQT_STATIC
 ADD_DEPENDENCIES(AllStaticPlugins RemoteControl-static)
 
 SET_TARGET_PROPERTIES(RemoteControl-static PROPERTIES FOLDER "plugins/RemoteControl")
+
+SET_TARGET_PROPERTIES(RemoteControl-static PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "RemoteControl.hpp")
+cotire(RemoteControl-static)

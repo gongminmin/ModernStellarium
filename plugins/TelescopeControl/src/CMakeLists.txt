@@ -37,3 +37,6 @@ SET_TARGET_PROPERTIES(TelescopeControl-static PROPERTIES COMPILE_FLAGS "-DQT_STA
 ADD_DEPENDENCIES(AllStaticPlugins TelescopeControl-static)
 
 SET_TARGET_PROPERTIES(TelescopeControl-static PROPERTIES FOLDER "plugins/TelescopeControl")
+
+SET_TARGET_PROPERTIES(TelescopeControl-static PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "TelescopeControl.hpp")
+cotire(TelescopeControl-static)

@@ -40,3 +40,6 @@ SET_TARGET_PROPERTIES(RemoteSync-static PROPERTIES COMPILE_FLAGS "-DQT_STATICPLU
 ADD_DEPENDENCIES(AllStaticPlugins RemoteSync-static)
 
 SET_TARGET_PROPERTIES(RemoteSync-static PROPERTIES FOLDER "plugins/RemoteSync")
+
+SET_TARGET_PROPERTIES(RemoteSync-static PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "RemoteSync.hpp")
+cotire(RemoteSync-static)

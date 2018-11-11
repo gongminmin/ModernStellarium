@@ -37,3 +37,6 @@ SET_TARGET_PROPERTIES(TextUserInterface-static PROPERTIES COMPILE_FLAGS "-DQT_ST
 ADD_DEPENDENCIES(AllStaticPlugins TextUserInterface-static)
 
 SET_TARGET_PROPERTIES(TextUserInterface-static PROPERTIES FOLDER "plugins/TextUserInterface")
+
+SET_TARGET_PROPERTIES(TextUserInterface-static PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "TextUserInterface.hpp")
+cotire(TextUserInterface-static)

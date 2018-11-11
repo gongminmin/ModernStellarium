@@ -6,7 +6,7 @@ IF(ENABLE_SPOUT)
      external/SpoutLibrary.h
      core/SpoutSender.hpp
      core/SpoutSender.cpp
-	 )
+     )
 ENDIF()
 
 SET(stellarium_lib_SRCS
@@ -65,6 +65,7 @@ SET(stellarium_lib_SRCS
      core/StelObjectType.hpp
      core/StelOpenGL.cpp
      core/StelOpenGL.hpp
+     core/StelPch.hpp
      core/StelPluginInterface.hpp
      core/StelRegionObject.hpp
      core/StelSkyCultureMgr.cpp
@@ -474,6 +475,9 @@ ELSE()
           SET_TARGET_PROPERTIES(stellarium PROPERTIES LINK_FLAGS " -framework Cocoa -framework OpenGL")
      ENDIF()
 ENDIF()
+
+SET_TARGET_PROPERTIES(stelMain PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "core/StelPch.hpp")
+cotire(stelMain)
 
 ADD_DEPENDENCIES(stellarium AllStaticPlugins)
 

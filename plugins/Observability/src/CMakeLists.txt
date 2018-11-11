@@ -32,3 +32,6 @@ SET_TARGET_PROPERTIES(Observability-static PROPERTIES COMPILE_FLAGS "-DQT_STATIC
 ADD_DEPENDENCIES(AllStaticPlugins Observability-static)
 
 SET_TARGET_PROPERTIES(Observability-static PROPERTIES FOLDER "plugins/Observability")
+
+SET_TARGET_PROPERTIES(Observability-static PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "Observability.hpp")
+cotire(Observability-static)

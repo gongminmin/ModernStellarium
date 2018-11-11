@@ -32,3 +32,5 @@ ADD_DEPENDENCIES(AllStaticPlugins Exoplanets-static)
 
 SET_TARGET_PROPERTIES(Exoplanets-static PROPERTIES FOLDER "plugins/Exoplanets")
 
+SET_TARGET_PROPERTIES(Exoplanets-static PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "Exoplanets.hpp")
+cotire(Exoplanets-static)
